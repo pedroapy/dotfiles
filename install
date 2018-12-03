@@ -1,0 +1,17 @@
+#!/bin/bash
+
+./scripts/configure.sh
+./scripts/zsh.sh
+./scripts/software.sh
+./scripts/development.sh
+./scripts/fonts.sh
+
+
+# Create some folders
+mkdir -p $HOME/bin
+mkdir -p $HOME/BingWallpaper
+mkdir -p $HOME/captures
+
+# Configure terminator
+mkdir -p $HOME/.config/terminator
+ln -sv $HOME/dotfiles/config/terminator/config $HOME/.config/terminator/config

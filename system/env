@@ -1,0 +1,7 @@
+export PATH=$HOME/bin:/usr/local/bin:$HOME/n/bin:$PATH
+
+export ZSH_CUSTOM=$HOME/.zsh_custom
+export N_PREFIX="$HOME/n"; [[ :$PATH: == *":$N_PREFIX/bin:"* ]] || PATH+=":$N_PREFIX/bin"  # Added by n-install (see http://git.io/n-install-repo).
+export M2_HOME=$HOME/.m2
+export WORKSPACE="$HOME/workspace"
+

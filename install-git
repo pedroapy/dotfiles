@@ -1,0 +1,3 @@
+#!/bin/bash
+ln -sv $HOME/dotfiles/git/.gitconfig_base $HOME
+cp $HOME/dotfiles/git/.gitconfig $HOME/.gitconfig
