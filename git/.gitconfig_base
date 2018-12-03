@@ -1,0 +1,32 @@
+[core]
+	editor = vim
+	sshCommand = ssh
+[diff]
+	tool = meld
+	guitool = meld
+[alias]
+	co = checkout
+	cob = checkout -b
+	st = status
+	cm = !git add -A && git commit -m
+	wip = !git add -A && git commit -m 'WIP' --no-verify
+	undo = reset HEAD~1 --mixed
+	amend = commit -a --amend --no-edit
+	up = pull upstream master
+	p = push
+	###############
+	lg = log --oneline --graph --decorate
+	ls = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate
+	ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
+	lnc = log --pretty=format:"%h\\ %s\\ [%cn]"
+	lds = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
+	ld = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=relative
+	## list alias
+	la = "!git config -l | grep alias | cut -c 7-"
+
+[push]
+	default = simple
+[merge]
+	tool = meld
+[mergetool]
+	keepBackup = false
