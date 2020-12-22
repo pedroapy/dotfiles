@@ -1,17 +1,20 @@
 #!/bin/bash
 
 # Add chrome repository
-sudo dnf install fedora-workstation-repositories
-sudo dnf config-manager --set-enabled google-chrome
+sudo dnf install -y fedora-workstation-repositories
+sudo dnf config-manager -y --set-enabled google-chrome
 
 # Add rpm fusion repositories
 sudo rpm -Uvh http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
 sudo rpm -Uvh http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+# Add other repositories
+sudo rpm --import https://build.opensuse.org/projects/home:manuelschneid3r/public_key
+sudo dnf config-manager -y --add-repo https://download.opensuse.org/repositories/home:manuelschneid3r/Fedora_$(rpm -E %fedora)/home:manuelschneid3r.repo
 
 # Add other repos
 sudo dnf copr enable -y taw/joplin
 sudo dnf copr enable -y atim/ytop
-sudo dnf copr enable jdoss/github-cli
+sudo dnf copr enable -y jdoss/github-cli
 
 # Update
 sudo dnf -y update
