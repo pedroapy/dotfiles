@@ -21,4 +21,4 @@ plugins=(
   zsh-wakatime
 )
 
-DEFAULT_USER=ppenalver
+DEFAULT_USER=pedroapy
