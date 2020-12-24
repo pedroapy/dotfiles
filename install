@@ -12,6 +12,22 @@ mkdir -p $HOME/bin
 mkdir -p $HOME/BingWallpaper
 mkdir -p $HOME/captures
 
+# Create captures dir
+mkdir -p $HOME/captures
+
 # Configure terminator
 mkdir -p $HOME/.config/terminator
 ln -sv $HOME/dotfiles/config/terminator/config $HOME/.config/terminator/config
+
+# Add scripts
+ln -sv $HOME/dotfiles/bin/get-wallpaper.sh $HOME/bin/get-wallpaper
+ln -sv $HOME/dotfiles/bin/lock $HOME/bin/lock
+
+
+##### OTHER INSTALLS
+# I3
+./scripts/i3.sh
+# polybar
+./scripts/polybar.sh
+# Disable gdm and add autostart
+./scripts/autostart.sh
