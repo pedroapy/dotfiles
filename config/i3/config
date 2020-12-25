@@ -149,7 +149,7 @@ hide_edge_borders smart_no_gaps
 
 
 # Configure monitor
-exec $HOME/.screenlayout/monitor
+exec $HOME/.screenlayout/monitor.sh
 
 exec_always --no-startup-id $HOME/.config/polybar/launch.sh
 

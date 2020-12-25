@@ -3,32 +3,31 @@
 # Main build dependencies #
 ###########################
 
-sudo dnf install -y cmake @development-tools gcc-c++
-sudo dnf install -y cairo-devel xcb-proto xcb-util-devel xcb-util-wm-devel xcb-util-image-devel
+# sudo dnf install -y cairo xcb-proto xcb-util xcb-util-wm-devel xcb-util-image-devel
 
-# Optional module dependencies #
-################################
+# # Optional module dependencies #
+# ################################
 
-# i3
-sudo dnf -y install i3-ipc jsoncpp-devel
+# # i3
+# sudo dnf -y install i3-ipc jsoncpp-devel
 
-# Volume
-sudo dnf -y install alsa-lib-devel pulseaudio-libs-devel
+# # Volume
+# sudo dnf -y install alsa-lib-devel pulseaudio-libs-devel
 
-# Network
-sudo dnf -y install wireless-tools-devel
+# # Network
+# sudo dnf -y install wireless-tools-devel
 
-# MPD
-sudo dnf -y install libmpdclient-devel
+# # MPD
+# sudo dnf -y install libmpdclient-devel
 
-# Github
-sudo dnf -y install libcurl-devel
+# # Github
+# sudo dnf -y install libcurl-devel
 
-sudo dnf -y install xcb-util-cursor xcb-util-cursor-devel xcb-util-xrm
+# sudo dnf -y install xcb-util-cursor xcb-util-cursor-devel xcb-util-xrm
 
 # install polybar
 #############################
-sudo dnf -y install polybar
+yay -S --noconfirm polybar polybar-spotify-module pulseaudio-control wedder weather-bar i3-agenda
 
 mkdir -p ~/.polybar/plugins
 git clone https://github.com/meelkor/polybar-i3-windows.git ~/.polybar/plugins/polybar-i3-windows

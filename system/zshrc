@@ -12,13 +12,13 @@ plugins=(
   git
   git-extras
   sudo
-  dnf
   docker
   yarn
   npm
   web-search
   zsh-autosuggestions
   zsh-wakatime
+  kubectl
 )
 
 DEFAULT_USER=pedroapy

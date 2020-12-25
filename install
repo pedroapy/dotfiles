@@ -1,10 +1,10 @@
 #!/bin/bash
 
 ./scripts/configure.sh
+./scripts/fonts.sh
 ./scripts/zsh.sh
 ./scripts/software.sh
 ./scripts/development.sh
-./scripts/fonts.sh
 
 
 # Create some folders
@@ -29,5 +29,5 @@ ln -sv $HOME/dotfiles/bin/lock $HOME/bin/lock
 ./scripts/i3.sh
 # polybar
 ./scripts/polybar.sh
-# Disable gdm and add autostart
+#
 ./scripts/autostart.sh

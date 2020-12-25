@@ -1,16 +1,15 @@
 #!/bin/bash
 
-# Add vscode repository
-sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
-sudo /bin/sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo'
+# Install develoment
+sudo pacman -S --noconfirm ghc cabal-install stack meld make cmak gcc nvm docker docker-compose jre-openjdk jdk-openjdk gnome-keyring
+yay -S --noconfirm visual-studio-code-bin
 
+# Configure Docker
+sudo systemctl enable docker  
+sudo systemctl start docker  
+sudo usermod -aG docker $USER
 
-sudo dnf install -y code haskell-platform meld code dnf-plugins-core make
+nvm install --lts
+nvm use --lts
 
-# Install n for npm
-curl -L https://git.io/n-install | bash -s -- -y
-
-source ~/.zshrc
-
-npm i -g yarn
-npm i -g serve
+npm i -g yarn serve yalc
