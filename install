@@ -5,6 +5,7 @@
 ./scripts/zsh.sh
 ./scripts/software.sh
 ./scripts/development.sh
+./scripts/systemd.sh
 
 
 # Create some folders
