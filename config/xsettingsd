@@ -3,10 +3,10 @@ Xft/Antialias 1
 Xft/Hinting 1
 Xft/HintStyle "hintslight"
 Xft/RGBA "rgb"
-Net/ThemeName "Adwaita-dark"
-Net/IconThemeName "Adwaita"
+Net/ThemeName "Nordic-Polar"
+Net/IconThemeName "Papirus-Dark"
 Net/EnableEventSounds 0
-Gtk/CursorThemeName "Adwaita"
+Gtk/CursorThemeName "Volantes Cursors"
 Gtk/CursorThemeSize 0
 Gtk/FontName "Roboto 11"
 Gtk/KeyThemeName "Emacs"

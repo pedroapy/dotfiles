@@ -2,7 +2,13 @@
 
 touch $HOME/.custom_scripts
 chmod u+x $HOME/.custom_scripts
-sudo pacman -S --noconfirm i3-gaps dmenu perl rofi feh maim arandr i3status slock imagemagick xorg-xdpyinfo i3lock xautolock xorg-xbacklight python-netifaces python-psutil xxkb dunst xclip numlockx scrot gsimplecal bluez-utils
+
+# Install Xorg
+sudo pacman -S --noconfirm xorg-server xorg xorg-apps xorg-xinit
+ln -sv $HOME/dotfiles/config/.xinitrc $HOME/.xinitrc
+ln -sv $HOME/dotfiles/config/.xserverrc $HOME/.xserverrc
+
+sudo pacman -S --noconfirm i3-gaps dmenu perl rofi feh maim arandr i3status slock imagemagick xorg-xdpyinfo i3lock xautolock xorg-xbacklight python-netifaces python-psutil xxkb dunst xclip scrot gsimplecal bluez-utils
 pacman -S --noconfirm nm-connection-editor networkmanager-openvpn networkmanager-vpnc picom xsettingsd lxappearance
 
 yay -S --noconfirm xkb-switch nordic-polar-theme volantes-cursors papirus-icon-theme
