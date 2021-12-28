@@ -158,10 +158,10 @@ hide_edge_borders smart_no_gaps
 
 # Home configuration
 exec $HOME/.screenlayout/monitor.sh
-workspace $ws1 output DP-1
-workspace $ws2 output DP-3
-workspace $ws3 output DP-3
-workspace $ws4 output DP-3
+workspace $ws1 output HDMI-1
+workspace $ws2 output DP-2
+workspace $ws3 output DP-2
+workspace $ws4 output DP-2
 
 
 # exec $HOME/.screenlayout/tenerife.sh

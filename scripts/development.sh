@@ -9,7 +9,8 @@ sudo systemctl enable docker
 sudo systemctl start docker
 sudo usermod -aG docker $USER
 
-nvm install --lts
-nvm use --lts
+
+curl -L https://git.io/n-install | bash -s -- -y
+source ~/.zshrc
 
 npm i -g yarn serve yalc
