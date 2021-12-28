@@ -9,3 +9,7 @@ function rebase() {
 function key() {
   eval "$(ssh-agent -s)" && ssh-add ~/.ssh/$1
 }
+
+function prfix() {
+  git add . && git commit -m 'fix: pr comments'
+}

@@ -1,10 +1,11 @@
 #!/bin/bash
 
 ./scripts/configure.sh
+./scripts/fonts.sh
 ./scripts/zsh.sh
 ./scripts/software.sh
 ./scripts/development.sh
-./scripts/fonts.sh
+./scripts/systemd.sh
 
 
 # Create some folders
@@ -21,6 +22,7 @@ ln -sv $HOME/dotfiles/config/terminator/config $HOME/.config/terminator/config
 
 # Add scripts
 ln -sv $HOME/dotfiles/bin/get-wallpaper.sh $HOME/bin/get-wallpaper
+ln -sv $HOME/dotfiles/bin/images-versions $HOME/bin/images-versions
 ln -sv $HOME/dotfiles/bin/lock $HOME/bin/lock
 
 
@@ -29,5 +31,5 @@ ln -sv $HOME/dotfiles/bin/lock $HOME/bin/lock
 ./scripts/i3.sh
 # polybar
 ./scripts/polybar.sh
-# Disable gdm and add autostart
+#
 ./scripts/autostart.sh
