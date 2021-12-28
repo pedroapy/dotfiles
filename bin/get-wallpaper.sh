@@ -1,16 +1,10 @@
 #!/bin/sh
 
-# get image
-image=$(curl -s -X GET "https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=es-ES" | jq ".images[0]")
-
-# get metadata
-urlpath=`jq -r '.url' <<< "${image}" | sed 's/1366x768/1920x1080/g'`
-title=`jq -r '.title' <<< "${image}"| sed -e 's/ /_/g'`
-filedate=`jq -r '.enddate' <<< "${image}"`
-
+# Location img with date
+filedate=`date +'%Y%m%d'`
 # build filename
-filename="${filedate}_${title}"
+filename="${filedate}.jpg"
 
-# get file
-wget "https://www.bing.com$urlpath" -O ~/BingWallpaper/$filename
-feh --bg-fill ~/BingWallpaper/$filename
+# get file from https://source.unsplash.com/5120x1440/?nature,water,night,sky,mountain,landscape,clouds,sunset,sunrise,sun,moon,stars,day,snow,backgrounds
+wget -q "https://source.unsplash.com/5120x1440/?wallpapers" -O ~/BingWallpaper/$filename
+feh --bg-scale --no-xinerama  ~/BingWallpaper/$filename

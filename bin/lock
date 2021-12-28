@@ -1,3 +1,5 @@
 #!/bin/bash
 convert  $HOME/BingWallpaper/`ls -Art $HOME/BingWallpaper | tail -n 1` /tmp/screen.png
-i3lock -e -f -t -i /tmp/screen.png
+betterlockscreen -u /tmp/screen.png -l dimblur --display 1 --span
+
+
