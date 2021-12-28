@@ -1,30 +1,5 @@
 #!/usr/bin/env bash
 
-# Main build dependencies #
-###########################
-
-# sudo dnf install -y cairo xcb-proto xcb-util xcb-util-wm-devel xcb-util-image-devel
-
-# # Optional module dependencies #
-# ################################
-
-# # i3
-# sudo dnf -y install i3-ipc jsoncpp-devel
-
-# # Volume
-# sudo dnf -y install alsa-lib-devel pulseaudio-libs-devel
-
-# # Network
-# sudo dnf -y install wireless-tools-devel
-
-# # MPD
-# sudo dnf -y install libmpdclient-devel
-
-# # Github
-# sudo dnf -y install libcurl-devel
-
-# sudo dnf -y install xcb-util-cursor xcb-util-cursor-devel xcb-util-xrm
-
 # install polybar
 #############################
 yay -S --noconfirm polybar polybar-spotify-module pulseaudio-control wedder weather-bar i3-agenda
