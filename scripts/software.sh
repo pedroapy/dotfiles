@@ -10,7 +10,7 @@ yay -S --noconfirm python python-pip openssh wget
 yay -S --noconfirm terminator gnome-tweaks jq pavucontrol network-manager-applet ytop
 
 # Install thunar
-sudo pacman -S thunar thunar-archive-plugin thunar-media-tags-plugin thunar-volman tumbler freetype2 ffmpegthumbnailer gvfs unzip
+sudo pacman -S thunar thunar-archive-plugin thunar-media-tags-plugin thunar-volman tumbler freetype2 ffmpegthumbnailer gvfs unzip gwenview
 
 # Install other software
 yay -S --noconfirm vlc google-chrome flameshot albert pdfmod github-cli evince
