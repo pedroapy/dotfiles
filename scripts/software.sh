@@ -7,7 +7,10 @@ yay -Syu --noconfirm
 yay -S --noconfirm python python-pip openssh wget
 
 # Install system software
-yay -S --noconfirm terminator gnome-tweaks jq pavucontrol network-manager-applet ytop
+yay -S --noconfirm terminator gnome-tweaks jq pavucontrol network-manager-applet
+
+# Install gtop
+sudo pacman -S gtop --assume-installed nodejs=14.19.0
 
 # Install thunar
 sudo pacman -S thunar thunar-archive-plugin thunar-media-tags-plugin thunar-volman tumbler freetype2 ffmpegthumbnailer gvfs unzip gwenview
