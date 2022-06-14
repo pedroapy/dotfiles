@@ -23,6 +23,8 @@ ln -sv $HOME/dotfiles/config/terminator/config $HOME/.config/terminator/config
 # Add scripts
 ln -sv $HOME/dotfiles/bin/get-wallpaper.sh $HOME/bin/get-wallpaper
 ln -sv $HOME/dotfiles/bin/images-versions $HOME/bin/images-versions
+ln -sv $HOME/dotfiles/bin/switch-keyboard $HOME/bin/switch-keyboard
+ln -sv $HOME/dotfiles/bin/git-hist $HOME/bin/git-hist
 ln -sv $HOME/dotfiles/bin/lock $HOME/bin/lock
 
 

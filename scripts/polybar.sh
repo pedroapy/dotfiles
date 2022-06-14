@@ -18,3 +18,7 @@ cd -
 ln -sv $HOME/dotfiles/config/polybar $HOME/.config/polybar
 git clone https://github.com/polybar/polybar-scripts.git ~/polybar-scripts
 chmod u+x ~/polybar-scripts/**/*.sh
+
+
+systemctl --user enable spotify-listener
+systemctl --user start spotify-listener
