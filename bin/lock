@@ -1,5 +1,112 @@
-#!/bin/bash
-convert  $HOME/BingWallpaper/`ls -Art $HOME/BingWallpaper | tail -n 1` /tmp/screen.png
-betterlockscreen -u /tmp/screen.png -l dimblur --display 1 --span
+#!/usr/bin/env bash
+# Copyright (c) https://github.com/ajgrf/dotfiles/blob/7f1dd890a5e403c3080c2993c7a0f53c1aa63bd6/home/bin/executable_zzz
 
+# Lock screen with a pretty theme based on GNOME's lock screen.
 
+# Dependencies:
+# i3lock-color - to lock the screen
+# xbgdump - to get the x11 background image
+# graphicsmagick - to apply a blur effect
+# xdpyinfo - to retrieve the display resolution
+# xset - to blank the screen
+
+function usage {
+	echo "usage: zzz" >&2
+	exit 64
+}
+
+function main {
+	case "$1" in
+	"") lock-screen ;;
+	*) usage ;;
+	esac
+}
+
+function get-resolution {
+	xdpyinfo | awk '/dimensions:/ { print $2 }'
+}
+
+function lock-screen {
+	local i3lock_args fg_color font verif_color
+
+	font="Cantarell"
+	fg_color="ffffff"
+	verif_color="3584e4"
+	wrong_color="e01b24"
+
+	i3lock_args=(
+		# Use raw background image from stdin.
+		--image="/dev/stdin"
+		--raw="$(get-resolution):rgb"
+
+		# Don't hide pointer.
+		--pointer="default"
+
+		# Allow the following keys while the screen is locked.
+		--pass-media-keys
+		--pass-screen-keys
+		--pass-power-keys
+		--pass-volume-keys
+
+		# Greeting
+		--greeter-text="Enter password to unlock"
+		--greeter-color="${fg_color}"
+		--greeter-font="${font}"
+		--greeter-size=14
+
+		# Clock options
+		--clock
+
+		--time-str="%-I:%M %p"
+		--time-color="${fg_color}"
+		--time-font="${font}:style=Light"
+		--time-size=64
+
+		--date-str="%A %B %-d"
+		--date-color="${fg_color}"
+		--date-font="${font}"
+		--date-size=16
+
+		# Typing indicator
+		--radius="180"
+		--inside-color="00000000"
+		--ring-width=2.0
+		--ring-color="00000000"
+		--line-color="${fg_color}"
+		--keyhl-color="${fg_color}"
+		--bshl-color="${wrong_color}"
+		--separator-color="${fg_color}"
+
+		# Verification indicator
+		--verif-text="Authenticating..."
+		--verif-color="${fg_color}"
+		--verif-font="${font}"
+		--insidever-color="00000000"
+		--ringver-color="${verif_color}"
+
+		# Authentication failure indicator
+		--wrong-text="Authentication failed."
+		--wrong-color="${fg_color}"
+		--wrong-font="${font}"
+		--insidewrong-color="00000000"
+		--ringwrong-color="${wrong_color}"
+
+		# Other text prompts
+		--lock-text="Locking screen..."
+		--lockfailed-text="Unable to lock"
+		--noinput-text="No input to delete"
+
+		# For testing only! Don't verify password.
+		# --no-verify
+	)
+
+	xbgdump - |
+		gm convert - -blur 0x20 RGB:- |
+		i3lock "${i3lock_args[@]}"
+
+	# Blank the screen manually
+	sleep 1
+	xset dpms force off
+}
+
+main "$@"

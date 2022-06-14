@@ -141,10 +141,13 @@ bindsym $mod+r mode "resize"
 workspace_layout stacked
 
 bindsym $mod+l exec lock
-bindsym $mod+space exec "xkb-switch -n"
+bindsym $mod+mod1+space exec switch-keyboard
 
 # Disable title bars
 for_window [class=".*"] border pixel 0
+
+# Floating windows
+for_window [title="^zoom$"] floating enable
 
 gaps inner 8
 smart_gaps on
@@ -168,9 +171,7 @@ exec_always --no-startup-id $HOME/.custom_script
 exec --no-startup-id nm-applet
 exec --no-startup-id sleep 5s && get-wallpaper
 exec --no-startup-id xautolock -time 10 -locker 'lock'
-exec_always --no-startup-id setxkbmap -layout us,es
-exec setxkbmap -layout us,es
-exec setxkbmap -option 'grp:lwin_space_switch'
+exec --no-startup-id setxkbmap -layout us,es
 exec_always --no-startup-id numlockx on
 exec xsettingsd &
 
