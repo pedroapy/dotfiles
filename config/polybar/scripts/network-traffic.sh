@@ -56,7 +56,7 @@ while true; do
         bytes[past_tx_$interface]=${bytes[now_tx_$interface]}
     done
 
-    echo "ﰬ $(print_bytes $down) ﰵ $(print_bytes $up)"
+    echo " $(print_bytes $down) 祝 $(print_bytes $up)"
 
     sleep $INTERVAL
 done
