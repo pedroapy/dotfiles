@@ -2,7 +2,7 @@
 
 # install polybar
 #############################
-yay -S --noconfirm polybar polybar-spotify-module pulseaudio-control wedder weather-bar i3-agenda
+yay -S --noconfirm polybar polybar-spotify-module pulseaudio-control wedder i3-agenda
 
 mkdir -p ~/.polybar/plugins
 git clone https://github.com/meelkor/polybar-i3-windows.git ~/.polybar/plugins/polybar-i3-windows
@@ -18,6 +18,8 @@ cd -
 ln -sv $HOME/dotfiles/config/polybar $HOME/.config/polybar
 git clone https://github.com/polybar/polybar-scripts.git ~/polybar-scripts
 chmod u+x ~/polybar-scripts/**/*.sh
+
+ln -sv $HOME/dotfiles/config/wedder $HOME/.config/wedder
 
 
 systemctl --user enable spotify-listener
