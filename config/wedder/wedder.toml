@@ -54,7 +54,7 @@ precipitation = 'Millimeter'
 # default: OpenWeatherMap
 provider = 'OpenWeatherMap'
 # enter your API key here
-
+api = ''
 
 [location]
 # available providers:

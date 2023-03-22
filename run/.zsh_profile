@@ -1,9 +1,9 @@
 source $HOME/dotfiles/system/env
 source $HOME/dotfiles/system/zshrc
 source $HOME/dotfiles/system/functions
-source $HOME/dotfiles/system/alias
 source $HOME/.custom_alias
 source $ZSH/oh-my-zsh.sh
+source $HOME/dotfiles/system/alias
 
 
 export N_PREFIX="$HOME/n"; [[ :$PATH: == *":$N_PREFIX/bin:"* ]] || PATH+=":$N_PREFIX/bin"  # Added by n-install (see http://git.io/n-install-repo).

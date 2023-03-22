@@ -164,7 +164,6 @@ workspace $ws3 output DP-3
 workspace $ws4 output DP-3
 
 
-exec_always --no-startup-id $HOME/.config/polybar/launch.sh
 
 # Init apps
 exec_always --no-startup-id $HOME/.custom_script
@@ -173,7 +172,10 @@ exec --no-startup-id sleep 5s && get-wallpaper
 exec --no-startup-id xautolock -time 10 -locker 'lock'
 exec --no-startup-id setxkbmap -layout us,es
 exec_always --no-startup-id numlockx on
+exec_always --no-startup-id lxsession
 exec xsettingsd &
+
+exec_always --no-startup-id $HOME/.config/polybar/launch.sh
 
 # Disabled until more investigation
 # exec picom
