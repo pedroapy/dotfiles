@@ -18,8 +18,11 @@ function getAllImagesAndVersionsFromEnv() {
 }
 
 function getImageAndVersionFromPath(filePath) {
-    const fileContent = fs.readFileSync(filePath, 'utf8');
-    return extractImageAndVersion(fileContent.match(/image:\s(.*)/)[1]);
+    if (fs.existsSync(filePath)) {
+        const fileContent = fs.readFileSync(filePath, 'utf8');
+        return extractImageAndVersion(fileContent.match(/image:\s(.*)/)[1]);
+    }
+    return null
 }
 
 function getMicroserviceListFromManifest() {
@@ -27,7 +30,7 @@ function getMicroserviceListFromManifest() {
     const microserviceList = fs.readdirSync(microservicePath);
     return microserviceList.map((microservice) =>
         getImageAndVersionFromPath(path.join(microservicePath, microservice, 'base', 'deployment.yaml')),
-    );
+    ).filter(Boolean);
 }
 
 function printImageList(imageList) {

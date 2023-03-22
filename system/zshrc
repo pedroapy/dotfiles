@@ -1,27 +1,60 @@
-fpath=(~/.zsh/completion $fpath)
-autoload -Uz compinit && compinit -i
-
-# Path to your oh-my-zsh installation.
-export ZSH=$HOME/.oh-my-zsh
-
-
-ZSH_CUSTOM=$HOME/.zsh_custom
-ZSH_THEME="spaceship"
-# SPACESHIP_KUBECTL_SHOW=true
-# SPACESHIP_TIME_SHOW=true
-
-plugins=(
-  git
-  git-extras
-  sudo
-  docker
-  yarn
-  npm
-  web-search
-  zsh-autosuggestions
-  zsh-wakatime
-  kubectl
-  zsh-kubectl-prompt
-)
-
+export ZSH_CUSTOM=$HOME/.zsh_custom
 DEFAULT_USER=pedroapy
+
+# load zgenom
+source "${HOME}/.zgenom/zgenom.zsh"
+
+# Check for plugin and zgenom updates every 7 days
+# This does not increase the startup time.
+zgenom autoupdate
+
+# if the init script doesn't exist
+if ! zgenom saved; then
+    echo "Creating a zgenom save"
+
+    # Ohmyzsh base library
+    zgenom ohmyzsh
+
+    # plugins
+    zgenom ohmyzsh plugins/git
+    zgenom ohmyzsh plugins/sudo
+    zgenom ohmyzsh plugins/docker
+    zgenom ohmyzsh plugins/yarn
+    zgenom ohmyzsh plugins/npm
+    zgenom ohmyzsh plugins/web-search
+    zgenom ohmyzsh plugins/kubectl
+    zgenom ohmyzsh plugins/aliases
+
+
+    # prezto options
+    zgenom prezto editor key-bindings 'emacs'
+    zgenom prezto prompt theme 'pure'
+
+    # prezto and modules
+    zgenom prezto
+    zgenom prezto command-not-found
+    zgenom prezto autosuggestions
+    zgenom prezto syntax-highlighting
+    zgenom prezto fasd
+    zgenom prezto node
+
+    zgenom load zsh-users/zsh-syntax-highlighting
+    zgenom load ~/.zsh_custom/plugins/zsh-wakatime/zsh-wakatime.plugin.zsh
+    zgenom load ~/.zsh_custom/plugins/exa-zsh/exa-zsh.plugin.zsh
+
+    zgenom ohmyzsh themes/pure
+
+
+    # add binaries
+    zgenom bin tj/git-extras
+
+    # completions
+    zgenom load zsh-users/zsh-completions
+
+    # save all to init script
+    zgenom save
+
+    # Compile your zsh files
+    zgenom compile "$HOME/.zshrc"
+    zgenom compile $ZDOTDIR
+fi
