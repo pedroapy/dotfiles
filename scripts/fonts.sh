@@ -1,12 +1,23 @@
-yay -S powerline-fonts ttf-fira-code ttf-jetbrains-mono ttf-hack ttf-google-fonts-git ttf-droid ttf-dejavu ttf-roboto noto-fonts ttf-ms-win10 ttf-ms-fonts ttf-vista-fonts noto-fonts-emoji ttf-computer-modern-fonts ttf-mac-fonts
+#!/bin/bash
 
-git clone https://github.com/ryanoasis/nerd-fonts.git ~/.nerd-fonts
-cd ~/.nerd-fonts
-./install.sh
-cd -
-rm -rf ~/.nerd-fonts
+# basic fonts
+yay -S --noconfirm powerline-fonts ttf-fira-code ttf-jetbrains-mono
 
-git clone https://github.com/stark/siji /tmp/siji
-cd /tmp/siji
-./install.sh -d ~/.fonts
-cd -
+# google fonts
+yay -S --noconfirm ttf-google-fonts-git
+
+# microsoft fonts
+yay -S --noconfirm ttf-ms-fonts ttf-ms-win10-auto ttf-ms-win11-auto
+
+# mac fonts
+yay -S --noconfirm ttf-mac-fonts
+
+# nerd fonts
+yay -S --noconfirm nerd-fonts-git
+
+# other fonts
+yay -S --noconfirm siji-git
+
+# regenerate font cache
+fc-cache --force
+fc-cache-32 --force

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+pacman -S --noconfirm --needed git base-devel curl wget
+
+# configure git
+./configure-git
+
+# Install clone yay
+git clone https://aur.archlinux.org/yay.git
+cd yay
+makepkg -si
+
+# cleanup
+cd ..
+rm -rf yay
+
+# Install ZSH
+./install-zsh

@@ -1,4 +1,3 @@
-alias cat="bat"
 alias update="yay -Syu"
 alias install="yay -S"
 alias remove="yay -Rsn"
