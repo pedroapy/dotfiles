@@ -1,12 +1,29 @@
 #!/bin/bash
 
+# Validate $1 is i3 or sway
+if [ "$1" != "i3" ] && [ "$1" != "sway" ]; then
+    echo "Invalid window manager"
+    exit 1
+fi
+
 ./scripts/configure.sh
 ./scripts/fonts.sh
-./scripts/zsh.sh
 ./scripts/software.sh
+
+if [ "$1" == "i3" ]; then
+    ./scripts/xorg.sh
+    ./scripts/i3.sh
+elif [ "$1" == "sway" ]; then
+    ./scripts/sway.sh
+else
+    echo "No window manager selected"
+fi
+
+./scripts/polybar.sh
+./scripts/zsh.sh $1
 ./scripts/development.sh
 ./scripts/systemd.sh
-
+./scripts/autostart.sh
 
 # Create some folders
 mkdir -p $HOME/bin
@@ -26,12 +43,3 @@ ln -sv $HOME/dotfiles/bin/images-versions $HOME/bin/images-versions
 ln -sv $HOME/dotfiles/bin/switch-keyboard $HOME/bin/switch-keyboard
 ln -sv $HOME/dotfiles/bin/git-hist $HOME/bin/git-hist
 ln -sv $HOME/dotfiles/bin/lock $HOME/bin/lock
-
-
-##### OTHER INSTALLS
-# I3
-./scripts/i3.sh
-# polybar
-./scripts/polybar.sh
-#
-./scripts/autostart.sh

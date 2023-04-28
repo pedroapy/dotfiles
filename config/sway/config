@@ -1,16 +1,10 @@
-# i3 config file (v4)
-# Please see https://i3wm.org/docs/userguide.html for a complete reference!
-
 set $mod Mod4
 
 # font pango:Fira Mono 9
 font pango:Hack Nerd Font 9
 
-# Use Mouse+$mod to drag floating windows to their wanted position
-floating_modifier $mod
-
 # start a terminal
-bindsym $mod+Return exec terminator
+bindsym $mod+Return exec alacritty
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -22,7 +16,7 @@ bindsym $mod+d exec rofi -theme ~/.config/rofi/launcher.rasi -show drun
 focus_follows_mouse no
 
 # Flameshot
-bindsym $mod+Shift+p exec  maim -i $(xdotool getactivewindow) -u ~/captures/$(date +%s).png
+bindsym $mod+Shift+p exec maim -i $(xdotool getactivewindow) -u ~/captures/$(date +%s).png
 
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume exec pactl set-sink-volume 0 +5% #increase sound volume
@@ -140,20 +134,15 @@ mode "resize" {
 bindsym $mod+r mode "resize"
 workspace_layout stacked
 
+input * {
+    xkb_layout us,es
+}
+
 bindsym $mod+l exec lock
-bindsym $mod+mod1+space exec switch-keyboard
-
-# Disable title bars
-for_window [class=".*"] border pixel 0
-
-# Floating windows
-for_window [title="^zoom$"] floating enable
+bindsym $mod+mod1+space input type:keyboard xkb_switch_layout next
 
 gaps inner 8
 smart_gaps on
-smart_borders on
-smart_borders no_gaps
-hide_edge_borders smart_no_gaps
 
 
 # Monitor configuration
@@ -165,13 +154,13 @@ workspace $ws4 output DP-4
 
 
 
-# Init apps
+# Autostart
 exec_always --no-startup-id $HOME/.custom_script
 exec --no-startup-id nm-applet
 exec --no-startup-id sleep 5s && get-wallpaper
-exec xautolock -detectsleep -time 5 -locker "lock" -notify 30 -notifier "notify-send -u critical -t 10000 -- 'LOCKING screen in 30 seconds'"
-exec --no-startup-id setxkbmap -layout us,es
-exec_always --no-startup-id numlockx on
-exec xsettingsd &
+exec swayidle -w \
+	timeout 600 'lock' \
+	timeout 605 'swaymsg "output * power off"' \
+	resume 'swaymsg "output * power on"'
 
 exec_always --no-startup-id $HOME/.config/polybar/launch.sh
