@@ -10,16 +10,16 @@ yay -S --noconfirm python python-pip openssh wget jq unzip freetype2 bat perl py
 yay -S --noconfirm network-manager-applet nm-connection-editor networkmanager-openvpn networkmanager-vpnc
 
 # Install bluetooth
-sudo pacman -S --noconfirm bluez bluez-utils bluez-plugins bluez-firmware pipewire-enable-bluez5 fix-bt-a2dp
+yay -S --noconfirm bluez bluez-utils bluez-plugins bluez-firmware pipewire-enable-bluez5 fix-bt-a2dp
 
 # Install pipewire
-sudo pacman -S --noconfirm pipewire pipewire-pulse pipewire-audio wireplumber
+yay -S --noconfirm pipewire pipewire-pulse pipewire-audio wireplumber
 
 # Install graphical tools
 yay -S --noconfirm feh maim arandr imagemagick scrot terminator gnome-tweaks pavucontrol flameshot pdfmod peek findutils
 
 # Install thunar
-sudo pacman -S --noconfirm thunar thunar-archive-plugin thunar-media-tags-plugin thunar-volman tumbler ffmpegthumbnailer gvfs gwenview
+yay -S --noconfirm thunar thunar-archive-plugin thunar-media-tags-plugin thunar-volman tumbler ffmpegthumbnailer gvfs gwenview
 
 # Install software
 yay -S --noconfirm vlc google-chrome github-cli evince firefox obs-studio gimp
