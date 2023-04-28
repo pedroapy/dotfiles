@@ -1,11 +1,8 @@
-export PATH=$HOME/bin:/usr/local/bin:$HOME/.local/bin:$PATH
+export PATH=/var/vanta/:$HOME/bin:/usr/local/bin:$HOME/.local/bin:$PATH
 
 export M2_HOME=$HOME/.m2
 export WORKSPACE="$HOME/workspace"
 export KUBE_EDITOR=vim
-export USE_GKE_GCLOUD_AUTH_PLUGIN=True
 
-#Startx Automatically
-if [[ -z "$DISPLAY" ]] && [[ $(tty) = /dev/tty1 ]]; then
-    exec startx
-fi
+export N_PREFIX="$HOME/n"; [[ :$PATH: == *":$N_PREFIX/bin:"* ]] || PATH+=":$N_PREFIX/bin"
+export EDITOR=vim
