@@ -4,7 +4,7 @@
 yay -S --noconfirm powerline-fonts ttf-fira-code ttf-jetbrains-mono
 
 # google fonts
-yay -S --noconfirm ttf-google-fonts-git
+yay -S --noconfirm ttf-lato ttf-roboto
 
 # microsoft fonts
 yay -S --noconfirm ttf-ms-fonts ttf-ms-win10-auto ttf-ms-win11-auto
@@ -16,7 +16,7 @@ yay -S --noconfirm ttf-mac-fonts
 yay -S --noconfirm nerd-fonts-git
 
 # other fonts
-yay -S --noconfirm siji-git
+yay -S --noconfirm siji-git otf-font-awesome
 
 # regenerate font cache
 fc-cache --force
