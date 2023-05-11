@@ -1,0 +1,73 @@
+@define-color base00 #0d1117;
+@define-color base01 #161b22;
+@define-color base02 #21262d;
+@define-color base03 #89929b;
+@define-color base04 #c6cdd5;
+@define-color base05 #ecf2f8;
+@define-color base06 #ffffff;
+@define-color base07 #f07178;
+@define-color base08 #f78c6c;
+@define-color base09 #ffcb6b;
+@define-color base0A #c3e88d;
+@define-color base0B #89ddff;
+@define-color base0C #82aaff;
+@define-color base0D #c792ea;
+
+* {
+  font-family: 'Font Awesome 5 Free', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  border: 0;
+}
+
+window#waybar {
+  background-color: @base00;
+  color: @base04;
+}
+
+tooltip label {
+  font-family: 'Ubuntu mono';
+  min-width: 1000px;
+}
+
+#battery,
+#clock,
+#cpu,
+#custom-capture,
+#custom-docker,
+#custom-dunst,
+#custom-node,
+#custom-powermenu,
+#custom-spotify,
+#custom-weather,
+#custom-yay,
+#disk,
+#keyboard-state,
+#memory,
+#network,
+#pulseaudio,
+#sway,
+#tray {
+  padding: 0 8px;
+}
+
+/* Workspaces styles */
+#workspaces button {
+  box-shadow: inset 0 -3px transparent;
+  border: none;
+  border-radius: 3px;
+  background-color: transparent;
+  min-width: 0;
+  transition: ease 0.5s background-color;
+  margin: 4px 2px;
+}
+#workspaces button.focused {
+  color: @base02;
+  background-color: @base0C;
+}
+#workspaces button.urgent {
+  color: @base07;
+}
+#workspaces button:hover {
+  color: @base02;
+  background: @base0B;
+}

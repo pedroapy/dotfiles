@@ -8,9 +8,9 @@
  */
 
 configuration {
-	font:							"Roboto 10";
+	font:							"Noto Sans 11";
     show-icons:                     true;
-	icon-theme: 					"Papirus";
+	icon-theme: 					"Tela";
     display-drun: 					"";
     drun-display-format:            "{name}";
     disable-history:                false;

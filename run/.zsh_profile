@@ -7,7 +7,6 @@ source $ZSH_CUSTOM/config
 
 #Start Window manager Automatically
 if [[ -z "$DISPLAY" ]] && [[ $(tty) = /dev/tty1 ]]; then
-    # exec startx
-    # exec sway
-    echo "HOLA EXEC I3"
+    export XDG_CURRENT_DESKTOP=sway
+    exec sway
 fi

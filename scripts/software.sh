@@ -4,7 +4,7 @@
 yay -Syu --noconfirm
 
 # Install basic system software
-yay -S --noconfirm python python-pip openssh wget jq unzip freetype2 bat perl python-netifaces python-psutil mlocate
+yay -S --noconfirm python python-pip openssh wget jq unzip freetype2 bat perl python-netifaces python-psutil mlocate inotify-tools reflector
 
 # Install network desktop software
 yay -S --noconfirm network-manager-applet nm-connection-editor networkmanager-openvpn networkmanager-vpnc
@@ -16,7 +16,7 @@ yay -S --noconfirm bluez bluez-utils bluez-plugins bluez-firmware pipewire-enabl
 yay -S --noconfirm pipewire pipewire-pulse pipewire-audio wireplumber
 
 # Install graphical tools
-yay -S --noconfirm feh maim arandr imagemagick scrot terminator gnome-tweaks pavucontrol flameshot pdfmod peek findutils
+yay -S --noconfirm terminator gnome-tweaks pavucontrol flameshot pdfmod peek findutils emote gnome-keyring
 
 # Install thunar
 yay -S --noconfirm thunar thunar-archive-plugin thunar-media-tags-plugin thunar-volman tumbler ffmpegthumbnailer gvfs gwenview

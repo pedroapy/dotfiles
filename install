@@ -13,13 +13,16 @@ fi
 if [ "$1" == "i3" ]; then
     ./scripts/xorg.sh
     ./scripts/i3.sh
+    ./scripts/polybar.sh
+
+    ln -sv $HOME/dotfiles/bin/switch-keyboard $HOME/bin/switch-keyboard
 elif [ "$1" == "sway" ]; then
     ./scripts/sway.sh
+    ./scripts/waybar.sh
 else
     echo "No window manager selected"
 fi
 
-./scripts/polybar.sh
 ./scripts/zsh.sh $1
 ./scripts/development.sh
 ./scripts/systemd.sh
@@ -40,6 +43,5 @@ ln -sv $HOME/dotfiles/config/terminator/config $HOME/.config/terminator/config
 # Add scripts
 ln -sv $HOME/dotfiles/bin/get-wallpaper.sh $HOME/bin/get-wallpaper
 ln -sv $HOME/dotfiles/bin/images-versions $HOME/bin/images-versions
-ln -sv $HOME/dotfiles/bin/switch-keyboard $HOME/bin/switch-keyboard
 ln -sv $HOME/dotfiles/bin/git-hist $HOME/bin/git-hist
 ln -sv $HOME/dotfiles/bin/lock $HOME/bin/lock

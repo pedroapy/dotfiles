@@ -6,7 +6,7 @@ chmod u+x $HOME/.custom_scripts
 # Install i3
 yay -S --noconfirm i3-gaps i3status i3lock i3-agenda
 # Install i3 tools
-yay -S --noconfirm dmenu rofi slock dunst gsimplecal gnome-keyring betterlockscreen xdotool
+yay -S --noconfirm dmenu rofi slock dunst gsimplecal betterlockscreen xdotool feh maim arandr imagemagick
 # Install theme things
 yay -S --noconfirm nordic-polar-theme volantes-cursors papirus-icon-theme
 
