@@ -1,8 +1,8 @@
 # #!/usr/bin/env bash
 
-if [ "$DESKTOP_SESSION" = "i3" ]; then
+if [ "$XDG_CURRENT_DESKTOP" = "i3" ]; then
     betterlockscreen -l --off 10
-elif [ "$DESKTOP_SESSION" = "sway" ]; then
+elif [ "$XDG_CURRENT_DESKTOP" = "sway" ]; then
     swaylock \
         --screenshots \
         --clock \
@@ -11,9 +11,8 @@ elif [ "$DESKTOP_SESSION" = "sway" ]; then
         --indicator-thickness 7 \
         --effect-blur 7x5 \
         --effect-vignette 0.5:0.5 \
-        --ring-color 455a64 \
-        --text-color ffc107 \
-        --key-hl-color be5046 \
+        --ring-color bb00cc \
+        --key-hl-color 880033 \
         --line-color 00000000 \
         --inside-color 00000088 \
         --separator-color 00000000 \

@@ -1,0 +1,156 @@
+[
+  {
+    "position": "top", // Bar position, can be top,bottom,left,right
+    "height": 35,
+    "spacing": 4,
+    // Choose the order of the modules
+    "modules-left": ["sway/workspaces", "custom/spotify"],
+    "modules-center": ["clock", "clock#date", "custom/weather", "custom/dunst"],
+    "modules-right": [
+      "custom/capture",
+      "pulseaudio",
+      "sway/language",
+      "keyboard-state",
+      "battery",
+      "custom/powermenu"
+    ],
+    "custom/dunst": {
+      "exec": "$HOME/.config/waybar/script/dunst",
+      "on-click": "dunstctl set-paused toggle",
+      "restart-interval": 1
+    },
+    "custom/spotify": {
+      "format": "{icon} {}",
+      "return-type": "json",
+      "max-length": 40,
+      "format-icons": {
+        "spotify": ""
+      },
+      "escape": true,
+      "on-click": "playerctl -p spotify play-pause",
+      "on-click-right": "killall spotify",
+      "smooth-scrolling-threshold": 3, // This value was tested using a trackpad, it should be lowered if using a mouse.
+      "on-scroll-up": "playerctl -p spotify next",
+      "on-scroll-down": "playerctl -p spotify previous",
+      "exec": "$HOME/.config/waybar/modules/mediaplayer.py --player spotify 2> /dev/null", // Script in resources/custom_modules folder
+      "exec-if": "pgrep spotify"
+    },
+    "clock#date": {
+      "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+      "format": "{:%A %d %B %Y}"
+    },
+    "custom/weather": {
+      "exec": "$HOME/.config/waybar/script/get_weather Tres%20Cantos+Spain",
+      "return-type": "json",
+      "format": "{}",
+      "tooltip": true,
+      "interval": 1800
+    },
+    "custom/capture": {
+      "format": "",
+      "on-click": "grim -g \"$(slurp -d)\" - | wl-copy",
+      "restart-interval": 1
+    },
+    "pulseaudio": {
+      "format": "{volume}% {icon}",
+      "format-muted": "󰸈",
+      "format-icons": {
+        "headphone": "󰋋",
+        "headset": "󰋋",
+        "speaker": "󰓃",
+        "default": ["󰓃"]
+      },
+      "scroll-step": 1,
+      "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+      "on-click-right": "pavucontrol"
+    },
+    "keyboard-state": {
+      "capslock": true,
+      "format": {
+        "capslock": "{icon}"
+      },
+      "format-icons": {
+        "locked": "󰪛",
+        "unlocked": ""
+      }
+    },
+    "sway/language": {
+      "format": "{flag}",
+      "on-click": "swaymsg input type:keyboard xkb_switch_layout next"
+    },
+    "battery": {
+      "bat": "BAT0",
+      "interval": 60,
+      "states": {
+        "warning": 30,
+        "critical": 15
+      },
+      "format": "{capacity}% {icon}",
+      "format-icons": ["", "", "", "", ""],
+      "max-length": 25
+    },
+    "custom/powermenu": {
+      "format": "⏻",
+      "on-click": "$HOME/.config/waybar/script/powermenu"
+    }
+  },
+
+  {
+    "position": "bottom", // Bar position, can be top,bottom,left,right
+    // Choose the order of the modules
+    "modules-left": ["custom/docker", "custom/node"],
+    "modules-center": ["cpu", "memory", "network", "disk#root", "disk#home"],
+    "modules-right": ["custom/yay", "tray"],
+    "tray": {
+      "spacing": 8
+    },
+    //alternate
+    "custom/yay": {
+      "format": "{} ",
+      "interval": 3600, // every hour
+      "exec": "checkupdates-with-aur | wc -l", // # of updates
+      "exec-if": "exit 0", // always run; consider advanced run conditions
+      "on-click": "alacritty -e update; pkill -SIGRTMIN+8 waybar", // update system
+      "signal": 8
+    },
+
+    "custom/docker": {
+      "format": "{} ",
+      "return-type": "json",
+      "interval": 60, // every minute
+      "exec": "python $HOME/.config/waybar/modules/dockers.py",
+      "exec-if": "pgrep -x dockerd"
+    },
+
+    "custom/node": {
+      "format": "󰎙  {}",
+      "interval": 60, // every minute
+      "exec": "node -v",
+      "tooltip": false
+    },
+
+    "cpu": {
+      "format": "{usage}% ",
+      "tooltip": false
+    },
+    "memory": {
+      "format": "{}% "
+    },
+    "disk#home": {
+      "interval": 30,
+      "format": "{percentage_used}% ",
+      "path": "/home"
+    },
+    "disk#root": {
+      "interval": 30,
+      "format": "{percentage_used}% ",
+      "path": "/"
+    },
+    "network": {
+      "interval": 10,
+      "format": "󰕒 {bandwidthUpBytes} {bandwidthDownBytes} 󰇚",
+      "format-disconnected": "󰈂", //An empty format will hide the module.
+      "tooltip": false
+    }
+  }
+]
