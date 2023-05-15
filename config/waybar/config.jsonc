@@ -5,7 +5,7 @@
     "spacing": 4,
     // Choose the order of the modules
     "modules-left": ["sway/workspaces", "custom/spotify"],
-    "modules-center": ["clock", "clock#date", "custom/weather", "custom/dunst"],
+    "modules-center": ["clock#date", "custom/weather", "custom/dunst"],
     "modules-right": [
       "custom/capture",
       "pulseaudio",
@@ -17,7 +17,8 @@
     "custom/dunst": {
       "exec": "$HOME/.config/waybar/script/dunst",
       "on-click": "dunstctl set-paused toggle",
-      "restart-interval": 1
+      "restart-interval": 1,
+      "tooltip": false
     },
     "custom/spotify": {
       "format": "{icon} {}",
@@ -37,7 +38,8 @@
     },
     "clock#date": {
       "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-      "format": "{:%A %d %B %Y}"
+      "format": "{:   %D      󱑏  %R}",
+      "format-alt": "{:   %A %d %B %Y      󱑏  %R}"
     },
     "custom/weather": {
       "exec": "$HOME/.config/waybar/script/get_weather Tres%20Cantos+Spain",
@@ -47,12 +49,13 @@
       "interval": 1800
     },
     "custom/capture": {
-      "format": "",
+      "format": "",
       "on-click": "grim -g \"$(slurp -d)\" - | wl-copy",
-      "restart-interval": 1
+      "restart-interval": 1,
+      "tooltip": false
     },
     "pulseaudio": {
-      "format": "{volume}% {icon}",
+      "format": "{volume}%  {icon}",
       "format-muted": "󰸈",
       "format-icons": {
         "headphone": "󰋋",
@@ -62,7 +65,8 @@
       },
       "scroll-step": 1,
       "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
-      "on-click-right": "pavucontrol"
+      "on-click-right": "pavucontrol",
+      "tooltip": false
     },
     "keyboard-state": {
       "capslock": true,
@@ -71,12 +75,13 @@
       },
       "format-icons": {
         "locked": "󰪛",
-        "unlocked": ""
+        "unlocked": "󰬵"
       }
     },
     "sway/language": {
-      "format": "{flag}",
-      "on-click": "swaymsg input type:keyboard xkb_switch_layout next"
+      "format": "   {short}",
+      "on-click": "swaymsg input type:keyboard xkb_switch_layout next",
+      "tooltip": false
     },
     "battery": {
       "bat": "BAT0",
@@ -85,13 +90,15 @@
         "warning": 30,
         "critical": 15
       },
-      "format": "{capacity}% {icon}",
+      "format": "{capacity}%  {icon}",
       "format-icons": ["", "", "", "", ""],
-      "max-length": 25
+      "max-length": 25,
+      "tooltip": false
     },
     "custom/powermenu": {
       "format": "⏻",
-      "on-click": "$HOME/.config/waybar/script/powermenu"
+      "on-click": "$HOME/.config/waybar/script/powermenu",
+      "tooltip": false
     }
   },
 
