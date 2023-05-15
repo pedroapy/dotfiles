@@ -1,17 +1,21 @@
-@define-color base00 #0d1117;
-@define-color base01 #161b22;
-@define-color base02 #21262d;
-@define-color base03 #89929b;
-@define-color base04 #c6cdd5;
-@define-color base05 #ecf2f8;
-@define-color base06 #ffffff;
-@define-color base07 #f07178;
-@define-color base08 #f78c6c;
-@define-color base09 #ffcb6b;
-@define-color base0A #c3e88d;
-@define-color base0B #89ddff;
-@define-color base0C #82aaff;
-@define-color base0D #c792ea;
+@define-color base00 #1c1f26;
+@define-color base01 #1e222a;
+@define-color base02 #252a33;
+@define-color base03 #333a47;
+@define-color base04 #434c5e;
+@define-color base05 #c4c9d4;
+@define-color base06 #ecf2f8;
+@define-color base07 #f9fafb;
+
+@define-color default_color  #434c5e;
+@define-color purple_color   #c792ea;
+@define-color pink_color      #dc98b1;
+@define-color red_color      #f07178;
+@define-color orange_color   #d0846c;
+@define-color yellow_color   #ffcb6b;
+@define-color green_color    #c3e88d;
+@define-color teal_color     #89ddff;
+@define-color blue_color     #82aaff;
 
 * {
   font-family: 'Font Awesome 5 Free', Roboto, Helvetica, Arial, sans-serif;
@@ -21,8 +25,15 @@
 
 window#waybar {
   background-color: @base00;
-  color: @base04;
+  border-bottom: 2px solid @base03;
+  color: @base05;
 }
+
+/* window#waybar {
+  background: @theme_base_color;
+  border-bottom: 1px solid @unfocused_borders;
+  color: @theme_text_color;
+} */
 
 tooltip label {
   font-family: 'Ubuntu mono';
@@ -42,6 +53,7 @@ tooltip label {
 #custom-yay,
 #disk,
 #keyboard-state,
+#language,
 #memory,
 #network,
 #pulseaudio,
@@ -62,12 +74,57 @@ tooltip label {
 }
 #workspaces button.focused {
   color: @base02;
-  background-color: @base0C;
+  background-color: @blue_color;
 }
 #workspaces button.urgent {
-  color: @base07;
+  color: @red_color;
+  box-shadow: inset 0 -3px @red_color;
+  border-radius: 0;
 }
 #workspaces button:hover {
   color: @base02;
-  background: @base0B;
+  background: @teal_color;
+}
+
+.top .modules-center {
+  background-color: @base02;
+  border-radius: 5px;
+  margin: 5px 0;
+  padding: 0 8px;
+}
+
+#custom-capture,
+#pulseaudio,
+#language,
+#keyboard-state,
+#battery,
+#custom-powermenu {
+  background-color: @base03;
+  border-radius: 5px;
+  padding: 0 10px;
+  margin: 5px 3px;
+}
+
+#battery {
+  padding: 0 16px 0 10px;
+}
+
+#custom-capture {
+  padding: 0 12px 0 10px;
+}
+
+#keyboard-state {
+  padding: 0 12px 0 10px;
+}
+
+#custom-powermenu {
+  color: @base05;
+}
+
+.top .modules-right {
+  margin-right: 5px;
+}
+
+.top .modules-left {
+  margin-left: 5px;
 }
