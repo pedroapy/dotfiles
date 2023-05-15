@@ -197,7 +197,7 @@ bindsym XF86MonBrightnessDown exec xbacklight -dec 20 # decrease screen brightne
 
 # Window modifications
 for_window [app_id="zoom"] floating enable
-for_window [app_id="zoom" title="Reunión de Zoom"] floating disable
+for_window [app_id="zoom" title="Reunión de Zoom"] floating disable, inhibit_idle open
 for_window [window_type="dialog"] floating enable
 for_window [window_role="dialog"] floating enable
 
