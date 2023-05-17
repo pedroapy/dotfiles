@@ -1,21 +1,21 @@
-@define-color base00 #1c1f26;
-@define-color base01 #1e222a;
-@define-color base02 #252a33;
-@define-color base03 #333a47;
-@define-color base04 #434c5e;
-@define-color base05 #c4c9d4;
-@define-color base06 #ecf2f8;
-@define-color base07 #f9fafb;
-
-@define-color default_color  #434c5e;
+@define-color base00         #1c1f26;
+@define-color base01         #1e222a;
+@define-color base02         #252a33;
+@define-color base03         #333a47;
+@define-color base04         #434c5e;
+@define-color base05         #c4c9d4;
+@define-color base06         #ecf2f8;
+@define-color base07         #f9fafb;
 @define-color purple_color   #c792ea;
-@define-color pink_color      #dc98b1;
+@define-color pink_color     #dc98b1;
 @define-color red_color      #f07178;
 @define-color orange_color   #d0846c;
 @define-color yellow_color   #ffcb6b;
 @define-color green_color    #c3e88d;
 @define-color teal_color     #89ddff;
 @define-color blue_color     #82aaff;
+@define-color white_color    #ffffff;
+@define-color black_color    #000000;
 
 * {
   font-family: 'Font Awesome 5 Free', Roboto, Helvetica, Arial, sans-serif;
@@ -25,19 +25,28 @@
 
 window#waybar {
   background-color: @base00;
-  border-bottom: 2px solid @base03;
   color: @base05;
 }
 
-/* window#waybar {
-  background: @theme_base_color;
-  border-bottom: 1px solid @unfocused_borders;
-  color: @theme_text_color;
-} */
+window#waybar.top {
+  border-bottom: 1px solid @base04;
+}
+
+window#waybar.bottom {
+  border-top: 1px solid @base04;
+}
 
 tooltip label {
   font-family: 'Ubuntu mono';
   min-width: 1000px;
+}
+
+.top .modules-right {
+  margin-right: 5px;
+}
+
+.modules-left {
+  margin-left: 5px;
 }
 
 #battery,
@@ -86,11 +95,24 @@ tooltip label {
   background: @teal_color;
 }
 
-.top .modules-center {
+#custom-spotify {
+  color: @white_color;
+}
+#custom-spotify .icon {
+  color: @red_color;
+}
+
+#custom-weather,
+#custom-dunst,
+#clock {
   background-color: @base02;
-  border-radius: 5px;
-  margin: 5px 0;
-  padding: 0 8px;
+  border-radius: 10px;
+  margin: 8px 2px;
+  padding: 0 16px;
+}
+
+#custom-dunst {
+  padding: 0 18px 0 16px;
 }
 
 #custom-capture,
@@ -100,31 +122,95 @@ tooltip label {
 #battery,
 #custom-powermenu {
   background-color: @base03;
-  border-radius: 5px;
-  padding: 0 10px;
-  margin: 5px 3px;
+  border-radius: 10px;
+  padding: 0 16px;
+  margin: 8px 2px;
 }
 
 #battery {
   padding: 0 16px 0 10px;
+}
+#battery.full {
+  color: @green_color;
+}
+#battery.discharging {
+  color: @yellow_color;
+}
+#battery.warning {
+  color: @orange_color;
+}
+
+@keyframes blink {
+  to {
+    background-color: @white_color;
+    color: @black_color;
+  }
+}
+
+#battery.warning:not(.charging) {
+  background: @red_color;
+  animation-name: blink;
+  animation-duration: 0.5s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
 }
 
 #custom-capture {
   padding: 0 12px 0 10px;
 }
 
+#language.us {
+  color: @blue_color;
+}
+#language.es {
+  color: @yellow_color;
+}
+
 #keyboard-state {
   padding: 0 12px 0 10px;
 }
 
+#keyboard-state label {
+  color: @green_color;
+}
+
+#keyboard-state label.locked {
+  color: @yellow_color;
+}
+
 #custom-powermenu {
-  color: @base05;
+  padding: 0 20px;
 }
 
-.top .modules-right {
-  margin-right: 5px;
+#custom-node,
+#custom-yay,
+#custom-docker {
+  background-color: @base03;
+  border-radius: 10px;
+  padding: 0 16px;
+  margin: 8px 2px;
 }
 
-.top .modules-left {
-  margin-left: 5px;
+#cpu,
+#memory,
+#disk {
+  color: @green_color;
+}
+
+#cpu.warning,
+#memory.warning,
+#disk.warning {
+  color: @yellow_color;
+}
+
+#cpu.critical,
+#memory.critical,
+#disk.critical {
+  color: @red_color;
+}
+
+#tray {
+  padding: 0 15px;
+  background-color: @base03;
 }
