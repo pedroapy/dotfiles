@@ -16,10 +16,10 @@ yay -S --noconfirm bluez bluez-utils bluez-plugins bluez-firmware pipewire-enabl
 yay -S --noconfirm pipewire pipewire-pulse pipewire-audio wireplumber
 
 # Install graphical tools
-yay -S --noconfirm terminator gnome-tweaks pavucontrol flameshot pdfmod peek findutils emote gnome-keyring
+yay -S --noconfirm gnome-tweaks pavucontrol flameshot pdfmod peek findutils emote gnome-keyring
 
 # Install thunar
-yay -S --noconfirm thunar thunar-archive-plugin thunar-media-tags-plugin thunar-volman tumbler ffmpegthumbnailer gvfs gwenview
+yay -S --noconfirm nemo nemo-fileroller nemo-share nemo-preview nemo-seahorse nemo-compare imv
 
 # Install software
 yay -S --noconfirm vlc google-chrome github-cli evince firefox obs-studio gimp

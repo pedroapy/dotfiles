@@ -1,3 +1,6 @@
+# Disable xwayland when all apps runs native in wayland
+# xwayland disable
+
 ### Variables
 #
 # Logo key. Use Mod1 for Alt.
@@ -200,10 +203,12 @@ for_window [app_id="zoom"] floating enable
 for_window [app_id="zoom" title="Reunión de Zoom"] floating disable, inhibit_idle open
 for_window [window_type="dialog"] floating enable
 for_window [window_role="dialog"] floating enable
+for_window [app_id="firefox" title="Firefox — Sharing Indicator"] floating enable
 
 # Include other things
 include /etc/sway/config.d/*
 
+# exec rm -f /tmp/sovpipe && mkfifo /tmp/sovpipe && tail -f /tmp/sovpipe | sov -t 500
 
 # Autostart applications
 # You can have sway execute commands on startup by adding them here.
@@ -215,3 +220,18 @@ exec_always --no-startup-id $HOME/.config/waybar/script/launch.sh
 exec --no-startup-id nm-applet
 exec --no-startup-id blueman-applet
 exec wl-paste -t text --watch clipman store --no-persist
+
+
+exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
+exec hash dbus-update-activation-environment 2>/dev/null && \
+     dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK
+
+set $gnome-schema org.gnome.desktop.interface
+exec_always {
+    gsettings set $gnome-schema gtk-theme 'Graphite-teal-dark-compact'
+    gsettings set $gnome-schema icon-theme 'Tela'
+    gsettings set $gnome-schema cursor-theme 'volantes_cursors'
+    gsettings set $gnome-schema font-name 'Noto Sans 11'
+}
+
+seat seat0 xcursor_theme volantes_cursors 35

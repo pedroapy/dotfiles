@@ -28,6 +28,3 @@ sudo ln -sv $ZSH_CUSTOM/plugins/zsh-kubectl-prompt $ZSH_CUSTOM_ROOT/plugins/zsh-
 pip install wakatime
 git clone https://github.com/wbingli/zsh-wakatime.git "$ZSH_CUSTOM/plugins/zsh-wakatime"
 sudo ln -sv $ZSH_CUSTOM/plugins/zsh-wakatime $ZSH_CUSTOM_ROOT/plugins/zsh-wakatime
-
-# Add to $ZSH_CUSTOM/config DESKTOP_SESSION with i3 or sway based on input
-echo "DESKTOP_SESSION=$1" >>$ZSH_CUSTOM/config
