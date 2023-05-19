@@ -3,7 +3,7 @@
 # Install sway
 yay -S --noconfirm sway swayidle swaybg xorg-wayland swaylock-effects xdg-desktop-portal-wlr xdg-desktop-portal tela-icon-theme graphite-gtk-theme
 # Install sway tools
-yay -S --noconfirm slock dunst azote gnome-keyring clipman alacritty slurp wtype wofi bemenu nwg-look grim
+yay -S --noconfirm slock dunst azote gnome-keyring clipman alacritty slurp wtype wofi bemenu nwg-look grim wlogout
 
 python -m pip install -U prettytable
 
@@ -16,3 +16,4 @@ ln -sv $HOME/dotfiles/config/gtk-3.0 $HOME/.config/gtk-3.0
 ln -sv $HOME/dotfiles/config/gtk-4.0 $HOME/.config/gtk-4.0
 ln -sv $HOME/dotfiles/config/environment.d $HOME/.config/environment.d
 ln -sv $HOME/dotfiles/config/alacritty $HOME/.config/alacritty
+ln -sv $HOME/dotfiles/config/wlogout $HOME/.config/wlogout
