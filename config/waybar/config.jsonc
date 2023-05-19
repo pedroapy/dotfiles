@@ -38,7 +38,7 @@
     },
     "clock#date": {
       "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-      "format": "{:   %D      󱑏  %R}",
+      "format": "{:   %d/%m/%y      󱑏  %R}",
       "format-alt": "{:   %A %d %B %Y      󱑏  %R}"
     },
     "custom/weather": {
