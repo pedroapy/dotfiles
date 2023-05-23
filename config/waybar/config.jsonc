@@ -25,7 +25,8 @@
       "return-type": "json",
       "max-length": 60,
       "format-icons": {
-        "spotify": ""
+        "spotify": "",
+        "paused": ""
       },
       "escape": true,
       "on-click": "playerctl -p spotify play-pause",

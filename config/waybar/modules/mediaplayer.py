@@ -13,10 +13,13 @@ logger = logging.getLogger(__name__)
 
 def write_output(text, player):
     logger.info('Writing output')
+    alt = player.props.player_name
+    if player.props.status != 'Playing':
+        alt = 'paused'
 
     output = {'text': text,
               'class': 'custom-' + player.props.player_name,
-              'alt': player.props.player_name}
+              'alt': alt}
 
     sys.stdout.write(json.dumps(output) + '\n')
     sys.stdout.flush()
@@ -31,18 +34,12 @@ def on_metadata(player, metadata, manager):
     logger.info('Received new metadata')
     track_info = ''
 
-    if player.props.player_name == 'spotify' and \
-            'mpris:trackid' in metadata.keys() and \
-            ':ad:' in player.props.metadata['mpris:trackid']:
-        track_info = 'AD PLAYING'
-    elif player.get_artist() != '' and player.get_title() != '':
+    if player.get_artist() != '' and player.get_title() != '':
         track_info = '{artist} - {title}'.format(artist=player.get_artist(),
                                                  title=player.get_title())
     else:
         track_info = player.get_title()
 
-    if player.props.status != 'Playing' and track_info:
-        track_info = ' ' + track_info
     write_output(track_info, player)
 
 
