@@ -4,7 +4,7 @@
     "height": 35,
     "spacing": 4,
     // Choose the order of the modules
-    "modules-left": ["sway/workspaces", "custom/spotify"],
+    "modules-left": ["sway/workspaces", "custom/events", "custom/spotify"],
     "modules-center": ["custom/weather", "clock#date", "custom/dunst"],
     "modules-right": [
       "custom/capture",
@@ -14,6 +14,16 @@
       "battery",
       "custom/powermenu"
     ],
+    "custom/events": {
+      "format": "{}",
+      "tooltip": true,
+      "interval": 300,
+      "format-icons": {
+        "default": ""
+      },
+      "exec": "$HOME/.config/waybar/modules/waybar-khal.py",
+      "return-type": "json"
+    },
     "custom/dunst": {
       "exec": "$HOME/.config/waybar/script/dunst",
       "on-click": "dunstctl set-paused toggle",
