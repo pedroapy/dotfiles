@@ -1,0 +1,12 @@
+#!/bin/bash
+
+current_layout=`setxkbmap -query | grep layout`
+
+
+if [[ $current_layout == *us* ]]; then
+    echo 'Setting layout to es'
+    setxkbmap -layout "es"
+else
+    echo 'Setting layout to us'
+    setxkbmap -layout "us"
+fi

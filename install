@@ -1,10 +1,21 @@
 #!/bin/bash
 
+# Validate $1 is i3 or sway
+if [ "$1" != "i3" ] && [ "$1" != "sway" ]; then
+    echo "Invalid window manager"
+    exit 1
+fi
+
 ./scripts/configure.sh
 ./scripts/fonts.sh
 ./scripts/software.sh
-./scripts/sway.sh
-./scripts/waybar.sh
+
+./scripts/xorg.sh
+./scripts/i3.sh
+./scripts/polybar.sh
+
+ln -sv $HOME/dotfiles/bin/switch-keyboard $HOME/bin/switch-keyboard
+
 ./scripts/zsh.sh
 ./scripts/development.sh
 ./scripts/systemd.sh
@@ -18,7 +29,12 @@ mkdir -p $HOME/captures
 # Create captures dir
 mkdir -p $HOME/captures
 
+# Configure terminator
+mkdir -p $HOME/.config/terminator
+ln -sv $HOME/dotfiles/config/terminator/config $HOME/.config/terminator/config
+
 # Add scripts
 ln -sv $HOME/dotfiles/bin/get-wallpaper.sh $HOME/bin/get-wallpaper
+ln -sv $HOME/dotfiles/bin/images-versions $HOME/bin/images-versions
 ln -sv $HOME/dotfiles/bin/git-hist $HOME/bin/git-hist
 ln -sv $HOME/dotfiles/bin/lock $HOME/bin/lock

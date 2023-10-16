@@ -13,4 +13,7 @@ echo "saved to $filename"
 # Download wallpaper to file
 curl "https://www.bing.com$urlpath" -o "$filename"
 
-swaymsg output "*" bg $filename fill
+# Set wallpaper
+feh --bg-fill "$filename"
+# Set lockscreen
+betterlockscreen -u $filename --blur 0.5

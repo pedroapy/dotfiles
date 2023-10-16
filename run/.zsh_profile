@@ -5,14 +5,16 @@ source $ZSH/oh-my-zsh.sh
 source $HOME/dotfiles/system/alias
 source $ZSH_CUSTOM/config
 
-export SDL_VIDEODRIVER=wayland
-export _JAVA_AWT_WM_NONREPARENTING=1
-export QT_QPA_PLATFORM=wayland
-export QT_QPA_PLATFORMTHEME=qt5ct
-export XDG_CURRENT_DESKTOP=sway
-export XDG_SESSION_DESKTOP=sway
+export XDG_SESSION_DESKTOP=i3
+export GDK_BACKEND=x11
+# bun completions
+[ -s "/home/ppenalver/.bun/_bun" ] && source "/home/ppenalver/.bun/_bun"
 
-#Start Window manager Automatically
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+#Startx Automatically
 if [[ -z "$DISPLAY" ]] && [[ $(tty) = /dev/tty1 ]]; then
-    exec sway
+    exec startx
 fi
