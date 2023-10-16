@@ -1,11 +1,11 @@
 * {
-    urgent:                         #DA4453FF;
-    background:                     #31363bff;
+    urgent:                         #f07178;
+    background:                     #252a33;
     background-alt:                 #00000000;
-    border:                         #3daee966;
-    foreground:                     #f5f5f5e6;
-    selected:                       #1d99f3ff;
+    border:                         #434c5e;
+    foreground:                     #ecf2f8;
+    selected:                       #82aaff;
 
-    background-bar:                 #3daee966;
-    accent:                         #1d99f3ff;
+    background-bar:                 #252a33;
+    accent:                         #89ddff;
 }

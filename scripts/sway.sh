@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Install sway
-yay -S --noconfirm sway swayidle swaybg xorg-wayland swaylock-effects xdg-desktop-portal-wlr xdg-desktop-portal tela-icon-theme graphite-gtk-theme
+yay -S --noconfirm sway swayidle swaybg xorg-wayland swaylock-effects xdg-desktop-portal-wlr xdg-desktop-portal tela-icon-theme graphite-gtk-theme catppuccin-gtk-theme-macchiato
 # Install sway tools
-yay -S --noconfirm slock dunst azote gnome-keyring clipman alacritty slurp wtype wofi bemenu nwg-look grim wlogout
+yay -S --noconfirm slock dunst azote gnome-keyring clipman alacritty slurp wtype wofi bemenu nwg-look grim wlogout bemoji-git
 
 python -m pip install -U prettytable
 

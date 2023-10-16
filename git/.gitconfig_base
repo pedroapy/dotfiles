@@ -4,6 +4,8 @@
 [diff]
 	tool = meld
 	guitool = meld
+[difftool "meld"]
+    cmd = meld "$REMOTE" "$MERGED" "$LOCAL" --output "$MERGED"
 [alias]
 	co = checkout
 	cob = checkout -b
