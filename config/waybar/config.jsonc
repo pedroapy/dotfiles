@@ -61,7 +61,8 @@
     },
     "custom/capture": {
       "format": "",
-      "on-click": "grim -g \"$(slurp -d)\" - | wl-copy",
+      "on-click": "grim -g \"$(slurp -d)\" - | wl-copy -t image/png; notify-send \"Screenshot\" \"Copied to clipboard\"",
+      "on-click-right": "grim -g \"$(slurp -d; sleep 3)\" - | wl-copy -t image/png; notify-send \"Screenshot\" \"Copied to clipboard\"",
       "restart-interval": 1,
       "tooltip": false
     },
