@@ -4,7 +4,7 @@
 yay -Syu --noconfirm
 
 # Install basic system software
-yay -S --noconfirm python python-pip openssh wget jq unzip freetype2 bat perl python-netifaces python-psutil mlocate inotify-tools reflector
+yay -S --noconfirm python python-pip python-pipx openssh wget jq unzip freetype2 bat perl python-netifaces python-psutil mlocate inotify-tools reflector
 
 # Install network desktop software
 yay -S --noconfirm network-manager-applet nm-connection-editor networkmanager-openvpn networkmanager-vpnc

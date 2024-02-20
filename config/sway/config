@@ -34,10 +34,10 @@ focus_follows_mouse no
 #
 # Example configuration:
 #
-exec swayidle -w \
-	     timeout 300 'lock' \
-	     timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
-	     before-sleep 'lock'
+# exec swayidle -w \
+# 	     timeout 300 'lock' \
+# 	     timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
+# 	     before-sleep 'lock'
 
 #
 # This will lock your screen after 300 seconds of inactivity, then turn off

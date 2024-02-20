@@ -6,13 +6,23 @@ source $HOME/dotfiles/system/alias
 source $ZSH_CUSTOM/config
 
 export SDL_VIDEODRIVER=wayland
+export CLUTTER_BACKEND=wayland
 export _JAVA_AWT_WM_NONREPARENTING=1
-export QT_QPA_PLATFORM=wayland
+export QT_QPA_PLATFORM="wayland;xcb"
 export QT_QPA_PLATFORMTHEME=qt5ct
 export XDG_CURRENT_DESKTOP=sway
 export XDG_SESSION_DESKTOP=sway
+export XDG_SESSION_TYPE=wayland
+export __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json
 
 #Start Window manager Automatically
 if [[ -z "$DISPLAY" ]] && [[ $(tty) = /dev/tty1 ]]; then
     exec sway
 fi
+
+# bun completions
+[ -s "/home/ppenalver/.bun/_bun" ] && source "/home/ppenalver/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"

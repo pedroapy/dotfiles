@@ -25,6 +25,7 @@ git clone https://github.com/superbrothers/zsh-kubectl-prompt.git $ZSH_CUSTOM/pl
 sudo ln -sv $ZSH_CUSTOM/plugins/zsh-kubectl-prompt $ZSH_CUSTOM_ROOT/plugins/zsh-kubectl-prompt
 
 # wakatime
-pip install wakatime
+yay -S wakatime
+pipx install wakatime
 git clone https://github.com/wbingli/zsh-wakatime.git "$ZSH_CUSTOM/plugins/zsh-wakatime"
 sudo ln -sv $ZSH_CUSTOM/plugins/zsh-wakatime $ZSH_CUSTOM_ROOT/plugins/zsh-wakatime
