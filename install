@@ -22,3 +22,7 @@ mkdir -p $HOME/captures
 ln -sv $HOME/dotfiles/bin/get-wallpaper.sh $HOME/bin/get-wallpaper
 ln -sv $HOME/dotfiles/bin/git-hist $HOME/bin/git-hist
 ln -sv $HOME/dotfiles/bin/lock $HOME/bin/lock
+ln -sv $HOME/dotfiles/bin/screenshot $HOME/bin/screenshot
+ln -sv $HOME/dotfiles/bin/keyboard-layout $HOME/bin/keyboard-layout
+ln -sv $HOME/dotfiles/bin/node-ver $HOME/bin/node-ver
+ln -sv $HOME/dotfiles/bin/dockers $HOME/bin/dockers

@@ -1,0 +1,6 @@
+set $term terminator
+set $browser MOZ_ENABLE_WAYLAND=1 firefox
+set $filemanager nemo
+set $editor vim
+set $exit nwg-bar -p center -a middle -i 48 -s preset-0.css
+set $launcher rofi -theme ~/.config/rofi/launcher.rasi -show drun

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+yay -S --noconfirm systemd-boot-pacman-hook systemd-ui
+
 # enable bluetooth service and start it
 sudo systemctl --now enable bluetooth.service
 

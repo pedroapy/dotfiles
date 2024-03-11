@@ -1,0 +1,22 @@
+[
+  {
+    "label": "Lock",
+    "exec": "lock",
+    "icon": "/opt/icons/lock.svg"
+  },
+  {
+    "label": "Logout",
+    "exec": "swaymsg exit",
+    "icon": "/opt/icons/logout.svg"
+  },
+  {
+    "label": "Reboot",
+    "exec": "systemctl reboot",
+    "icon": "/opt/icons/reboot.svg"
+  },
+  {
+    "label": "Shutdown",
+    "exec": "systemctl -i poweroff",
+    "icon": "/opt/icons/shutdown.svg"
+  }
+]

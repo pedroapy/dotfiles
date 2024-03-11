@@ -1,0 +1,13 @@
+input "13364:544:Keychron_K2_Pro_Keyboard" {
+  xkb_layout us,es
+  repeat_delay 300
+  repeat_rate 40
+  xkb_capslock disabled
+  xkb_numlock disabled
+}
+
+input * {
+	xkb_layout us,es
+}
+
+bindsym $mod+Mod1+space input type:keyboard xkb_switch_layout next

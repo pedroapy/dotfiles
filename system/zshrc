@@ -12,6 +12,13 @@ ZSH_THEME="spaceship"
 SPACESHIP_TIME_SHOW=true
 # SPACESHIP_KUBECTL_SHOW=true
 
+# to check for updates once a month
+export UPDATE_ZSH_DAYS=30
+# or to check for updates daily
+export UPDATE_ZSH_DAYS=1
+export DISABLE_UPDATE_PROMPT=true
+export ZSH_CUSTOM_AUTOUPDATE_QUIET=true
+
 plugins=(
   git
   git-extras
@@ -24,6 +31,5 @@ plugins=(
   zsh-wakatime
   kubectl
   zsh-kubectl-prompt
+  autoupdate
 )
-
-

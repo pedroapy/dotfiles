@@ -1,0 +1,41 @@
+import = ["/home/pyusta/.config/alacritty/colors.toml", "/home/pyusta/.config/alacritty/fonts.toml"]
+live_config_reload = true
+
+[cursor]
+blink_interval = 550
+unfocused_hollow = false
+
+[cursor.style]
+blinking = "On"
+shape = "Block"
+
+[[keyboard.bindings]]
+action = "ResetFontSize"
+key = "Key0"
+mods = "Control"
+
+[[keyboard.bindings]]
+action = "IncreaseFontSize"
+key = "Equals"
+mods = "Control"
+
+[[keyboard.bindings]]
+action = "DecreaseFontSize"
+key = "Minus"
+mods = "Control"
+
+[selection]
+save_to_clipboard = false
+
+[window]
+decorations = "none"
+dynamic_title = true
+opacity = 1.0
+
+[scrolling]
+history = 10000
+multiplier = 3
+
+[window.padding]
+x = 15
+y = 15

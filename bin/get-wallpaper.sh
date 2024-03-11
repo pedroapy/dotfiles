@@ -8,9 +8,15 @@ urlpath=$(
 
 date=$(date '+%Y%m%d')
 filename="$HOME/BingWallpaper/$date.jpg"
+current="$HOME/BingWallpaper/current.jpg"
+
 echo "saved to $filename"
 
 # Download wallpaper to file
 curl "https://www.bing.com$urlpath" -o "$filename"
 
-swaymsg output "*" bg $filename fill
+# Copy as current wallpaper
+cp $filename $current
+
+# Set wallpaper
+swaymsg output "*" bg $current fill

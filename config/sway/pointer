@@ -1,0 +1,5 @@
+input "1133:45108:Logitech_MX_Master_3S" {
+  natural_scroll disabled
+  scroll_factor 1.0
+  left_handed disabled
+}
