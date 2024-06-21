@@ -3,7 +3,7 @@ export ZSH=~/.oh-my-zsh
 # disable oh-my-zsh themes for pure prompt
 ZSH_THEME=""
 
-export DEFAULT_USER=ppenalveryusta
+export DEFAULT_USER=$USER
 # to check for updates once a month
 export UPDATE_ZSH_DAYS=30
 # or to check for updates daily
