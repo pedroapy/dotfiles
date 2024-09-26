@@ -7,5 +7,5 @@ function key() {
 }
 
 function prfix() {
-  git add . && git commit -m 'fix: pr comments'
+  git add . && git commit -m 'fix: PR comments'
 }

@@ -23,6 +23,5 @@ git clone https://github.com/superbrothers/zsh-kubectl-prompt.git $ZSH_CUSTOM/pl
 git clone https://github.com/TamCore/autoupdate-oh-my-zsh-plugins $ZSH_CUSTOM/plugins/autoupdate
 
 # wakatime
-yay -S wakatime
 pipx install wakatime
 git clone https://github.com/wbingli/zsh-wakatime.git "$ZSH_CUSTOM/plugins/zsh-wakatime"

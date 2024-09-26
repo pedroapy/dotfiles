@@ -23,7 +23,7 @@ ln -sv $HOME/dotfiles/config/gtk-2.0 $HOME/.config/gtk-2.0
 ln -sv $HOME/dotfiles/config/gtk-3.0 $HOME/.config/gtk-3.0
 ln -sv $HOME/dotfiles/config/gtk-4.0 $HOME/.config/gtk-4.0
 ln -sv $HOME/dotfiles/config/environment.d $HOME/.config/environment.d
-ln -sv $HOME/dotfiles/config/alacritty $HOME/.config/alacritty
+ln -sv $HOME/dotfiles/config/terminator $HOME/.config/terminator
 ln -sv $HOME/dotfiles/config/wlogout $HOME/.config/wlogout
 ln -sv $HOME/dotfiles/config/swaync $HOME/.config/swaync
 ln -sv $HOME/dotfiles/config/nwg-bar $HOME/.config/nwg-bar
