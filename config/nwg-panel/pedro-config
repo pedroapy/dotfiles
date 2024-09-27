@@ -11,10 +11,10 @@
     "margin-bottom": 0,
     "padding-horizontal": 0,
     "padding-vertical": 0,
-    "spacing": 2,
+    "spacing": 3,
     "items-padding": 0,
     "css-name": "panel-top",
-    "icons": "light",
+    "icons": "",
     "menu-start": "off",
     "modules-left": [
       "sway-workspaces",
@@ -154,17 +154,37 @@
       "calendar-interval": 60,
       "calendar-on": true
     },
-    "sway-taskbar": {},
+    "sway-taskbar": {
+      "workspace-menu": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "name-max-len": 20,
+      "image-size": 16,
+      "workspaces-spacing": 0,
+      "task-padding": 0,
+      "show-app-icon": true,
+      "show-app-name": true,
+      "show-layout": true,
+      "workspace-buttons": false,
+      "all-workspaces": true,
+      "mark-autotiling": true,
+      "mark-xwayland": true,
+      "all-outputs": false,
+      "angle": 0.0
+    },
     "sway-workspaces": {
       "numbers": [
         "1",
         "2",
         "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8"
+        "4"
       ],
       "custom-labels": [],
       "focused-labels": [],
@@ -173,7 +193,7 @@
       "show-name": false,
       "name-length": 40,
       "mark-autotiling": true,
-      "mark-content": false,
+      "mark-content": true,
       "hide-empty": true,
       "show-layout": false,
       "angle": 0.0
@@ -258,11 +278,11 @@
     },
     "button-clipman": {
       "command": "nwg-clipman",
-      "icon": "nwg-clipman",
+      "icon": "clipboard",
       "label": "",
       "label-position": "right",
       "tooltip": "Clipboard history [Alt]+c",
-      "css-name": "",
+      "css-name": "button-custom",
       "icon-size": 16
     },
     "sigrt": 64,
@@ -272,7 +292,7 @@
       "show-icon": true,
       "css-name": "",
       "icon-size": 16,
-      "angle": 0
+      "angle": 0.0
     },
     "hyprland-taskbar": {},
     "hyprland-workspaces": {},
@@ -283,7 +303,7 @@
       "label": "",
       "label-position": "right",
       "tooltip": "Screenshot",
-      "css-name": "",
+      "css-name": "button-custom",
       "icon-size": 19
     },
     "button-power": {
@@ -297,11 +317,11 @@
     },
     "button-screenshot-region": {
       "command": "screenshot region",
-      "icon": "kscreenshot",
+      "icon": "accessories-screenshot",
       "label": "",
       "label-position": "right",
       "tooltip": "Screenshot region",
-      "css-name": "",
+      "css-name": "button-custom",
       "icon-size": 19
     },
     "executor-keyboard": {
@@ -320,7 +340,8 @@
       "angle": 0.0,
       "sigrt": 37,
       "use-sigrt": true
-    }
+    },
+    "keyboard-layout": {}
   },
   {
     "name": "bottom",
