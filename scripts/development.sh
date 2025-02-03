@@ -1,11 +1,10 @@
 #!/bin/bash
 
-# Install develoment
-yay -S --noconfirm visual-studio-code-bin kubectx fzf meld docker docker-compose jre-openjdk jdk-openjdk
+# Install development
+yay -S --noconfirm visual-studio-code-bin kubectx fzf meld docker docker-compose jdk-openjdk cmake dbeaver docker-buildx neovim nmap
 
 # Configure Docker
 sudo usermod -aG docker $USER
-
 
 curl -L https://git.io/n-install | bash -s -- -y
 source ~/.zshrc

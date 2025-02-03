@@ -1,0 +1,6 @@
+[Desktop Entry]
+Exec=/home/pyusta/bin/get-wallpaper
+Icon=application-x-shellscript
+Name=get-wallpaper
+Type=Application
+X-KDE-AutostartScript=true

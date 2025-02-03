@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+
+import docker
+
+# Place your preferred icon name (or path) here. Leave empty ("") for no icon.
+icon = "docker-desktop"
+
+
+def num_dockers():
+    try:
+        docker_client = docker.client.from_env()
+        is_up = docker_client.ping()
+        if not is_up:
+            return 0
+        else:
+            return docker_client.containers.list().__len__()
+    except:
+        return 0
+
+
+
+def main():
+    num_containers = num_dockers()
+
+    if icon:
+        # Print 2 lines: 1. icon name/path; 2. keyboard layout name.
+        print("{}\n{}".format(icon, num_containers))
+    else:
+        # Print the keyboard layout name.
+        print("{}".format(num_containers))
+
+
+if __name__ == '__main__':
+    main()
