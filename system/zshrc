@@ -29,6 +29,7 @@ zplug "plugins/autoupdate", from:oh-my-zsh
 zplug "plugins/web-search", from:oh-my-zsh
 zplug "plugins/sudo", from:oh-my-zsh
 zplug "plugins/copypath", from:oh-my-zsh
+zplug "plugins/kubectl", from:oh-my-zsh
 
 zplug "zdharma/fast-syntax-highlighting", from:github, as:plugin
 zplug "zsh-users/zsh-autosuggestions", from:github, as:plugin
