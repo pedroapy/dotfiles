@@ -1,12 +1,13 @@
 #!/bin/bash
 
 # Install development
-yay -S --noconfirm visual-studio-code-bin kubectx fzf meld docker docker-compose jdk-openjdk cmake dbeaver docker-buildx neovim nmap
+brew install visual-studio-code
+brew install n
+brew install pyenv
 
-# Configure Docker
-sudo usermod -aG docker $USER
+# yay -S --noconfirm visual-studio-code-bin kubectx fzf meld docker docker-compose jdk-openjdk cmake dbeaver docker-buildx neovim nmap
 
-curl -L https://git.io/n-install | bash -s -- -y
-source ~/.zshrc
+# # Configure Docker
+# sudo usermod -aG docker $USER
 
 npm i -g yarn serve yalc vtop cloc
