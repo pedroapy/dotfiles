@@ -12,6 +12,7 @@ export UPDATE_ZSH_DAYS=30
 export UPDATE_ZSH_DAYS=1
 export DISABLE_UPDATE_PROMPT=true
 export ZSH_CUSTOM_AUTOUPDATE_QUIET=true
+ZSH_CACHE_DIR=$HOME/.cache
 
 source $ZSH/oh-my-zsh.sh
 
