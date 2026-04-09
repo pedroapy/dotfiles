@@ -5,3 +5,73 @@ function npmversion() {
 function key() {
   eval "$(ssh-agent -s)" && ssh-add ~/.ssh/$1
 }
+
+# Create directory and cd into it
+mkcd() { mkdir -p "$1" && cd "$1"; }
+
+# Kill process by port
+killport() { lsof -ti :"$1" | xargs kill -9; }
+
+# Extract any archive
+extract() {
+  if [ -f "$1" ]; then
+    case "$1" in
+      *.tar.bz2) tar xjf "$1" ;;
+      *.tar.gz)  tar xzf "$1" ;;
+      *.tar.xz)  tar xJf "$1" ;;
+      *.bz2)     bunzip2 "$1" ;;
+      *.rar)     unrar x "$1" ;;
+      *.gz)      gunzip "$1" ;;
+      *.tar)     tar xf "$1" ;;
+      *.tbz2)    tar xjf "$1" ;;
+      *.tgz)     tar xzf "$1" ;;
+      *.zip)     unzip "$1" ;;
+      *.Z)       uncompress "$1" ;;
+      *.7z)      7z x "$1" ;;
+      *.zst)     zstd -d "$1" ;;
+      *)         echo "'$1' cannot be extracted" ;;
+    esac
+  else
+    echo "'$1' is not a valid file"
+  fi
+}
+
+# fzf-powered git branch switcher
+fbr() {
+  local branch
+  branch=$(git branch --all | fzf --height=40% --reverse | sed 's/^\*//;s/^ *//;s|remotes/origin/||')
+  [ -n "$branch" ] && git switch "$branch"
+}
+
+# fzf-powered directory changer
+fcd() {
+  local dir
+  dir=$(fd --type d --hidden --exclude .git | fzf --height=40% --reverse --preview 'eza --tree --level=1 {}')
+  [ -n "$dir" ] && cd "$dir"
+}
+
+# Git worktree manager — wraps tools/wt.sh with automatic cd
+function wt() {
+  local repo_root
+  repo_root=$(git rev-parse --show-toplevel 2>/dev/null)
+  if [ -z "$repo_root" ]; then
+    echo "Not inside a git repository"
+    return 1
+  fi
+  local script="$repo_root/tools/wt.sh"
+  if [ ! -f "$script" ]; then
+    echo "Worktree script not found at $script"
+    return 1
+  fi
+  local _wt_from _wt_nav
+  _wt_from=$(pwd)
+  _wt_nav="/tmp/.wt-navigate-$(id -u)"
+  bash "$script" "$@"
+  if [ -s "$_wt_nav" ]; then
+    local _wt_to
+    _wt_to=$(cat "$_wt_nav")
+    rm -f "$_wt_nav"
+    builtin cd "$_wt_to" || true
+    echo "\033[2m${_wt_from}\033[0m → \033[1m$(pwd)\033[0m"
+  fi
+}

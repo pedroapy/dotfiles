@@ -1,16 +1,14 @@
-export PATH=$HOME/bin:/usr/local/bin:$HOME/.local/bin:/opt/homebrew/bin:$PATH
+export PATH=$HOME/bin:/usr/local/bin:$HOME/.local/bin:/opt/homebrew/bin:/opt/homebrew/opt/util-linux/bin:$PATH
 
 export WORKSPACE="$HOME/workspace"
 export KUBE_EDITOR=vim
 export N_PREFIX="$HOME/n"
 [[ :$PATH: == *":$N_PREFIX/bin:"* ]] || PATH+=":$N_PREFIX/bin"
 export EDITOR=vim
-export KUBECONFIG=/home/pyusta/.kube/config
+export KUBECONFIG="$HOME/.kube/config"
 
 export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
 
 export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init - zsh)"
-
-source "$HOME/.sdkman/bin/sdkman-init.sh"
+command -v pyenv &>/dev/null && eval "$(pyenv init - zsh)"

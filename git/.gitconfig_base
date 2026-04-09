@@ -1,34 +1,57 @@
 [core]
 	editor = vim
 	sshCommand = ssh
+	pager = delta
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	navigate = true
+	side-by-side = true
+	line-numbers = true
+[init]
+	defaultBranch = main
 [diff]
-	tool = meld
-	guitool = meld
-[difftool "meld"]
-    cmd = meld "$REMOTE" "$MERGED" "$LOCAL" --output "$MERGED"
+	tool = opendiff
+	algorithm = histogram
+	colorMoved = default
 [alias]
 	co = checkout
 	cob = checkout -b
+	sw = switch
 	st = status
-	cm = !git add -A && git commit -m
-	wip = !git add -A && git commit -m 'WIP' --no-verify
+	cm = !git commit -m
+	wip = !git commit -m 'WIP'
 	undo = reset HEAD~1 --mixed
 	amend = commit -a --amend --no-edit
-	up = pull upstream master
+	up = pull upstream main
 	p = push
 	###############
-	lg = log --oneline --graph --decorate
+	lg = log --oneline --graph --decorate -20
 	ls = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate
 	ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
-	lnc = log --pretty=format:"%h\\ %s\\ [%cn]"
 	lds = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
 	ld = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=relative
 	## list alias
 	la = "!git config -l | grep alias | cut -c 7-"
-
+	## list merged remote branches
+	gone = !git branch -vv | grep ': gone]' | awk '{print $1}'
+	cleanup = !git gone | xargs git branch -D
 [push]
-	default = simple
+	default = current
+	autoSetupRemote = true
+[pull]
+	rebase = true
+[fetch]
+	prune = true
 [merge]
-	tool = meld
+	tool = opendiff
+	conflictstyle = zdiff3
 [mergetool]
 	keepBackup = false
+[rebase]
+	autoStash = true
+	autoSquash = true
+[rerere]
+	enabled = true
+[branch]
+	sort = -committerdate

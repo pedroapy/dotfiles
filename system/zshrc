@@ -2,44 +2,44 @@ export ZSH_CUSTOM=$HOME/zsh-custom
 export ZPLUG_HOME=$(brew --prefix)/opt/zplug
 export ZSH=~/.oh-my-zsh
 
-# disable oh-my-zsh themes for pure prompt
+# disable oh-my-zsh themes (starship handles the prompt)
 ZSH_THEME=""
 
 export DEFAULT_USER=$USER
-# to check for updates once a month
-export UPDATE_ZSH_DAYS=30
-# or to check for updates daily
-export UPDATE_ZSH_DAYS=1
 export DISABLE_UPDATE_PROMPT=true
 export ZSH_CUSTOM_AUTOUPDATE_QUIET=true
 ZSH_CACHE_DIR=$HOME/.cache
 
+# History
+HISTSIZE=100000
+SAVEHIST=100000
+HISTFILE=~/.zsh_history
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_SAVE_NO_DUPS
+setopt HIST_REDUCE_BLANKS
+setopt SHARE_HISTORY
+setopt INC_APPEND_HISTORY
+setopt AUTO_CD
+
 source $ZSH/oh-my-zsh.sh
 
 source $ZPLUG_HOME/init.zsh
-zplug "mafredri/zsh-async", from:github
-zplug "sindresorhus/pure", use:pure.zsh, from:github, as:theme
 
-# Supports oh-my-zsh plugins and the like
+# Oh-my-zsh plugins
 zplug "plugins/git", from:oh-my-zsh
 zplug "plugins/git-extras", from:oh-my-zsh
 zplug "plugins/docker", from:oh-my-zsh
 zplug "plugins/docker-compose", from:oh-my-zsh
-zplug "plugins/yarn", from:oh-my-zsh
 zplug "plugins/npm", from:oh-my-zsh
-zplug "plugins/autoupdate", from:oh-my-zsh
 zplug "plugins/web-search", from:oh-my-zsh
 zplug "plugins/sudo", from:oh-my-zsh
 zplug "plugins/copypath", from:oh-my-zsh
 zplug "plugins/kubectl", from:oh-my-zsh
 
+# Third-party plugins
 zplug "zdharma/fast-syntax-highlighting", from:github, as:plugin
 zplug "zsh-users/zsh-autosuggestions", from:github, as:plugin
-zplug "wbingli/zsh-wakatime", from:github, as:plugin
 zplug "djui/alias-tips", from:github, as:plugin
-
-zplug "b4b4r07/enhancd", use:init.sh, from:github
-zplug "b4b4r07/emoji-cli", use:init.sh, from:github
 
 zplug load
 
@@ -51,3 +51,16 @@ if ! zplug check --verbose; then
         zplug install
     fi
 fi
+
+# Starship prompt
+eval "$(starship init zsh)"
+
+# zoxide (smart cd)
+eval "$(zoxide init zsh)"
+
+# fzf key bindings and completion
+source <(fzf --zsh)
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_C_COMMAND='fd --type d --hidden --exclude .git'
+export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range :500 {}'"

@@ -5,22 +5,33 @@ source $ZSH/oh-my-zsh.sh
 source $HOME/dotfiles/system/alias
 source $ZSH_CUSTOM/config
 
-
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-
 # bun completions
-[ -s "/Users/pedropenalveryusta/.bun/_bun" ] && source "/Users/pedropenalveryusta/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
-# The following lines have been added by Docker Desktop to enable Docker CLI completions.
-fpath=(/Users/pedropenalveryusta/.docker/completions $fpath)
-autoload -Uz compinit
-compinit
-# End of Docker CLI completions
 
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+# Docker CLI completions
+if [ -d "$HOME/.docker/completions" ]; then
+  fpath=($HOME/.docker/completions $fpath)
+  autoload -Uz compinit
+  compinit
+fi
 
+# iTerm2 shell integration
+test -e "$HOME/.iterm2_shell_integration.zsh" && source "$HOME/.iterm2_shell_integration.zsh"
+
+# 1Password plugins
+[ -f "$HOME/.config/op/plugins.sh" ] && source "$HOME/.config/op/plugins.sh"
+
+# Google Cloud SDK
+if [ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]; then
+  source "$HOME/google-cloud-sdk/path.zsh.inc"
+  source "$HOME/google-cloud-sdk/completion.zsh.inc"
+fi
+
+alias npmrc_update='gcloud auth login && npx google-artifactregistry-auth ~/.npmrc'
+
+# sentry completions
+[ -d "$HOME/.local/share/zsh/site-functions" ] && fpath=("$HOME/.local/share/zsh/site-functions" $fpath)
