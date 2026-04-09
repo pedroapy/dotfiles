@@ -1,0 +1,28 @@
+[character]
+success_symbol = "[>](bold green)"
+error_symbol = "[>](bold red)"
+
+[directory]
+truncation_length = 3
+truncation_symbol = ".../"
+
+[git_branch]
+symbol = " "
+
+[git_status]
+ahead = "^${count}"
+behind = "v${count}"
+diverged = "^${ahead_count}v${behind_count}"
+
+[nodejs]
+symbol = " "
+
+[python]
+symbol = " "
+
+[cmd_duration]
+min_time = 2000
+format = "took [$duration]($style) "
+
+[package]
+disabled = true
