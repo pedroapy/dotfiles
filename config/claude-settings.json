@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": ["Bash(source:*)"]
+  },
+  "effortLevel": "high",
+  "statusLine": {
+    "type": "command",
+    "command": "bash /Users/pedro/dotfiles/scripts/claude-statusline.sh"
+  }
+}

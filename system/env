@@ -5,6 +5,7 @@ export KUBE_EDITOR=vim
 export N_PREFIX="$HOME/n"
 [[ :$PATH: == *":$N_PREFIX/bin:"* ]] || PATH+=":$N_PREFIX/bin"
 export EDITOR=vim
+export RIPGREP_CONFIG_PATH="$HOME/.config/ripgreprc"
 export KUBECONFIG="$HOME/.kube/config"
 
 export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock

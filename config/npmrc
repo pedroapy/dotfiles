@@ -1,0 +1,3 @@
+@embat:registry=https://europe-west3-npm.pkg.dev/embat-production/embat-npm/
+//europe-west3-npm.pkg.dev/embat-production/embat-npm/:always-auth=true
+# Auth token: run 'npmrc_update' alias to authenticate

@@ -35,3 +35,5 @@ alias npmrc_update='gcloud auth login && npx google-artifactregistry-auth ~/.npm
 
 # sentry completions
 [ -d "$HOME/.local/share/zsh/site-functions" ] && fpath=("$HOME/.local/share/zsh/site-functions" $fpath)
+
+export PATH="$HOME/.local/bin:$PATH"

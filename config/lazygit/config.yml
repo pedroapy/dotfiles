@@ -1,0 +1,9 @@
+git:
+  paging:
+    pager: delta --paging=never
+  autoFetch: true
+  autoRefresh: true
+gui:
+  showCommandLog: false
+  showRandomTip: false
+  nerdFontsVersion: "3"
