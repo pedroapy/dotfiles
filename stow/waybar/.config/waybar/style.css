@@ -111,7 +111,6 @@ window#waybar {
 
 #custom-power {
     color: @red;
-    padding: 0 14px 0 10px;
 }
 
 #idle_inhibitor {
@@ -157,12 +156,17 @@ window#waybar {
 #custom-screenshot,
 #custom-weather,
 #custom-updates,
-#custom-power,
-#idle_inhibitor,
-#language,
-#mpris,
-#privacy,
 #clock {
     padding: 0 10px;
     margin: 4px 0;
+}
+
+/* ── Overrides (after general padding) ───────── */
+#bluetooth {
+    margin-right: 6px;
+}
+
+#custom-power {
+    padding: 0 16px 0 10px;
+    margin: 4px 4px 4px 0;
 }
