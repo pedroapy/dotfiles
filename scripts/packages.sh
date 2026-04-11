@@ -6,29 +6,32 @@ parse_packages() {
     grep -v '^#' "$1" | grep -v '^$' | tr -d ' '
 }
 
-# Official repos
-info "Installing official packages..."
-official_pkgs=$(parse_packages "$DOTFILES/packages/official.txt")
-if [[ -n "$official_pkgs" ]]; then
-    echo "$official_pkgs" | xargs yay -S --needed --noconfirm
-    success "Official packages installed"
-fi
-
-# Remove conflicting mesa packages and their yay cache before installing AMD drivers
+# Clean up any conflicting -git mesa packages (cache + installed + yay vcs db)
 for conflict in mesa-rk35xx-git mesa-git; do
     if pacman -Q "$conflict" &>/dev/null; then
         warn "Removing conflicting package: $conflict"
         sudo pacman -Rdd --noconfirm "$conflict"
     fi
-    # Clean yay build cache to prevent stale rebuilds
     rm -rf "${HOME}/.cache/yay/${conflict}" 2>/dev/null || true
 done
+# Remove stale -git entries from yay's VCS database
+if [[ -f "${HOME}/.local/share/yay/vcs.json" ]]; then
+    sed -i '/mesa-rk35xx-git\|mesa-git/d' "${HOME}/.local/share/yay/vcs.json" 2>/dev/null || true
+fi
 
-# AMD GPU drivers
+# Official repos (use pacman directly — no yay interference)
+info "Installing official packages..."
+official_pkgs=$(parse_packages "$DOTFILES/packages/official.txt")
+if [[ -n "$official_pkgs" ]]; then
+    echo "$official_pkgs" | xargs sudo pacman -S --needed --noconfirm
+    success "Official packages installed"
+fi
+
+# AMD GPU drivers (official repos — use pacman directly)
 info "Installing AMD GPU drivers..."
 amd_pkgs=$(parse_packages "$DOTFILES/packages/amd-gpu.txt")
 if [[ -n "$amd_pkgs" ]]; then
-    echo "$amd_pkgs" | xargs yay -S --needed --noconfirm
+    echo "$amd_pkgs" | xargs sudo pacman -S --needed --noconfirm
     success "AMD GPU drivers installed"
 fi
 
