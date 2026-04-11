@@ -44,20 +44,25 @@ if [[ -n "$aur_pkgs" ]]; then
 fi
 
 # Install Node.js LTS via n (n must be installed first from AUR)
+# Use N_PREFIX in user space so no sudo is needed
+export N_PREFIX="$HOME/.local"
+mkdir -p "$N_PREFIX"
+
 if command -v n &>/dev/null; then
     if ! command -v node &>/dev/null; then
         info "Installing Node.js LTS via n..."
-        sudo n lts
+        n lts
         success "Node.js LTS installed"
     else
         success "Node.js already installed"
     fi
 
-    # Global npm packages
+    # Global npm packages (installed to ~/.local via prefix)
+    npm config set prefix "$HOME/.local"
     info "Installing global npm packages..."
     for pkg in yarn serve yalc cloc; do
         if ! npm list -g "$pkg" &>/dev/null 2>&1; then
-            sudo npm install -g "$pkg"
+            npm install -g "$pkg"
         fi
     done
     success "npm global packages installed"
