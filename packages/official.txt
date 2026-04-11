@@ -1,7 +1,6 @@
 # ── Display Manager ────────────────────────────
-sddm
-qt6-5compat
-cage
+greetd
+greetd-tuigreet
 
 # ── Hyprland & Wayland ──────────────────────────
 hyprland

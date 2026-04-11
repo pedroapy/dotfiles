@@ -10,7 +10,7 @@ declare -a system_services=(
     "docker.service"
     "systemd-timesyncd.service"
     "ufw.service"
-    "sddm.service"
+    "greetd.service"
 )
 
 for service in "${system_services[@]}"; do

@@ -15,21 +15,21 @@ else
     success "sysctl already configured"
 fi
 
-# SDDM configuration (Wayland + astronaut theme)
-SDDM_CONF="/etc/sddm.conf.d/10-wayland.conf"
-if [[ ! -f "$SDDM_CONF" ]]; then
-    sudo mkdir -p /etc/sddm.conf.d
-    sudo tee "$SDDM_CONF" > /dev/null << 'EOF'
-[General]
-DisplayServer=wayland
-CompositorCommand=cage -ds --
+# greetd configuration (tuigreet → Hyprland)
+GREETD_CONF="/etc/greetd/config.toml"
+if ! grep -q "tuigreet" "$GREETD_CONF" 2>/dev/null; then
+    sudo mkdir -p /etc/greetd
+    sudo tee "$GREETD_CONF" > /dev/null << 'EOF'
+[terminal]
+vt = 1
 
-[Theme]
-Current=sddm-astronaut-theme
+[default_session]
+command = "tuigreet --time --remember --remember-session --asterisks --cmd Hyprland"
+user = "greeter"
 EOF
-    success "SDDM configured (Wayland via cage + astronaut theme)"
+    success "greetd configured (tuigreet → Hyprland)"
 else
-    success "SDDM already configured"
+    success "greetd already configured"
 fi
 
 # Create user directories
