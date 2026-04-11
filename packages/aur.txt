@@ -10,3 +10,4 @@ wlogout
 catppuccin-cursors-macchiato
 catppuccin-gtk-theme-macchiato
 ttf-ms-fonts
+sddm-astronaut-theme

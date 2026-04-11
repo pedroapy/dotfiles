@@ -1,3 +1,7 @@
+# ── Display Manager ────────────────────────────
+sddm
+qt6-5compat
+
 # ── Hyprland & Wayland ──────────────────────────
 hyprland
 xdg-desktop-portal-hyprland

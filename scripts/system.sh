@@ -15,6 +15,23 @@ else
     success "sysctl already configured"
 fi
 
+# SDDM configuration (Wayland + astronaut theme)
+SDDM_CONF="/etc/sddm.conf.d/10-wayland.conf"
+if [[ ! -f "$SDDM_CONF" ]]; then
+    sudo mkdir -p /etc/sddm.conf.d
+    sudo tee "$SDDM_CONF" > /dev/null << 'EOF'
+[General]
+DisplayServer=wayland
+GreeterEnvironment=QT_WAYLAND_SHELL_INTEGRATION=layer-shell
+
+[Theme]
+Current=sddm-astronaut-theme
+EOF
+    success "SDDM configured (Wayland + astronaut theme)"
+else
+    success "SDDM already configured"
+fi
+
 # Create user directories
 for dir in ~/workspace ~/captures ~/bin ~/BingWallpaper; do
     mkdir -p "$dir"
