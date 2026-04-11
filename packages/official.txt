@@ -122,6 +122,7 @@ noto-fonts
 noto-fonts-emoji
 ttf-font-awesome
 ttf-hack
+inter-font
 otf-font-awesome
 
 # ── Themes & Appearance ───────────────────────
