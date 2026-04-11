@@ -1,0 +1,130 @@
+/* ── Catppuccin Macchiato Palette ──────────────── */
+@define-color base      #24273a;
+@define-color mantle    #1e2030;
+@define-color crust     #181926;
+@define-color text      #cad3f5;
+@define-color subtext0  #a5adcb;
+@define-color surface0  #363a4f;
+@define-color surface1  #494d64;
+@define-color blue      #8aadf4;
+@define-color lavender  #b7bdf8;
+@define-color green     #a6da95;
+@define-color yellow    #eed49f;
+@define-color peach     #f5a97f;
+@define-color red       #ed8796;
+@define-color mauve     #c6a0f6;
+@define-color teal      #8bd5ca;
+
+/* ── Global ───────────────────────────────────── */
+* {
+    font-family: "JetBrainsMono Nerd Font", sans-serif;
+    font-size: 13px;
+    min-height: 0;
+}
+
+window#waybar {
+    background: alpha(@base, 0.85);
+    border-radius: 12px;
+    border: 1px solid alpha(@surface1, 0.5);
+    color: @text;
+}
+
+/* ── Modules ──────────────────────────────────── */
+#workspaces button {
+    padding: 0 8px;
+    color: @subtext0;
+    border-radius: 8px;
+    margin: 4px 2px;
+    background: transparent;
+    transition: all 0.2s ease;
+}
+
+#workspaces button.active {
+    color: @base;
+    background: @blue;
+}
+
+#workspaces button:hover {
+    background: @surface0;
+    color: @text;
+}
+
+#window {
+    color: @subtext0;
+    padding: 0 12px;
+}
+
+#clock {
+    color: @blue;
+    font-weight: bold;
+}
+
+#cpu {
+    color: @green;
+}
+
+#memory {
+    color: @mauve;
+}
+
+#battery {
+    color: @green;
+}
+
+#battery.warning {
+    color: @yellow;
+}
+
+#battery.critical {
+    color: @red;
+    animation: blink 1s linear infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0.5; }
+}
+
+#network {
+    color: @teal;
+}
+
+#network.disconnected {
+    color: @red;
+}
+
+#bluetooth {
+    color: @blue;
+}
+
+#pulseaudio {
+    color: @peach;
+}
+
+#pulseaudio.muted {
+    color: @surface1;
+}
+
+#custom-notification {
+    color: @lavender;
+}
+
+#tray {
+    padding: 0 6px;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+/* ── Module padding ──────────────────────────── */
+#cpu,
+#memory,
+#battery,
+#network,
+#bluetooth,
+#pulseaudio,
+#custom-notification,
+#clock {
+    padding: 0 10px;
+    margin: 4px 0;
+}

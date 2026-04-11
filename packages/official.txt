@@ -1,0 +1,146 @@
+# ── Hyprland & Wayland ──────────────────────────
+hyprland
+xdg-desktop-portal-hyprland
+xdg-desktop-portal-gtk
+qt5-wayland
+qt6-wayland
+waybar
+rofi
+swww
+grim
+slurp
+swappy
+wl-clipboard
+cliphist
+polkit-kde-agent
+brightnessctl
+playerctl
+hypridle
+hyprlock
+
+# ── Notifications ───────────────────────────────
+swaync
+
+# ── Terminal & Shell ────────────────────────────
+ghostty
+zsh
+starship
+fzf
+zoxide
+
+# ── Modern CLI Tools ───────────────────────────
+eza
+bat
+fd
+ripgrep
+sd
+dust
+duf
+btop
+jq
+tree
+unzip
+fastfetch
+lsof
+
+# ── Git ─────────────────────────────────────────
+git
+git-delta
+lazygit
+github-cli
+
+# ── File Manager ────────────────────────────────
+yazi
+nemo
+nemo-fileroller
+
+# ── Editor ──────────────────────────────────────
+neovim
+vim
+
+# ── Development ─────────────────────────────────
+docker
+docker-compose
+docker-buildx
+cmake
+nmap
+python
+python-pip
+python-pipx
+
+# ── Audio (PipeWire) ───────────────────────────
+pipewire
+pipewire-pulse
+pipewire-alsa
+wireplumber
+pavucontrol
+alsa-utils
+
+# ── Bluetooth ──────────────────────────────────
+bluez
+bluez-utils
+blueman
+
+# ── Network ────────────────────────────────────
+networkmanager
+network-manager-applet
+nm-connection-editor
+networkmanager-openvpn
+
+# ── Browsers ───────────────────────────────────
+firefox
+firefox-i18n-es-es
+
+# ── Media ──────────────────────────────────────
+vlc
+imv
+obs-studio
+
+# ── Office & Documents ─────────────────────────
+libreoffice-fresh
+libreoffice-fresh-es
+hunspell
+hunspell-es_es
+hunspell-en_us
+evince
+
+# ── Graphics ───────────────────────────────────
+gimp
+
+# ── Fonts ──────────────────────────────────────
+ttf-jetbrains-mono-nerd
+ttf-firacode-nerd
+ttf-meslo-nerd
+ttf-roboto
+ttf-roboto-mono
+noto-fonts
+noto-fonts-emoji
+ttf-font-awesome
+ttf-hack
+otf-font-awesome
+
+# ── Themes & Appearance ───────────────────────
+papirus-icon-theme
+qt5ct
+kvantum
+
+# ── Security ──────────────────────────────────
+yubikey-manager
+libfido2
+pam-u2f
+ufw
+
+# ── Hardware sensors ──────────────────────────
+lm_sensors
+
+# ── System Utilities ──────────────────────────
+stow
+gnome-keyring
+seahorse
+pacman-contrib
+man-db
+man-pages
+wget
+curl
+base-devel
+reflector

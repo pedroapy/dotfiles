@@ -1,0 +1,52 @@
+[core]
+	editor = vim
+	pager = delta
+	excludesFile = ~/.gitignore_global
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	navigate = true
+	side-by-side = true
+	line-numbers = true
+	syntax-theme = Catppuccin-macchiato
+[init]
+	defaultBranch = main
+[diff]
+	algorithm = histogram
+	colorMoved = default
+[alias]
+	co = checkout
+	cob = checkout -b
+	sw = switch
+	st = status
+	cm = !git commit -m
+	wip = !git commit -m 'WIP'
+	undo = reset HEAD~1 --mixed
+	amend = commit -a --amend --no-edit
+	p = push
+	lg = log --oneline --graph --decorate -20
+	ls = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate
+	ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
+	lds = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
+	ld = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=relative
+	la = "!git config -l | grep alias | cut -c 7-"
+	gone = !git branch -vv | grep ': gone]' | awk '{print $1}'
+	cleanup = !git gone | xargs git branch -D
+[push]
+	default = current
+	autoSetupRemote = true
+[pull]
+	rebase = true
+[fetch]
+	prune = true
+[merge]
+	conflictstyle = zdiff3
+[mergetool]
+	keepBackup = false
+[rebase]
+	autoStash = true
+	autoSquash = true
+[rerere]
+	enabled = true
+[branch]
+	sort = -committerdate

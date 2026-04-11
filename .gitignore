@@ -1,0 +1,10 @@
+.DS_Store
+Thumbs.db
+.claude/
+node_modules/
+*.tmp
+*~
+*.swp
+*.swo
+.env
+.gitconfig_local

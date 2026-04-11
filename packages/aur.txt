@@ -1,0 +1,12 @@
+# ── AUR Packages ───────────────────────────────
+visual-studio-code-bin
+google-chrome
+1password
+1password-cli
+spotify
+nodejs-n
+bun-bin
+wlogout
+catppuccin-cursors-macchiato
+catppuccin-gtk-theme-macchiato
+ttf-ms-fonts

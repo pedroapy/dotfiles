@@ -1,7 +1,0 @@
-function npmversion() {
-  npm v $1 | grep -A 50 dist-tags | grep -vE "published|dist-tags"
-}
-
-function key() {
-  eval "$(ssh-agent -s)" && ssh-add ~/.ssh/$1
-}
