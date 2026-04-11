@@ -14,12 +14,14 @@ if [[ -n "$official_pkgs" ]]; then
     success "Official packages installed"
 fi
 
-# Remove conflicting mesa packages before installing AMD drivers
+# Remove conflicting mesa packages and their yay cache before installing AMD drivers
 for conflict in mesa-rk35xx-git mesa-git; do
     if pacman -Q "$conflict" &>/dev/null; then
         warn "Removing conflicting package: $conflict"
         sudo pacman -Rdd --noconfirm "$conflict"
     fi
+    # Clean yay build cache to prevent stale rebuilds
+    rm -rf "${HOME}/.cache/yay/${conflict}" 2>/dev/null || true
 done
 
 # AMD GPU drivers
