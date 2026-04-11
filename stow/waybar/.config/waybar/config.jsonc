@@ -9,7 +9,7 @@
 
   "modules-left": ["hyprland/workspaces", "hyprland/window"],
   "modules-center": ["clock"],
-  "modules-right": ["tray", "custom/notification", "pulseaudio", "bluetooth", "network", "cpu", "memory", "battery", "custom/power"],
+  "modules-right": ["tray", "custom/notification", "custom/screenshot", "pulseaudio", "bluetooth", "network", "cpu", "memory", "battery", "custom/power"],
 
   "hyprland/workspaces": {
     "format": "{icon}",
@@ -110,9 +110,15 @@
     "escape": true
   },
 
+  "custom/screenshot": {
+    "format": "",
+    "tooltip-format": "Screenshot",
+    "on-click": "grim -g \"$(slurp)\" - | swappy -f -"
+  },
+
   "custom/power": {
     "format": "⏻",
-    "tooltip": false,
+    "tooltip-format": "Power menu",
     "on-click": "wlogout"
   }
 }
