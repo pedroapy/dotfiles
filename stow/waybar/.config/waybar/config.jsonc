@@ -9,7 +9,23 @@
 
   "modules-left": ["hyprland/workspaces", "hyprland/window"],
   "modules-center": ["clock"],
-  "modules-right": ["tray", "custom/notification", "custom/screenshot", "pulseaudio", "bluetooth", "network", "cpu", "memory", "battery", "custom/power"],
+  "modules-right": [
+    "mpris",
+    "tray",
+    "custom/updates",
+    "custom/weather",
+    "custom/notification",
+    "custom/screenshot",
+    "idle_inhibitor",
+    "privacy",
+    "pulseaudio",
+    "bluetooth",
+    "network",
+    "hyprland/language",
+    "cpu",
+    "memory",
+    "custom/power"
+  ],
 
   "hyprland/workspaces": {
     "format": "{icon}",
@@ -35,6 +51,10 @@
     "separate-outputs": true
   },
 
+  "hyprland/language": {
+    "format": "󰌌 {short}"
+  },
+
   "clock": {
     "format": " {:%H:%M}",
     "format-alt": " {:%A, %d %B %Y  %H:%M}",
@@ -53,22 +73,12 @@
     "tooltip-format": "{used:0.1f}GiB / {total:0.1f}GiB"
   },
 
-  "battery": {
-    "states": {
-      "warning": 30,
-      "critical": 15
-    },
-    "format": "{icon} {capacity}%",
-    "format-charging": "󰂄 {capacity}%",
-    "format-plugged": "󰂄 {capacity}%",
-    "format-icons": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
-  },
-
   "network": {
     "format-wifi": "󰤨 {signalStrength}%",
-    "format-ethernet": "󰈀 {ipaddr}",
+    "format-ethernet": "󰈀",
     "format-disconnected": "󰤭",
     "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ipaddr}/{cidr}",
+    "tooltip-format-ethernet": "{ifname}\n{ipaddr}/{cidr}",
     "on-click": "nm-connection-editor"
   },
 
@@ -90,9 +100,75 @@
     "scroll-step": 5
   },
 
+  "idle_inhibitor": {
+    "format": "{icon}",
+    "format-icons": {
+      "activated": "󰅶",
+      "deactivated": "󰾪"
+    },
+    "tooltip-format-activated": "Idle inhibitor ON",
+    "tooltip-format-deactivated": "Idle inhibitor OFF"
+  },
+
+  "privacy": {
+    "icon-spacing": 4,
+    "icon-size": 18,
+    "transition-duration": 250,
+    "modules": [
+      { "type": "screenshare", "tooltip": true },
+      { "type": "audio-in", "tooltip": true }
+    ]
+  },
+
+  "mpris": {
+    "format": "{player_icon} {dynamic}",
+    "format-paused": "{status_icon} <i>{dynamic}</i>",
+    "dynamic-len": 35,
+    "dynamic-order": ["title", "artist"],
+    "dynamic-importance-order": ["title", "artist", "album"],
+    "dynamic-separator": " - ",
+    "player-icons": {
+      "default": "",
+      "firefox": "",
+      "spotify": "",
+      "vlc": "󰕼",
+      "brave": ""
+    },
+    "status-icons": {
+      "paused": "󰐎",
+      "playing": "",
+      "stopped": ""
+    },
+    "on-click-middle": "playerctl play-pause",
+    "on-click": "playerctl previous",
+    "on-click-right": "playerctl next",
+    "on-scroll-up": "playerctl volume 0.05+",
+    "on-scroll-down": "playerctl volume 0.05-",
+    "max-length": 50
+  },
+
   "tray": {
     "icon-size": 16,
     "spacing": 8
+  },
+
+  "custom/weather": {
+    "exec": "~/.config/waybar/scripts/weather.sh",
+    "return-type": "json",
+    "format": "{}",
+    "tooltip": true,
+    "interval": 1800,
+    "on-click": "xdg-open 'https://wttr.in'"
+  },
+
+  "custom/updates": {
+    "exec": "~/.config/waybar/scripts/checkupdates.sh",
+    "return-type": "json",
+    "format": "{}",
+    "tooltip": true,
+    "interval": 86400,
+    "on-click": "ghostty -e bash -c 'yay -Syu; echo Done; read'",
+    "signal": 20
   },
 
   "custom/notification": {

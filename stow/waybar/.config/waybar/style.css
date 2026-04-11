@@ -14,6 +14,8 @@
 @define-color red       #ed8796;
 @define-color mauve     #c6a0f6;
 @define-color teal      #8bd5ca;
+@define-color sky       #91d7e3;
+@define-color sapphire  #7dc4e4;
 
 /* ── Global ───────────────────────────────────── */
 * {
@@ -67,23 +69,6 @@ window#waybar {
     color: @mauve;
 }
 
-#battery {
-    color: @green;
-}
-
-#battery.warning {
-    color: @yellow;
-}
-
-#battery.critical {
-    color: @red;
-    animation: blink 1s linear infinite;
-}
-
-@keyframes blink {
-    50% { opacity: 0.5; }
-}
-
 #network {
     color: @teal;
 }
@@ -108,6 +93,52 @@ window#waybar {
     color: @lavender;
 }
 
+#custom-screenshot {
+    color: @teal;
+}
+
+#custom-weather {
+    color: @sky;
+}
+
+#custom-updates.updated {
+    color: @green;
+}
+
+#custom-updates.updates-available {
+    color: @peach;
+}
+
+#custom-power {
+    color: @red;
+    padding: 0 14px 0 10px;
+}
+
+#idle_inhibitor {
+    color: @subtext0;
+}
+
+#idle_inhibitor.activated {
+    color: @yellow;
+}
+
+#language {
+    color: @sapphire;
+}
+
+#mpris {
+    color: @green;
+}
+
+#mpris.paused {
+    color: @subtext0;
+    font-style: italic;
+}
+
+#privacy {
+    color: @red;
+}
+
 #tray {
     padding: 0 6px;
 }
@@ -119,23 +150,19 @@ window#waybar {
 /* ── Module padding ──────────────────────────── */
 #cpu,
 #memory,
-#battery,
 #network,
 #bluetooth,
 #pulseaudio,
 #custom-notification,
 #custom-screenshot,
+#custom-weather,
+#custom-updates,
 #custom-power,
+#idle_inhibitor,
+#language,
+#mpris,
+#privacy,
 #clock {
     padding: 0 10px;
     margin: 4px 0;
-}
-
-#custom-screenshot {
-    color: @teal;
-}
-
-#custom-power {
-    color: @red;
-    padding: 0 14px 0 10px;
 }
