@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Download Bing wallpaper of the day and set it with swww
+# Download Bing wallpaper of the day and set it with awww
 WALLPAPER_DIR="$HOME/BingWallpaper"
 mkdir -p "$WALLPAPER_DIR"
 
@@ -13,7 +13,7 @@ if [[ ! -f "$FILEPATH" ]]; then
     curl -s -o "$FILEPATH" "$FULL_URL"
 fi
 
-# Set wallpaper with swww (smooth transition)
-if command -v swww &>/dev/null && pgrep -x swww-daemon &>/dev/null; then
-    swww img "$FILEPATH" --transition-type grow --transition-duration 2
+# Set wallpaper with awww (smooth transition)
+if command -v awww &>/dev/null && pgrep -x awww-daemon &>/dev/null; then
+    awww img "$FILEPATH" --transition-type grow --transition-duration 2
 fi
