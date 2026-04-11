@@ -289,11 +289,27 @@ refind-install
 # Get root partition UUID
 ROOT_UUID=$(blkid -s UUID -o value PART2_PLACEHOLDER)
 
+# Detect Windows EFI partition (small FAT32 on a different disk)
+WIN_EFI_UUID=""
+for part in $(blkid -t TYPE=vfat -o device); do
+    if [[ "$part" != "PART1_PLACEHOLDER" ]] && [ -n "$(blkid -o value -s UUID "$part")" ]; then
+        # Check if it has Microsoft boot files by mounting temporarily
+        TMP_MNT=$(mktemp -d)
+        mount -o ro "$part" "$TMP_MNT" 2>/dev/null
+        if [[ -f "$TMP_MNT/EFI/Microsoft/Boot/bootmgfw.efi" ]]; then
+            WIN_EFI_UUID=$(blkid -s UUID -o value "$part")
+            info "Found Windows EFI at $part (UUID: $WIN_EFI_UUID)"
+        fi
+        umount "$TMP_MNT" 2>/dev/null
+        rmdir "$TMP_MNT"
+    fi
+done
+
 # rEFInd configuration
 cat > /boot/EFI/refind/refind.conf << EOF
 timeout 10
 use_nvram false
-scanfor manual,external
+scanfor manual
 default_selection "Arch Linux"
 resolution max
 
@@ -315,7 +331,21 @@ menuentry "Arch Linux (fallback)" {
     initrd   /initramfs-linux-fallback.img
     options  "root=UUID=${ROOT_UUID} rootflags=subvol=@ rw amd_pstate=active"
 }
+
 EOF
+
+# Add Windows entry if detected
+if [[ -n "$WIN_EFI_UUID" ]]; then
+    cat >> /boot/EFI/refind/refind.conf << EOF
+
+menuentry "Windows" {
+    icon     /EFI/refind/themes/catppuccin/assets/mocha/icons/os_win.png
+    volume   ${WIN_EFI_UUID}
+    loader   /EFI/Microsoft/Boot/bootmgfw.efi
+}
+EOF
+    success "Windows boot entry added"
+fi
 
 # Install Catppuccin theme
 if [[ ! -d /boot/EFI/refind/themes/catppuccin ]]; then
