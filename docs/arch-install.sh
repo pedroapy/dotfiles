@@ -92,6 +92,15 @@ if [[ ! "$disk_choice" =~ ^[0-9]+$ ]] || [[ "$disk_choice" -ge "${#DISKS[@]}" ]]
 fi
 
 DISK="${DISKS[$disk_choice]}"
+
+# NVMe uses 'p' separator (nvme0n1p1), SATA/USB does not (sda1)
+if [[ "$DISK" == /dev/nvme* ]] || [[ "$DISK" == /dev/loop* ]]; then
+    PART1="${DISK}p1"
+    PART2="${DISK}p2"
+else
+    PART1="${DISK}1"
+    PART2="${DISK}2"
+fi
 echo ""
 warn "════════════════════════════════════════════════════════"
 warn "  THIS WILL ERASE: ${DISK}"
@@ -155,20 +164,20 @@ sgdisk -n 2:0:0       -t 2:8300 -c 2:"Arch" "${DISK}"
 partprobe "${DISK}"
 udevadm settle
 
-success "Partitioned: ${DISK}p1 (EFI 1.5G) + ${DISK}p2 (Arch btrfs)"
+success "Partitioned: ${PART1} (EFI 1.5G) + ${PART2} (Arch btrfs)"
 
 # ── Step 3: Format partitions ────────────────────────────────────
 info "Formatting partitions..."
 
-mkfs.fat -F 32 -n EFI "${DISK}p1"
-mkfs.btrfs -f -L Arch "${DISK}p2"
+mkfs.fat -F 32 -n EFI "${PART1}"
+mkfs.btrfs -f -L Arch "${PART2}"
 
 success "Partitions formatted"
 
 # ── Step 4: Create btrfs subvolumes ──────────────────────────────
 info "Creating btrfs subvolumes..."
 
-mount "${DISK}p2" /mnt
+mount "${PART2}" /mnt
 
 for subvol in "${SUBVOLS[@]}"; do
     btrfs subvolume create "/mnt/${subvol}"
@@ -182,16 +191,16 @@ info "Mounting subvolumes..."
 
 MOUNT_OPTS="compress=zstd:1,noatime,discard=async"
 
-mount -o "${MOUNT_OPTS},subvol=@"          "${DISK}p2" /mnt
+mount -o "${MOUNT_OPTS},subvol=@"          "${PART2}" /mnt
 mkdir -p /mnt/{home,boot,.snapshots,var/log,var/cache,var/lib/docker}
 
-mount -o "${MOUNT_OPTS},subvol=@home"      "${DISK}p2" /mnt/home
-mount -o "${MOUNT_OPTS},subvol=@snapshots" "${DISK}p2" /mnt/.snapshots
-mount -o "${MOUNT_OPTS},subvol=@var_log"   "${DISK}p2" /mnt/var/log
-mount -o "${MOUNT_OPTS},subvol=@var_cache" "${DISK}p2" /mnt/var/cache
-mount -o "${MOUNT_OPTS},subvol=@docker"    "${DISK}p2" /mnt/var/lib/docker
+mount -o "${MOUNT_OPTS},subvol=@home"      "${PART2}" /mnt/home
+mount -o "${MOUNT_OPTS},subvol=@snapshots" "${PART2}" /mnt/.snapshots
+mount -o "${MOUNT_OPTS},subvol=@var_log"   "${PART2}" /mnt/var/log
+mount -o "${MOUNT_OPTS},subvol=@var_cache" "${PART2}" /mnt/var/cache
+mount -o "${MOUNT_OPTS},subvol=@docker"    "${PART2}" /mnt/var/lib/docker
 
-mount "${DISK}p1" /mnt/boot
+mount "${PART1}" /mnt/boot
 
 success "All subvolumes mounted"
 
@@ -285,7 +294,7 @@ editor  no
 EOF
 
 # Get root partition UUID
-ROOT_UUID=$(blkid -s UUID -o value DISK_PLACEHOLDERp2)
+ROOT_UUID=$(blkid -s UUID -o value PART2_PLACEHOLDER)
 
 # Boot entry
 cat > /boot/loader/entries/arch.conf << EOF
@@ -427,6 +436,7 @@ sed -i "s|KEYMAP_PLACEHOLDER|${KEYMAP}|g" /mnt/chroot-setup.sh
 sed -i "s|HOSTNAME_PLACEHOLDER|${HOSTNAME}|g" /mnt/chroot-setup.sh
 sed -i "s|USERNAME_PLACEHOLDER|${USERNAME}|g" /mnt/chroot-setup.sh
 sed -i "s|DISK_PLACEHOLDER|${DISK}|g" /mnt/chroot-setup.sh
+sed -i "s|PART2_PLACEHOLDER|${PART2}|g" /mnt/chroot-setup.sh
 
 chmod +x /mnt/chroot-setup.sh
 
@@ -455,8 +465,8 @@ echo -e "${BLUE}│${NC}  Locale:       ${GREEN}${LOCALE}${NC}"
 echo -e "${BLUE}│${NC}  Keymap:       ${GREEN}${KEYMAP}${NC}"
 echo -e "${BLUE}├──────────────────────────────────────────────────────┤${NC}"
 echo -e "${BLUE}│${NC}  ${GREEN}Disk layout (${DISK})${NC}"
-echo -e "${BLUE}│${NC}    ${DISK}p1   ESP /boot   1.5GB  FAT32"
-echo -e "${BLUE}│${NC}    ${DISK}p2   /           rest   btrfs"
+echo -e "${BLUE}│${NC}    ${PART1}   ESP /boot   1.5GB  FAT32"
+echo -e "${BLUE}│${NC}    ${PART2}   /           rest   btrfs"
 echo -e "${BLUE}├──────────────────────────────────────────────────────┤${NC}"
 echo -e "${BLUE}│${NC}  ${GREEN}Btrfs subvolumes${NC}"
 for subvol in "${SUBVOLS[@]}"; do
