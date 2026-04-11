@@ -7,23 +7,21 @@
   "margin-left": 10,
   "margin-right": 10,
 
-  "modules-left": ["hyprland/workspaces", "hyprland/window"],
-  "modules-center": ["clock"],
+  "modules-left": ["hyprland/workspaces", "hyprland/window", "mpris"],
+  "modules-center": ["custom/weather", "clock"],
   "modules-right": [
-    "mpris",
-    "tray",
     "custom/updates",
-    "custom/weather",
-    "custom/notification",
-    "custom/screenshot",
     "idle_inhibitor",
+    "custom/screenshot",
     "privacy",
+    "custom/notification",
     "pulseaudio",
     "bluetooth",
     "network",
     "hyprland/language",
     "cpu",
     "memory",
+    "tray",
     "custom/power"
   ],
 
