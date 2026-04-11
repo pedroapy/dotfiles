@@ -27,6 +27,17 @@ vt = 1
 command = "tuigreet --time --remember --remember-session --asterisks --cmd start-hyprland"
 user = "greeter"
 EOF
+    # Delay greetd start to wait for GPU/DRM (RDNA4 takes longer to init)
+    sudo mkdir -p /etc/systemd/system/greetd.service.d
+    sudo tee /etc/systemd/system/greetd.service.d/override.conf > /dev/null << 'OVERRIDE'
+[Unit]
+After=systemd-user-sessions.service getty@tty1.service multi-user.target
+Wants=multi-user.target
+
+[Service]
+ExecStartPre=/usr/bin/sleep 2
+OVERRIDE
+    sudo systemctl daemon-reload
     success "greetd configured (tuigreet → Hyprland)"
 else
     success "greetd already configured"
