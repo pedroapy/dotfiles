@@ -1,5 +1,6 @@
 # ── AUR Packages ───────────────────────────────
 visual-studio-code-bin
+brave-bin
 google-chrome
 1password
 1password-cli

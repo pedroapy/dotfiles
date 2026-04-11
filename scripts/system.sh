@@ -69,6 +69,13 @@ else
     warn "Connection '$CONN_NAME' not found — configure network manually"
 fi
 
+# Default browser
+if command -v xdg-settings &>/dev/null; then
+    xdg-settings set default-web-browser brave-browser.desktop 2>/dev/null && \
+        success "Default browser set to Brave" || \
+        warn "Could not set default browser"
+fi
+
 # Detect sensors
 info "Detecting hardware sensors..."
 if command -v sensors-detect &>/dev/null; then
