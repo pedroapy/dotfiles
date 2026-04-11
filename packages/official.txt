@@ -21,6 +21,7 @@ brightnessctl
 playerctl
 hypridle
 hyprlock
+nwg-displays
 
 # ── Notifications ───────────────────────────────
 swaync
