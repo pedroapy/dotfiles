@@ -382,7 +382,7 @@ mkdir -p /mnt/win_efi
 
 for part in $(blkid -t TYPE=vfat -o device 2>/dev/null); do
     # Skip our own ESP
-    [[ "$part" == "${DISK}"* ]] && continue
+    [[ "$part" == "DISK_PLACEHOLDER"* ]] && continue
 
     mount "$part" /mnt/win_efi 2>/dev/null || continue
 
