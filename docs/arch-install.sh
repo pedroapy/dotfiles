@@ -281,38 +281,49 @@ sed -i 's/^HOOKS=.*/HOOKS=(base systemd autodetect microcode modconf kms keyboar
 mkinitcpio -P
 success "mkinitcpio configured and rebuilt"
 
-# ── Bootloader (systemd-boot) ───────────────────────────────
-info "Installing systemd-boot..."
-bootctl install --esp-path=/boot
-
-# Loader config
-cat > /boot/loader/loader.conf << EOF
-default arch.conf
-timeout 10
-console-mode max
-editor  yes
-EOF
+# ── Bootloader (rEFInd) ─────────────────────────────────────
+info "Installing rEFInd..."
+pacman -S --needed --noconfirm refind
+refind-install
 
 # Get root partition UUID
 ROOT_UUID=$(blkid -s UUID -o value PART2_PLACEHOLDER)
 
-# Boot entry
-cat > /boot/loader/entries/arch.conf << EOF
-title   Arch Linux
-linux   /vmlinuz-linux
-initrd  /initramfs-linux.img
-options root=UUID=${ROOT_UUID} rootflags=subvol=@ rw amd_pstate=active split_lock_detect=off
+# rEFInd configuration
+cat > /boot/EFI/refind/refind.conf << EOF
+timeout 10
+use_nvram false
+scanfor manual,external
+default_selection "Arch Linux"
+resolution max
+
+# Theme (installed below)
+include themes/catppuccin/mocha.conf
+
+menuentry "Arch Linux" {
+    icon     /EFI/refind/themes/catppuccin/assets/mocha/icons/os_arch.png
+    volume   "EFI"
+    loader   /vmlinuz-linux
+    initrd   /initramfs-linux.img
+    options  "root=UUID=${ROOT_UUID} rootflags=subvol=@ rw amd_pstate=active split_lock_detect=off"
+}
+
+menuentry "Arch Linux (fallback)" {
+    icon     /EFI/refind/themes/catppuccin/assets/mocha/icons/os_arch.png
+    volume   "EFI"
+    loader   /vmlinuz-linux
+    initrd   /initramfs-linux-fallback.img
+    options  "root=UUID=${ROOT_UUID} rootflags=subvol=@ rw amd_pstate=active"
+}
 EOF
 
-# Fallback entry
-cat > /boot/loader/entries/arch-fallback.conf << EOF
-title   Arch Linux (fallback)
-linux   /vmlinuz-linux
-initrd  /initramfs-linux-fallback.img
-options root=UUID=${ROOT_UUID} rootflags=subvol=@ rw amd_pstate=active
-EOF
+# Install Catppuccin theme
+if [[ ! -d /boot/EFI/refind/themes/catppuccin ]]; then
+    mkdir -p /boot/EFI/refind/themes
+    git clone --depth 1 https://github.com/catppuccin/refind.git /boot/EFI/refind/themes/catppuccin
+fi
 
-success "systemd-boot installed"
+success "rEFInd installed with Catppuccin Mocha theme"
 
 # ── Users ────────────────────────────────────────────────────
 info "Creating user..."
@@ -384,42 +395,9 @@ fi
 # TRIM handled by discard=async in mount options (no fstrim.timer needed)
 
 # ── Windows dual boot ───────────────────────────────────────
-info "Configuring Windows dual boot..."
-# systemd-boot auto-detects Windows once EFI/Microsoft is on the ESP
-# No manual windows.conf entry needed — avoids duplicate menu items
-
-# Search all EFI partitions (except ours) for Windows Boot Manager
-WIN_EFI_FOUND=false
-mkdir -p /mnt/win_efi
-
-for part in $(blkid -t TYPE=vfat -o device 2>/dev/null); do
-    # Skip our own ESP
-    [[ "$part" == "DISK_PLACEHOLDER"* ]] && continue
-
-    mount "$part" /mnt/win_efi 2>/dev/null || continue
-
-    if [[ -f /mnt/win_efi/EFI/Microsoft/Boot/bootmgfw.efi ]]; then
-        info "Found Windows Boot Manager on $part"
-        # Copy entire EFI/Microsoft directory (bootmgfw.efi + BCD store)
-        # NOTE: after major Windows Updates, you may need to refresh this copy
-        mkdir -p /boot/EFI
-        cp -r /mnt/win_efi/EFI/Microsoft /boot/EFI/
-        success "Windows EFI files copied from $part — systemd-boot will auto-detect"
-        WIN_EFI_FOUND=true
-        umount /mnt/win_efi 2>/dev/null || true
-        break
-    fi
-
-    umount /mnt/win_efi 2>/dev/null || true
-done
-
-if [[ "$WIN_EFI_FOUND" == false ]]; then
-    info "Windows EFI not found on any partition — add manually or use BIOS boot menu"
-fi
-
-rmdir /mnt/win_efi 2>/dev/null || true
-
-success "Dual boot configured"
+# rEFInd auto-detects Windows Boot Manager on any EFI partition
+# No manual configuration needed — scanfor external handles it
+success "Windows dual boot: rEFInd will auto-detect from any disk"
 
 # ── Done inside chroot ───────────────────────────────────────
 echo ""
@@ -474,13 +452,9 @@ for subvol in "${SUBVOLS[@]}"; do
 done
 echo -e "${BLUE}├──────────────────────────────────────────────────────┤${NC}"
 echo -e "${BLUE}│${NC}  ${GREEN}Bootloader${NC}"
-echo -e "${BLUE}│${NC}    systemd-boot (ESP at /boot)"
-echo -e "${BLUE}│${NC}    Entries: arch.conf, arch-fallback.conf"
-if [[ -f /mnt/boot/EFI/Microsoft/Boot/bootmgfw.efi ]]; then
-    echo -e "${BLUE}│${NC}    Windows: ${GREEN}detected and configured${NC}"
-else
-    echo -e "${BLUE}│${NC}    Windows: ${RED}not found (add manually)${NC}"
-fi
+echo -e "${BLUE}│${NC}    rEFInd (ESP at /boot, Catppuccin Mocha)"
+echo -e "${BLUE}│${NC}    Entries: Arch Linux, Arch Linux (fallback)"
+echo -e "${BLUE}│${NC}    Windows: ${GREEN}auto-detected by rEFInd${NC}"
 echo -e "${BLUE}├──────────────────────────────────────────────────────┤${NC}"
 echo -e "${BLUE}│${NC}  ${GREEN}Services enabled${NC}"
 echo -e "${BLUE}│${NC}    NetworkManager, systemd-timesyncd"
