@@ -19,9 +19,11 @@
 
 /* ── Global ───────────────────────────────────── */
 * {
-    font-family: "Inter", "JetBrainsMono Nerd Font", sans-serif;
-    font-size: 13px;
+    font-family: "JetBrainsMono Nerd Font", "Inter", sans-serif;
+    font-size: 15px;
     min-height: 0;
+    padding: 0;
+    margin: 0;
 }
 
 window#waybar {
@@ -31,7 +33,45 @@ window#waybar {
     color: @text;
 }
 
-/* ── Modules ──────────────────────────────────── */
+tooltip {
+    background: @base;
+    border: 1px solid @surface1;
+    border-radius: 8px;
+}
+
+tooltip label {
+    color: @text;
+}
+
+/* ── Icon sizing (Nerd Font glyphs) ───────────── */
+label {
+    font-size: 15px;
+}
+
+/* ── All modules base ─────────────────────────── */
+#workspaces,
+#window,
+#mpris,
+#clock,
+#custom-weather,
+#custom-screenshot,
+#custom-updates,
+#custom-notification,
+#custom-power,
+#idle_inhibitor,
+#privacy,
+#pulseaudio,
+#bluetooth,
+#network,
+#language,
+#cpu,
+#memory,
+#tray {
+    padding: 0 12px;
+    margin: 4px 2px;
+}
+
+/* ── Workspaces ───────────────────────────────── */
 #workspaces button {
     padding: 0 8px;
     color: @subtext0;
@@ -51,78 +91,9 @@ window#waybar {
     color: @text;
 }
 
+/* ── Left ─────────────────────────────────────── */
 #window {
     color: @subtext0;
-    padding: 0 12px;
-}
-
-#clock {
-    color: @blue;
-    font-weight: bold;
-}
-
-#cpu {
-    color: @green;
-}
-
-#memory {
-    color: @mauve;
-}
-
-#network {
-    color: @teal;
-}
-
-#network.disconnected {
-    color: @red;
-}
-
-#bluetooth {
-    color: @blue;
-}
-
-#pulseaudio {
-    color: @peach;
-}
-
-#pulseaudio.muted {
-    color: @surface1;
-}
-
-#custom-notification {
-    color: @lavender;
-}
-
-#custom-screenshot {
-    color: @teal;
-}
-
-#custom-weather {
-    color: @sky;
-}
-
-#custom-updates.updated {
-    color: @green;
-}
-
-#custom-updates.updates-available {
-    color: @peach;
-}
-
-#custom-power {
-    color: @red;
-}
-
-#idle_inhibitor {
-    color: @subtext0;
-}
-
-#idle_inhibitor.activated {
-    color: @yellow;
-}
-
-#language {
-    color: @sapphire;
 }
 
 #mpris {
@@ -134,39 +105,82 @@ window#waybar {
     font-style: italic;
 }
 
-#privacy {
-    color: @red;
+/* ── Center ───────────────────────────────────── */
+#clock {
+    color: @blue;
+    font-weight: bold;
+}
+
+#custom-weather {
+    color: @sky;
+    font-size: 18px;
+}
+
+/* ── Right ────────────────────────────────────── */
+#custom-screenshot {
+    color: @teal;
+}
+
+#language {
+    color: @sapphire;
+    font-size: 18px;
+}
+
+#idle_inhibitor {
+    color: @subtext0;
+}
+
+#idle_inhibitor.activated {
+    color: @yellow;
+}
+
+#custom-updates.updated {
+    color: @green;
+}
+
+#custom-updates.updates-available {
+    color: @peach;
+}
+
+#cpu {
+    color: @green;
+}
+
+#memory {
+    color: @mauve;
+}
+
+#bluetooth {
+    color: @blue;
+    font-size: 17px;
 }
 
 #tray {
-    padding: 0 6px;
+    padding: 0 8px;
 }
 
 #tray > .passive {
     -gtk-icon-effect: dim;
 }
 
-/* ── Module padding ──────────────────────────── */
-#cpu,
-#memory,
-#network,
-#bluetooth,
-#pulseaudio,
-#custom-notification,
-#custom-screenshot,
-#custom-weather,
-#custom-updates,
-#clock {
-    padding: 0 10px;
-    margin: 4px 0;
+#pulseaudio {
+    color: @peach;
+    font-size: 18px;
 }
 
-/* ── Overrides (after general padding) ───────── */
-#bluetooth {
-    margin-right: 6px;
+#pulseaudio.muted {
+    color: @surface1;
+}
+
+#custom-notification {
+    color: @lavender;
+}
+
+#privacy {
+    color: @red;
 }
 
 #custom-power {
-    padding: 0 16px 0 10px;
-    margin: 4px 4px 4px 0;
+    color: @red;
+    padding: 0 14px 0 12px;
 }
