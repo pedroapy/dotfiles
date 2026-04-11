@@ -27,6 +27,7 @@ declare -a user_services=(
     "pipewire.socket"
     "pipewire-pulse.socket"
     "wireplumber.service"
+    "swaync.service"
 )
 
 for service in "${user_services[@]}"; do
