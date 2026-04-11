@@ -2,8 +2,8 @@
 # ══════════════════════════════════════════════════════════════════
 #  Arch Linux Installation Script
 #  Hardware: Ryzen 9800X3D / RX 9070 XT / MSI MS-7E51
-#  Target:   nvme1n1 (477GB) — Arch Linux
-#  Dual boot with Windows on nvme0n1
+#  Target:   User-selected disk (interactive)
+#  Dual boot with Windows (auto-detected)
 # ══════════════════════════════════════════════════════════════════
 #
 #  USAGE:
@@ -26,7 +26,6 @@ success() { echo -e "${GREEN}[OK]${NC} $1"; }
 warn()    { echo -e "${RED}[!]${NC} $1"; }
 
 # ── Configuration ────────────────────────────────────────────────
-DISK="/dev/nvme1n1"
 HOSTNAME="archbox"
 USERNAME="pedroapy"
 TIMEZONE="Europe/Madrid"
@@ -37,16 +36,79 @@ EXTRA_KEYMAP="es"
 # Btrfs subvolumes
 declare -a SUBVOLS=("@" "@home" "@snapshots" "@var_log" "@var_cache" "@docker")
 
-# ── Pre-flight checks ───────────────────────────────────────────
+# ── Disk selection ──────────────────────────────────────────────
+echo ""
+info "Detected disks:"
+echo ""
+lsblk -o NAME,SIZE,TYPE,FSTYPE,LABEL,MOUNTPOINT,MODEL | grep -E "^(NAME|[a-z])" || lsblk -o NAME,SIZE,TYPE,FSTYPE,LABEL,MOUNTPOINT
+echo ""
+
+# Show partitions with OS indicators
+info "Partition details (look for Windows/EFI/Linux markers):"
+echo ""
+for disk in $(lsblk -dnp -o NAME,TYPE | awk '$2=="disk"{print $1}'); do
+    echo -e "${BLUE}━━━ ${disk} ($(lsblk -dn -o SIZE "${disk}") — $(lsblk -dn -o MODEL "${disk}"))${NC}"
+    lsblk -np -o NAME,SIZE,FSTYPE,LABEL,PARTLABEL "${disk}" | tail -n +2 | while read -r line; do
+        part=$(echo "$line" | awk '{print $1}')
+        # Highlight Windows and EFI partitions
+        if echo "$line" | grep -qi "microsoft\|windows\|EFI system"; then
+            echo -e "  ${RED}${line}  ← WINDOWS/EFI${NC}"
+        elif echo "$line" | grep -qi "linux\|arch\|btrfs\|ext4"; then
+            echo -e "  ${GREEN}${line}  ← LINUX${NC}"
+        else
+            echo "  ${line}"
+        fi
+    done
+    echo ""
+done
+
+warn "════════════════════════════════════════════════════════"
+warn "  SELECT THE DISK TO INSTALL ARCH LINUX ON"
+warn "  The selected disk will be COMPLETELY ERASED"
+warn "════════════════════════════════════════════════════════"
+echo ""
+
+# List candidate disks (NVMe + SATA, exclude USB)
+mapfile -t DISKS < <(lsblk -dnp -o NAME,TYPE,TRAN | awk '$2=="disk" && ($3=="nvme" || $3=="sata" || $3==""){print $1}')
+
+if [[ ${#DISKS[@]} -eq 0 ]]; then
+    warn "No disks found!"
+    exit 1
+fi
+
+for i in "${!DISKS[@]}"; do
+    d="${DISKS[$i]}"
+    size=$(lsblk -dn -o SIZE "$d")
+    model=$(lsblk -dn -o MODEL "$d")
+    echo -e "  ${GREEN}[$i]${NC}  $d  ($size — $model)"
+done
+echo ""
+
+read -p "Enter disk number [0-$((${#DISKS[@]}-1))]: " disk_choice
+
+if [[ ! "$disk_choice" =~ ^[0-9]+$ ]] || [[ "$disk_choice" -ge "${#DISKS[@]}" ]]; then
+    warn "Invalid selection."
+    exit 1
+fi
+
+DISK="${DISKS[$disk_choice]}"
 echo ""
 warn "════════════════════════════════════════════════════════"
-warn "  This will ERASE ${DISK}"
-warn "  Windows on nvme0n1 will NOT be touched"
-warn "  Micron T705 on nvme2n1 will NOT be touched"
-warn "  HDD sda will NOT be touched"
+warn "  THIS WILL ERASE: ${DISK}"
+warn "  $(lsblk -dn -o SIZE,MODEL "${DISK}")"
 warn "════════════════════════════════════════════════════════"
+
+# Show what's on the selected disk
+PARTS=$(lsblk -np -o NAME,SIZE,FSTYPE,LABEL "${DISK}" | tail -n +2)
+if [[ -n "$PARTS" ]]; then
+    warn "  Current partitions on ${DISK}:"
+    echo "$PARTS" | while read -r line; do
+        warn "    $line"
+    done
+fi
+
 echo ""
-read -p "Type 'YES' to continue: " confirm
+read -p "Type 'YES' to ERASE ${DISK} and install Arch: " confirm
 if [[ "$confirm" != "YES" ]]; then
     echo "Aborted."
     exit 1
@@ -314,22 +376,35 @@ info "Configuring Windows dual boot..."
 # systemd-boot auto-detects Windows once EFI/Microsoft is on the ESP
 # No manual windows.conf entry needed — avoids duplicate menu items
 
-# Mount Windows EFI to copy boot files
+# Search all EFI partitions (except ours) for Windows Boot Manager
+WIN_EFI_FOUND=false
 mkdir -p /mnt/win_efi
-mount /dev/nvme0n1p1 /mnt/win_efi 2>/dev/null || true
 
-if [[ -f /mnt/win_efi/EFI/Microsoft/Boot/bootmgfw.efi ]]; then
-    # Copy entire EFI/Microsoft directory (bootmgfw.efi + BCD store)
-    # NOTE: after major Windows Updates, you may need to refresh this copy
-    mkdir -p /boot/EFI
-    cp -r /mnt/win_efi/EFI/Microsoft /boot/EFI/
-    success "Windows EFI files copied — systemd-boot will auto-detect"
-else
-    info "Windows EFI not found on nvme0n1p1 — you may need to add it manually"
-    info "Or set BIOS boot order to select Windows EFI directly"
+for part in $(blkid -t TYPE=vfat -o device 2>/dev/null); do
+    # Skip our own ESP
+    [[ "$part" == "${DISK}"* ]] && continue
+
+    mount "$part" /mnt/win_efi 2>/dev/null || continue
+
+    if [[ -f /mnt/win_efi/EFI/Microsoft/Boot/bootmgfw.efi ]]; then
+        info "Found Windows Boot Manager on $part"
+        # Copy entire EFI/Microsoft directory (bootmgfw.efi + BCD store)
+        # NOTE: after major Windows Updates, you may need to refresh this copy
+        mkdir -p /boot/EFI
+        cp -r /mnt/win_efi/EFI/Microsoft /boot/EFI/
+        success "Windows EFI files copied from $part — systemd-boot will auto-detect"
+        WIN_EFI_FOUND=true
+        umount /mnt/win_efi 2>/dev/null || true
+        break
+    fi
+
+    umount /mnt/win_efi 2>/dev/null || true
+done
+
+if [[ "$WIN_EFI_FOUND" == false ]]; then
+    info "Windows EFI not found on any partition — add manually or use BIOS boot menu"
 fi
 
-umount /mnt/win_efi 2>/dev/null || true
 rmdir /mnt/win_efi 2>/dev/null || true
 
 success "Dual boot configured"
