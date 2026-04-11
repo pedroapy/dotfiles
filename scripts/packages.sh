@@ -14,6 +14,14 @@ if [[ -n "$official_pkgs" ]]; then
     success "Official packages installed"
 fi
 
+# Remove conflicting mesa packages before installing AMD drivers
+for conflict in mesa-rk35xx-git mesa-git; do
+    if pacman -Q "$conflict" &>/dev/null; then
+        warn "Removing conflicting package: $conflict"
+        sudo pacman -Rdd --noconfirm "$conflict"
+    fi
+done
+
 # AMD GPU drivers
 info "Installing AMD GPU drivers..."
 amd_pkgs=$(parse_packages "$DOTFILES/packages/amd-gpu.txt")
