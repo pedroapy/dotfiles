@@ -111,7 +111,7 @@
   },
 
   "custom/screenshot": {
-    "format": "",
+    "format": "󰹑",
     "tooltip-format": "Screenshot",
     "on-click": "grim -g \"$(slurp)\" - | swappy -f -"
   },
