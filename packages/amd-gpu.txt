@@ -1,0 +1,13 @@
+# ── AMD GPU Drivers (RX 9070 XT - Navi 48) ────
+mesa
+lib32-mesa
+vulkan-radeon
+lib32-vulkan-radeon
+libva-mesa-driver
+lib32-libva-mesa-driver
+mesa-vdpau
+lib32-mesa-vdpau
+vulkan-tools
+radeontop
+# AMD CPU microcode
+amd-ucode

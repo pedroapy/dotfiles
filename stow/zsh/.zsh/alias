@@ -1,0 +1,42 @@
+# ── Package Management ──────────────────────────
+alias update="yay -Syu --needed"
+alias install="yay -S --needed"
+alias remove="yay -Rsn"
+alias search="yay -Ss"
+alias installed="yay -Qs"
+alias orphans='[[ -n "$(yay -Qtdq)" ]] && yay -Qtdq | yay -Rsn - || echo "No orphans found"'
+alias mirrors="sudo reflector --country Spain --latest 10 --sort rate --save /etc/pacman.d/mirrorlist"
+
+# ── Modern CLI Replacements ─────────────────────
+alias ls="eza --icons --group-directories-first"
+alias ll="eza -la --icons --group-directories-first --git"
+alias lt="eza --tree --level=2 --icons"
+alias la="eza -a --icons --group-directories-first"
+alias cat="bat --paging=never"
+alias du="dust"
+alias df="duf"
+alias top="btop"
+alias f="fd"
+alias rg="rg --smart-case"
+
+# ── Git ─────────────────────────────────────────
+alias g="git"
+alias gs="git status"
+alias ga="git add"
+alias gc="git commit"
+alias gp="git push"
+alias gd="git diff"
+alias gl="git log --oneline --graph --decorate -20"
+alias gpl="git pull --rebase"
+alias gst="git stash"
+alias gsp="git stash pop"
+alias lg="lazygit"
+
+alias githist='for k in $(git branch | perl -pe "s/^..//"); do echo -e "$(git show --pretty=format:"%Cgreen%ci %Cblue%cr%Creset" $k | head -n 1)\t$k"; done | sort -r | head -15'
+alias git-cleanup='git fetch --prune && git branch -vv | grep ": gone]" | awk "{print \$1}" | xargs git branch -d'
+
+# ── System ──────────────────────────────────────
+alias reload="source ~/.zshrc"
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."

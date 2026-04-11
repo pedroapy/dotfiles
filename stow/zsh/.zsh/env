@@ -1,0 +1,29 @@
+export PATH="$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH"
+
+export WORKSPACE="$HOME/workspace"
+export EDITOR=vim
+export VISUAL=vim
+export KUBE_EDITOR=vim
+export KUBECONFIG="$HOME/.kube/config"
+export RIPGREP_CONFIG_PATH="$HOME/.config/ripgreprc"
+
+# Node version manager
+export N_PREFIX="$HOME/n"
+[[ :$PATH: == *":$N_PREFIX/bin:"* ]] || PATH+=":$N_PREFIX/bin"
+
+# Bun
+export BUN_INSTALL="$HOME/.bun"
+[[ :$PATH: == *":$BUN_INSTALL/bin:"* ]] || PATH+=":$BUN_INSTALL/bin"
+
+# Wayland
+export XDG_SESSION_TYPE=wayland
+export XDG_CURRENT_DESKTOP=Hyprland
+export XDG_SESSION_DESKTOP=Hyprland
+export QT_QPA_PLATFORM="wayland;xcb"
+export QT_QPA_PLATFORMTHEME=qt5ct
+export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
+export SDL_VIDEODRIVER=wayland
+export CLUTTER_BACKEND=wayland
+export MOZ_ENABLE_WAYLAND=1
+export _JAVA_AWT_WM_NONREPARENTING=1
+export ELECTRON_OZONE_PLATFORM_HINT=auto
