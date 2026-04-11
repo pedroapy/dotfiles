@@ -16,18 +16,14 @@ else
 fi
 
 # SDDM configuration (Wayland + astronaut theme)
-SDDM_CONF="/etc/sddm.conf.d/10-wayland.conf"
+SDDM_CONF="/etc/sddm.conf.d/10-theme.conf"
 if [[ ! -f "$SDDM_CONF" ]]; then
     sudo mkdir -p /etc/sddm.conf.d
     sudo tee "$SDDM_CONF" > /dev/null << 'EOF'
-[General]
-DisplayServer=wayland
-GreeterEnvironment=QT_WAYLAND_SHELL_INTEGRATION=layer-shell
-
 [Theme]
 Current=sddm-astronaut-theme
 EOF
-    success "SDDM configured (Wayland + astronaut theme)"
+    success "SDDM configured (astronaut theme)"
 else
     success "SDDM already configured"
 fi
