@@ -23,6 +23,10 @@ fi
 
 info "Dotfiles directory: $DOTFILES"
 
+# Get sudo upfront and keep it alive throughout the script
+sudo -v
+while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+
 # ── Step 1: Base dependencies ────────────────────
 info "Installing base dependencies..."
 sudo pacman -S --needed --noconfirm git base-devel curl wget
