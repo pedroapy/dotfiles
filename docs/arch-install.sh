@@ -288,9 +288,9 @@ bootctl install --esp-path=/boot
 # Loader config
 cat > /boot/loader/loader.conf << EOF
 default arch.conf
-timeout 3
-console-mode auto
-editor  no
+timeout 10
+console-mode max
+editor  yes
 EOF
 
 # Get root partition UUID
