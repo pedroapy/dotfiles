@@ -130,6 +130,9 @@ if ! ping -c 1 archlinux.org &>/dev/null; then
 fi
 success "Internet connection verified"
 
+# ── Step 0: Clean up previous mounts ────────────────────────────
+umount -R /mnt 2>/dev/null || true
+
 # ── Step 1: Update system clock ──────────────────────────────────
 info "Syncing system clock..."
 timedatectl set-ntp true
