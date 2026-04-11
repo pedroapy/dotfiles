@@ -22,11 +22,11 @@ if [[ -n "$amd_pkgs" ]]; then
     success "AMD GPU drivers installed"
 fi
 
-# AUR packages (no --noconfirm to allow PKGBUILD review)
+# AUR packages
 info "Installing AUR packages..."
 aur_pkgs=$(parse_packages "$DOTFILES/packages/aur.txt")
 if [[ -n "$aur_pkgs" ]]; then
-    echo "$aur_pkgs" | xargs yay -S --needed
+    echo "$aur_pkgs" | xargs yay -S --needed --noconfirm
     success "AUR packages installed"
 fi
 
