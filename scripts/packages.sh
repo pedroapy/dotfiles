@@ -57,7 +57,7 @@ if command -v n &>/dev/null; then
     info "Installing global npm packages..."
     for pkg in yarn serve yalc cloc; do
         if ! npm list -g "$pkg" &>/dev/null 2>&1; then
-            npm install -g "$pkg"
+            sudo npm install -g "$pkg"
         fi
     done
     success "npm global packages installed"
