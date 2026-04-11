@@ -1,74 +1,114 @@
 * {
-    bg:       #24273a;
-    bg-alt:   #363a4f;
-    fg:       #cad3f5;
-    fg-alt:   #a5adcb;
-    blue:     #8aadf4;
-    lavender: #b7bdf8;
-    red:      #ed8796;
+    bg:        #24273aee;
+    bg-alt:    #363a4f;
+    bg-sel:    #363a4f;
+    fg:        #cad3f5;
+    fg-alt:    #a5adcb;
+    blue:      #8aadf4;
+    lavender:  #b7bdf8;
+    mauve:     #c6a0f6;
+    red:       #ed8796;
+    surface0:  #363a4f;
+    surface1:  #494d64;
 
-    background-color: @bg;
+    background-color: transparent;
     text-color:       @fg;
-    border-color:     @blue;
 }
 
 window {
-    width:            600px;
-    border:           2px;
-    border-radius:    12px;
-    padding:          20px;
+    width:            650px;
     background-color: @bg;
+    border:           1px solid;
+    border-color:     @surface1;
+    border-radius:    16px;
+    padding:          24px;
+    location:         center;
+    anchor:           center;
 }
 
 mainbox {
-    spacing: 12px;
+    spacing: 16px;
+    background-color: transparent;
 }
 
 inputbar {
     children: [prompt, entry];
-    border:           2px;
-    border-radius:    8px;
-    padding:          8px 12px;
+    border:           0;
+    border-radius:    12px;
+    padding:          12px 16px;
     background-color: @bg-alt;
 }
 
 prompt {
     text-color:       @blue;
     background-color: transparent;
+    margin:           0 8px 0 0;
 }
 
 entry {
-    placeholder:       "Search...";
+    placeholder:       "Type to search...";
     placeholder-color: @fg-alt;
     background-color:  transparent;
-}
-
-listbox {
-    spacing: 4px;
+    text-color:        @fg;
 }
 
 listview {
-    lines:    8;
-    columns:  1;
+    lines:        8;
+    columns:      1;
     fixed-height: true;
-    spacing:  4px;
+    spacing:      4px;
+    scrollbar:    false;
+    background-color: transparent;
 }
 
 element {
-    padding:       8px 12px;
-    border-radius: 8px;
+    padding:          10px 14px;
+    border-radius:    10px;
+    background-color: transparent;
+    cursor:           pointer;
 }
 
-element selected {
+element normal.normal {
+    background-color: transparent;
+}
+
+element normal.active {
+    text-color: @blue;
+}
+
+element selected.normal {
     background-color: @blue;
-    text-color:       @bg;
+    text-color:       #24273a;
+}
+
+element selected.active {
+    background-color: @mauve;
+    text-color:       #24273a;
 }
 
 element-icon {
-    size: 24px;
-    padding: 0 8px 0 0;
+    size:             28px;
+    padding:          0 12px 0 0;
+    background-color: transparent;
+    cursor:           inherit;
 }
 
 element-text {
-    vertical-align: 0.5;
+    vertical-align:   0.5;
+    background-color: transparent;
+    cursor:           inherit;
+}
+
+message {
+    padding:          8px 16px;
+    border-radius:    10px;
+    background-color: @bg-alt;
+}
+
+textbox {
+    background-color: transparent;
+}
+
+scrollbar {
+    handle-width: 0;
 }
