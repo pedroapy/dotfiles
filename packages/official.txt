@@ -1,7 +1,7 @@
 # ── Display Manager ────────────────────────────
 sddm
 qt6-5compat
-xorg-server
+cage
 
 # ── Hyprland & Wayland ──────────────────────────
 hyprland

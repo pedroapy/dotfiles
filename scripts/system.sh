@@ -16,14 +16,18 @@ else
 fi
 
 # SDDM configuration (Wayland + astronaut theme)
-SDDM_CONF="/etc/sddm.conf.d/10-theme.conf"
+SDDM_CONF="/etc/sddm.conf.d/10-wayland.conf"
 if [[ ! -f "$SDDM_CONF" ]]; then
     sudo mkdir -p /etc/sddm.conf.d
     sudo tee "$SDDM_CONF" > /dev/null << 'EOF'
+[General]
+DisplayServer=wayland
+CompositorCommand=cage -ds --
+
 [Theme]
 Current=sddm-astronaut-theme
 EOF
-    success "SDDM configured (astronaut theme)"
+    success "SDDM configured (Wayland via cage + astronaut theme)"
 else
     success "SDDM already configured"
 fi
