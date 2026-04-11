@@ -2,7 +2,7 @@
 # ══════════════════════════════════════════════════════════════════
 #  Arch Linux Installation Script
 #  Hardware: Ryzen 9800X3D / RX 9070 XT / MSI MS-7E51
-#  Target:   nvme1n1 (477GB) — replacing Kubuntu
+#  Target:   nvme1n1 (477GB) — Arch Linux
 #  Dual boot with Windows on nvme0n1
 # ══════════════════════════════════════════════════════════════════
 #
@@ -40,14 +40,17 @@ declare -a SUBVOLS=("@" "@home" "@snapshots" "@var_log" "@var_cache" "@docker")
 # ── Pre-flight checks ───────────────────────────────────────────
 echo ""
 warn "════════════════════════════════════════════════════════"
-warn "  This will ERASE ${DISK} (Kubuntu)"
+warn "  This will ERASE ${DISK}"
 warn "  Windows on nvme0n1 will NOT be touched"
 warn "  Micron T705 on nvme2n1 will NOT be touched"
 warn "  HDD sda will NOT be touched"
 warn "════════════════════════════════════════════════════════"
 echo ""
 read -p "Type 'YES' to continue: " confirm
-[[ "$confirm" != "YES" ]] && echo "Aborted." && exit 1
+if [[ "$confirm" != "YES" ]]; then
+    echo "Aborted."
+    exit 1
+fi
 
 # Verify UEFI mode
 if [[ ! -d /sys/firmware/efi/efivars ]]; then
@@ -78,16 +81,16 @@ wipefs -af "${DISK}"
 sgdisk --zap-all "${DISK}"
 
 # Create GPT partitions:
-#   Part 1: EFI System Partition — 1024MB (generous for future UKI)
+#   Part 1: EFI System Partition — 1536MB (generous for future UKI)
 #   Part 2: Root (btrfs) — remaining space
-sgdisk -n 1:0:+1024M -t 1:ef00 -c 1:"EFI" "${DISK}"
+sgdisk -n 1:0:+1536M -t 1:ef00 -c 1:"EFI" "${DISK}"
 sgdisk -n 2:0:0       -t 2:8300 -c 2:"Arch" "${DISK}"
 
 # Inform kernel of partition changes
 partprobe "${DISK}"
-sleep 1
+udevadm settle
 
-success "Partitioned: ${DISK}p1 (EFI 1G) + ${DISK}p2 (Arch btrfs)"
+success "Partitioned: ${DISK}p1 (EFI 1.5G) + ${DISK}p2 (Arch btrfs)"
 
 # ── Step 3: Format partitions ────────────────────────────────────
 info "Formatting partitions..."
@@ -112,10 +115,10 @@ umount /mnt
 # ── Step 5: Mount subvolumes ────────────────────────────────────
 info "Mounting subvolumes..."
 
-MOUNT_OPTS="compress=zstd:1,noatime,ssd,space_cache=v2"
+MOUNT_OPTS="compress=zstd:1,noatime,discard=async"
 
 mount -o "${MOUNT_OPTS},subvol=@"          "${DISK}p2" /mnt
-mkdir -p /mnt/{home,efi,.snapshots,var/log,var/cache,var/lib/docker}
+mkdir -p /mnt/{home,boot,.snapshots,var/log,var/cache,var/lib/docker}
 
 mount -o "${MOUNT_OPTS},subvol=@home"      "${DISK}p2" /mnt/home
 mount -o "${MOUNT_OPTS},subvol=@snapshots" "${DISK}p2" /mnt/.snapshots
@@ -123,7 +126,7 @@ mount -o "${MOUNT_OPTS},subvol=@var_log"   "${DISK}p2" /mnt/var/log
 mount -o "${MOUNT_OPTS},subvol=@var_cache" "${DISK}p2" /mnt/var/cache
 mount -o "${MOUNT_OPTS},subvol=@docker"    "${DISK}p2" /mnt/var/lib/docker
 
-mount "${DISK}p1" /mnt/efi
+mount "${DISK}p1" /mnt/boot
 
 success "All subvolumes mounted"
 
@@ -150,6 +153,9 @@ success "Base system installed"
 info "Generating fstab..."
 
 genfstab -U /mnt >> /mnt/etc/fstab
+
+# Remove subvolid= for easier btrfs snapshot rollbacks
+sed -i 's/,subvolid=[0-9]*//g' /mnt/etc/fstab
 
 # Verify fstab
 cat /mnt/etc/fstab
@@ -196,17 +202,17 @@ success "Hostname set"
 
 # ── mkinitcpio ───────────────────────────────────────────────
 info "Configuring mkinitcpio for btrfs..."
-sed -i 's/^MODULES=.*/MODULES=(amdgpu btrfs)/' /etc/mkinitcpio.conf
+sed -i 's/^MODULES=.*/MODULES=(amdgpu)/' /etc/mkinitcpio.conf
 sed -i 's/^HOOKS=.*/HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block filesystems)/' /etc/mkinitcpio.conf
 mkinitcpio -P
 success "mkinitcpio configured and rebuilt"
 
 # ── Bootloader (systemd-boot) ───────────────────────────────
 info "Installing systemd-boot..."
-bootctl install --esp-path=/efi
+bootctl install --esp-path=/boot
 
 # Loader config
-cat > /efi/loader/loader.conf << EOF
+cat > /boot/loader/loader.conf << EOF
 default arch.conf
 timeout 3
 console-mode auto
@@ -217,19 +223,17 @@ EOF
 ROOT_UUID=$(blkid -s UUID -o value DISK_PLACEHOLDERp2)
 
 # Boot entry
-cat > /efi/loader/entries/arch.conf << EOF
+cat > /boot/loader/entries/arch.conf << EOF
 title   Arch Linux
 linux   /vmlinuz-linux
-initrd  /amd-ucode.img
 initrd  /initramfs-linux.img
 options root=UUID=${ROOT_UUID} rootflags=subvol=@ rw amd_pstate=active split_lock_detect=off
 EOF
 
 # Fallback entry
-cat > /efi/loader/entries/arch-fallback.conf << EOF
+cat > /boot/loader/entries/arch-fallback.conf << EOF
 title   Arch Linux (fallback)
 linux   /vmlinuz-linux
-initrd  /amd-ucode.img
 initrd  /initramfs-linux-fallback.img
 options root=UUID=${ROOT_UUID} rootflags=subvol=@ rw amd_pstate=active
 EOF
@@ -242,7 +246,7 @@ echo "Set ROOT password:"
 passwd
 
 groupadd -f docker
-useradd -m -G wheel,docker,video,audio -s /usr/bin/zsh USERNAME_PLACEHOLDER
+useradd -m -G wheel,docker -s /usr/bin/zsh USERNAME_PLACEHOLDER
 echo "Set password for USERNAME_PLACEHOLDER:"
 passwd USERNAME_PLACEHOLDER
 
@@ -262,14 +266,10 @@ info "Configuring pacman..."
 sed -i 's/^#Color/Color/' /etc/pacman.conf
 sed -i 's/^#ParallelDownloads.*/ParallelDownloads = 5/' /etc/pacman.conf
 
-# Enable multilib for 32-bit AMD drivers
-cat >> /etc/pacman.conf << EOF
+# Enable multilib for 32-bit AMD drivers (uncomment existing section)
+sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' /etc/pacman.conf
 
-[multilib]
-Include = /etc/pacman.d/mirrorlist
-EOF
-
-pacman -Syu --noconfirm
+pacman -Sy --noconfirm
 success "Pacman configured"
 
 # ── NFS mounts ───────────────────────────────────────────────
@@ -280,53 +280,50 @@ mkdir -p /mnt/nas/{fotos,docs,shared,roms}
 
 cat >> /etc/fstab << EOF
 
-# NAS mounts
-REDACTED_IP:/mnt/nas/share  /mnt/nas/fotos  nfs defaults,noatime,nofail 0 0
-REDACTED_IP:/mnt/nas/share   /mnt/nas/docs   nfs defaults,noatime,nofail 0 0
-REDACTED_IP:/mnt/nas/share   /mnt/nas/shared  nfs defaults,noatime,nofail 0 0
-REDACTED_IP:/mnt/nas/share     /mnt/nas/roms    nfs defaults,noatime,nofail 0 0
+# NAS mounts (automount on access, no boot delay if NAS is down)
+REDACTED_IP:/mnt/nas/share  /mnt/nas/fotos  nfs _netdev,noauto,x-systemd.automount,x-systemd.mount-timeout=10,noatime,nofail 0 0
+REDACTED_IP:/mnt/nas/share   /mnt/nas/docs   nfs _netdev,noauto,x-systemd.automount,x-systemd.mount-timeout=10,noatime,nofail 0 0
+REDACTED_IP:/mnt/nas/share   /mnt/nas/shared  nfs _netdev,noauto,x-systemd.automount,x-systemd.mount-timeout=10,noatime,nofail 0 0
+REDACTED_IP:/mnt/nas/share     /mnt/nas/roms    nfs _netdev,noauto,x-systemd.automount,x-systemd.mount-timeout=10,noatime,nofail 0 0
 EOF
 
 success "NFS mounts configured"
 
-# ── NTFS data disks ─────────────────────────────────────────
+# ── NTFS data disks (kernel ntfs3 driver) ───────────────────
 info "Configuring NTFS data disks..."
-pacman -S --needed --noconfirm ntfs-3g
 
 mkdir -p /media/gdisk
 
 # Micron T705 1.8TB
-T705_UUID=$(blkid -s UUID -o value /dev/nvme2n1p1)
-cat >> /etc/fstab << EOF
+if [[ -b /dev/nvme2n1p1 ]]; then
+    T705_UUID=$(blkid -s UUID -o value /dev/nvme2n1p1)
+    cat >> /etc/fstab << EOF
 
 # Micron T705 data disk
-UUID=${T705_UUID} /media/gdisk ntfs-3g uid=1000,gid=1000,rw,umask=022,nofail 0 0
+UUID=${T705_UUID} /media/gdisk ntfs3 uid=1000,gid=1000,rw,dmask=022,fmask=133,nofail 0 0
 EOF
+    success "NTFS disks configured"
+else
+    info "nvme2n1p1 not found — skipping T705 fstab entry (add manually later)"
+fi
 
-success "NTFS disks configured"
-
-# ── TRIM timer for NVMe ─────────────────────────────────────
-systemctl enable fstrim.timer
-success "TRIM timer enabled"
+# TRIM handled by discard=async in mount options (no fstrim.timer needed)
 
 # ── Windows dual boot ───────────────────────────────────────
 info "Configuring Windows dual boot..."
-# systemd-boot auto-detects Windows Boot Manager on the other EFI
-# Just need os-prober or manual entry if not auto-detected
+# systemd-boot auto-detects Windows once EFI/Microsoft is on the ESP
+# No manual windows.conf entry needed — avoids duplicate menu items
 
-# Mount Windows EFI to check
+# Mount Windows EFI to copy boot files
 mkdir -p /mnt/win_efi
 mount /dev/nvme0n1p1 /mnt/win_efi 2>/dev/null || true
 
 if [[ -f /mnt/win_efi/EFI/Microsoft/Boot/bootmgfw.efi ]]; then
-    cat > /efi/loader/entries/windows.conf << EOF
-title   Windows
-efi     /EFI/Microsoft/Boot/bootmgfw.efi
-EOF
-    # Copy Windows EFI files to our ESP so systemd-boot can chain-load
-    mkdir -p /efi/EFI/Microsoft/Boot
-    cp /mnt/win_efi/EFI/Microsoft/Boot/bootmgfw.efi /efi/EFI/Microsoft/Boot/
-    success "Windows boot entry added"
+    # Copy entire EFI/Microsoft directory (bootmgfw.efi + BCD store)
+    # NOTE: after major Windows Updates, you may need to refresh this copy
+    mkdir -p /boot/EFI
+    cp -r /mnt/win_efi/EFI/Microsoft /boot/EFI/
+    success "Windows EFI files copied — systemd-boot will auto-detect"
 else
     info "Windows EFI not found on nvme0n1p1 — you may need to add it manually"
     info "Or set BIOS boot order to select Windows EFI directly"
@@ -355,24 +352,68 @@ sed -i "s|DISK_PLACEHOLDER|${DISK}|g" /mnt/chroot-setup.sh
 
 chmod +x /mnt/chroot-setup.sh
 
-# Run chroot setup
-arch-chroot /mnt /chroot-setup.sh
+# Run chroot setup (-S uses systemd-run so bootctl can write UEFI entries)
+arch-chroot -S /mnt /chroot-setup.sh
 
 # Cleanup
 rm /mnt/chroot-setup.sh
 
-# ── Step 9: Unmount and reboot ───────────────────────────────
+# ── Step 9: Summary and reboot ──────────────────────────────
 echo ""
 success "════════════════════════════════════════════════════════"
 success "  Installation complete!"
 success "════════════════════════════════════════════════════════"
 echo ""
-info "Next steps:"
-info "  1. umount -R /mnt"
-info "  2. reboot"
-info "  3. Log in as ${USERNAME}"
-info "  4. Connect to WiFi: nmcli device wifi connect <SSID> password <PASS>"
-info "  5. Clone dotfiles:"
+
+# ── Installation summary ────────────────────────────────────
+echo -e "${BLUE}┌──────────────────────────────────────────────────────┐${NC}"
+echo -e "${BLUE}│              INSTALLATION SUMMARY                     │${NC}"
+echo -e "${BLUE}├──────────────────────────────────────────────────────┤${NC}"
+echo -e "${BLUE}│${NC}  Hostname:     ${GREEN}${HOSTNAME}${NC}"
+echo -e "${BLUE}│${NC}  User:         ${GREEN}${USERNAME}${NC}"
+echo -e "${BLUE}│${NC}  Shell:        ${GREEN}/usr/bin/zsh${NC}"
+echo -e "${BLUE}│${NC}  Timezone:     ${GREEN}${TIMEZONE}${NC}"
+echo -e "${BLUE}│${NC}  Locale:       ${GREEN}${LOCALE}${NC}"
+echo -e "${BLUE}│${NC}  Keymap:       ${GREEN}${KEYMAP}${NC}"
+echo -e "${BLUE}├──────────────────────────────────────────────────────┤${NC}"
+echo -e "${BLUE}│${NC}  ${GREEN}Disk layout (${DISK})${NC}"
+echo -e "${BLUE}│${NC}    ${DISK}p1   ESP /boot   1.5GB  FAT32"
+echo -e "${BLUE}│${NC}    ${DISK}p2   /           rest   btrfs"
+echo -e "${BLUE}├──────────────────────────────────────────────────────┤${NC}"
+echo -e "${BLUE}│${NC}  ${GREEN}Btrfs subvolumes${NC}"
+for subvol in "${SUBVOLS[@]}"; do
+    echo -e "${BLUE}│${NC}    ${subvol}"
+done
+echo -e "${BLUE}├──────────────────────────────────────────────────────┤${NC}"
+echo -e "${BLUE}│${NC}  ${GREEN}Bootloader${NC}"
+echo -e "${BLUE}│${NC}    systemd-boot (ESP at /boot)"
+echo -e "${BLUE}│${NC}    Entries: arch.conf, arch-fallback.conf"
+if [[ -f /mnt/boot/EFI/Microsoft/Boot/bootmgfw.efi ]]; then
+    echo -e "${BLUE}│${NC}    Windows: ${GREEN}detected and configured${NC}"
+else
+    echo -e "${BLUE}│${NC}    Windows: ${RED}not found (add manually)${NC}"
+fi
+echo -e "${BLUE}├──────────────────────────────────────────────────────┤${NC}"
+echo -e "${BLUE}│${NC}  ${GREEN}Services enabled${NC}"
+echo -e "${BLUE}│${NC}    NetworkManager, systemd-timesyncd"
+echo -e "${BLUE}│${NC}    TRIM: discard=async (mount option)"
+echo -e "${BLUE}├──────────────────────────────────────────────────────┤${NC}"
+echo -e "${BLUE}│${NC}  ${GREEN}NFS mounts${NC}"
+echo -e "${BLUE}│${NC}    /mnt/nas/fotos   -> REDACTED_IP"
+echo -e "${BLUE}│${NC}    /mnt/nas/docs    -> REDACTED_IP"
+echo -e "${BLUE}│${NC}    /mnt/nas/shared  -> REDACTED_IP"
+echo -e "${BLUE}│${NC}    /mnt/nas/roms    -> REDACTED_IP"
+echo -e "${BLUE}├──────────────────────────────────────────────────────┤${NC}"
+echo -e "${BLUE}│${NC}  ${GREEN}NTFS disks (kernel ntfs3)${NC}"
+echo -e "${BLUE}│${NC}    Micron T705 -> /media/gdisk"
+echo -e "${BLUE}└──────────────────────────────────────────────────────┘${NC}"
+echo ""
+
+# ── Next steps ──────────────────────────────────────────────
+info "Next steps after reboot:"
+info "  1. Log in as ${USERNAME}"
+info "  2. Connect to WiFi: nmcli device wifi connect <SSID> password <PASS>"
+info "  3. Clone dotfiles:"
 info "       git clone https://github.com/pedroapy/dotfiles.git ~/dotfiles-arch"
 info "       cd ~/dotfiles-arch && git checkout archlinux"
 info "       ./install.sh"
