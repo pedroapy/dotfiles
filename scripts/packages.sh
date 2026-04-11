@@ -46,6 +46,7 @@ fi
 # Install Node.js LTS via n (n must be installed first from AUR)
 # Use N_PREFIX in user space so no sudo is needed
 export N_PREFIX="$HOME/.local"
+export PATH="$N_PREFIX/bin:$PATH"
 mkdir -p "$N_PREFIX"
 
 if command -v n &>/dev/null; then
