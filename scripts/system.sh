@@ -24,7 +24,7 @@ if ! grep -q "tuigreet" "$GREETD_CONF" 2>/dev/null; then
 vt = 1
 
 [default_session]
-command = "tuigreet --time --remember --remember-session --asterisks --cmd Hyprland"
+command = "tuigreet --time --remember --remember-session --asterisks --cmd start-hyprland"
 user = "greeter"
 EOF
     success "greetd configured (tuigreet → Hyprland)"
