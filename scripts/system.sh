@@ -43,6 +43,25 @@ else
     success "greetd already configured"
 fi
 
+# gnome-keyring PAM integration for greetd
+GREETD_PAM="/etc/pam.d/greetd"
+if ! grep -q "pam_gnome_keyring" "$GREETD_PAM" 2>/dev/null; then
+    sudo tee "$GREETD_PAM" > /dev/null << 'EOF'
+#%PAM-1.0
+
+auth       required     pam_securetty.so
+auth       requisite    pam_nologin.so
+auth       include      system-local-login
+auth       optional     pam_gnome_keyring.so
+account    include      system-local-login
+session    include      system-local-login
+session    optional     pam_gnome_keyring.so auto_start
+EOF
+    success "gnome-keyring PAM configured for greetd"
+else
+    success "gnome-keyring PAM already configured"
+fi
+
 # Create user directories
 for dir in ~/workspace ~/captures ~/bin ~/BingWallpaper; do
     mkdir -p "$dir"
@@ -85,6 +104,21 @@ if command -v xdg-settings &>/dev/null; then
     xdg-settings set default-web-browser brave-browser.desktop 2>/dev/null && \
         success "Default browser set to Brave" || \
         warn "Could not set default browser"
+fi
+
+# Reduce NetworkManager-wait-online timeout (cable-only, no need for 30s default)
+NM_OVERRIDE="/etc/systemd/system/NetworkManager-wait-online.service.d/timeout.conf"
+if [[ ! -f "$NM_OVERRIDE" ]]; then
+    sudo mkdir -p /etc/systemd/system/NetworkManager-wait-online.service.d
+    sudo tee "$NM_OVERRIDE" > /dev/null << 'EOF'
+[Service]
+ExecStart=
+ExecStart=/usr/bin/nm-online -s -q --timeout=5
+EOF
+    sudo systemctl daemon-reload
+    success "NetworkManager-wait-online timeout reduced to 5s"
+else
+    success "NetworkManager-wait-online override already in place"
 fi
 
 # Detect sensors

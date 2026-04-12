@@ -86,11 +86,13 @@ bluez
 bluez-utils
 blueman
 
-# ── Network ────────────────────────────────────
+# ── Network & Filesystems ─────────────────────
 networkmanager
 network-manager-applet
 nm-connection-editor
 networkmanager-openvpn
+ntfs-3g
+nfs-utils
 
 # ── Browsers ───────────────────────────────────
 firefox
