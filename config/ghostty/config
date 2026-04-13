@@ -2,12 +2,13 @@
 # Docs: https://ghostty.org/docs/config
 
 # ─────────────────────────────────────────────────────────────
-# Splits — ctrl+cmd+arrow indicates where the new split opens
+# Splits — chord cmd+s seguido de una flecha
+# (ctrl+cmd+flecha lo usa Rectangle para mover ventanas)
 # ─────────────────────────────────────────────────────────────
-keybind = ctrl+cmd+right=new_split:right
-keybind = ctrl+cmd+left=new_split:left
-keybind = ctrl+cmd+down=new_split:down
-keybind = ctrl+cmd+up=new_split:up
+keybind = cmd+s>right=new_split:right
+keybind = cmd+s>left=new_split:left
+keybind = cmd+s>down=new_split:down
+keybind = cmd+s>up=new_split:up
 
 # Navigate between splits
 keybind = cmd+bracket_left=goto_split:previous
