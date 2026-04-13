@@ -58,6 +58,10 @@ defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true
 defaults write com.googlecode.iterm2 NoSyncNeverRemindPrefsChangesLostForFile_selection -int 2
 echo "[ok] iTerm2 prefs"
 
+# 8b. Ghostty config
+mkdir -p "$HOME/.config/ghostty"
+link "$DOTFILES/config/ghostty/config" "$HOME/.config/ghostty/config"
+
 # 9. Claude Code config
 mkdir -p "$HOME/.claude"
 link "$DOTFILES/config/claude-settings.json" "$HOME/.claude/settings.json"

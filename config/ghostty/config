@@ -1,0 +1,51 @@
+# Ghostty config — keybindings inspired by iTerm2
+# Docs: https://ghostty.org/docs/config
+
+# ─────────────────────────────────────────────────────────────
+# Splits — ctrl+cmd+arrow indicates where the new split opens
+# ─────────────────────────────────────────────────────────────
+keybind = ctrl+cmd+right=new_split:right
+keybind = ctrl+cmd+left=new_split:left
+keybind = ctrl+cmd+down=new_split:down
+keybind = ctrl+cmd+up=new_split:up
+
+# Navigate between splits
+keybind = cmd+bracket_left=goto_split:previous
+keybind = cmd+bracket_right=goto_split:next
+# cmd+⌥+flecha (en config: cmd+alt) — saltar a split en esa dirección
+keybind = cmd+alt+left=goto_split:left
+keybind = cmd+alt+right=goto_split:right
+keybind = cmd+alt+up=goto_split:up
+keybind = cmd+alt+down=goto_split:down
+
+# Zoom current split (iTerm2: cmd+shift+enter)
+keybind = cmd+shift+enter=toggle_split_zoom
+
+# ─────────────────────────────────────────────────────────────
+# Tabs & windows
+# (cmd+t, cmd+w, cmd+n, cmd+1..9, cmd+shift+[/] son defaults)
+# ─────────────────────────────────────────────────────────────
+keybind = cmd+enter=toggle_fullscreen
+
+# ─────────────────────────────────────────────────────────────
+# Edición de línea — equivalente al preset "Natural Text Editing"
+# Nota: en la sintaxis de Ghostty `alt` = la tecla ⌥ (Option) en Mac
+# ─────────────────────────────────────────────────────────────
+# cmd+←/→: inicio / fin de línea
+keybind = cmd+left=text:\x01
+keybind = cmd+right=text:\x05
+# cmd+⌫: borrar hasta inicio de línea
+keybind = cmd+backspace=text:\x15
+# ⌥+←/→: saltar palabra
+keybind = alt+left=esc:b
+keybind = alt+right=esc:f
+# ⌥+⌫: borrar palabra anterior
+keybind = alt+backspace=text:\x17
+
+# ─────────────────────────────────────────────────────────────
+# Quake / hotkey window — toggle global estilo iTerm2
+# ─────────────────────────────────────────────────────────────
+keybind = global:cmd+grave_accent=toggle_quick_terminal
+quick-terminal-position = top
+quick-terminal-animation-duration = 0.15
+quick-terminal-screen = main
