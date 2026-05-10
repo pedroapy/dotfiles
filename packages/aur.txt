@@ -6,6 +6,7 @@ google-chrome
 1password-cli
 spotify
 nodejs-n
+nodejs-n-dummy
 bun-bin
 wlogout
 catppuccin-cursors-macchiato

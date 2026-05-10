@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # ── Systemd services ────────────────────────────
+set -euo pipefail
 
 info "Enabling system services..."
 
@@ -42,10 +43,11 @@ done
 # ── Firewall (ufw) ──────────────────────────────
 info "Configuring firewall..."
 if command -v ufw &>/dev/null; then
-    if ! sudo ufw status | grep -q "Status: active"; then
+    # Use status verbose first line; robust against UFW output format changes
+    if ! sudo ufw status verbose 2>/dev/null | head -1 | grep -qw active; then
         sudo ufw default deny incoming
         sudo ufw default allow outgoing
-        sudo ufw enable
+        sudo ufw --force enable
         success "Firewall enabled (deny incoming, allow outgoing)"
     else
         success "Firewall already active"

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # ── Install packages from lists ──────────────────
+set -euo pipefail
 
 # Parse package files: strip comments and blank lines
 parse_packages() {

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Weather via wttr.in with caching
 CACHE_DIR="$HOME/.cache/waybar-weather"
 CACHE_FILE="$CACHE_DIR/weather.json"

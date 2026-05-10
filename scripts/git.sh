@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # ── Git configuration ────────────────────────────
 # User-specific config goes in ~/.gitconfig_local (NOT the stowed .gitconfig)
+set -euo pipefail
 
 info "Configuring git..."
 

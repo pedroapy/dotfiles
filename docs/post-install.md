@@ -21,35 +21,56 @@ monitor = HDMI-A-1, 1920x1080@60, 2560x0, 1
 
 ## 2. YubiKey — Autenticación U2F para sudo
 
-Registra tu YubiKey:
+> ⚠️ **Mantén una sesión root abierta** en otra TTY mientras configuras PAM. Un error te bloquea.
+
+### Registrar llaves
+
+Registra al menos **dos** YubiKeys (la principal y una de backup) — si solo registras una y la pierdes, te bloqueas del sistema.
 
 ```bash
 mkdir -p ~/.config/Yubico
-pamu2fcfg > ~/.config/Yubico/u2f_keys
-# Toca la YubiKey cuando parpadee
+pamu2fcfg > ~/.config/Yubico/u2f_keys     # primera llave (toca cuando parpadee)
+pamu2fcfg -n >> ~/.config/Yubico/u2f_keys  # segunda llave de backup
 ```
 
-Para añadir una segunda llave de backup:
+### Configurar PAM
 
-```bash
-pamu2fcfg -n >> ~/.config/Yubico/u2f_keys
-```
+Hay dos esquemas; elige según tu modelo de amenaza:
 
-Habilita U2F en sudo (requiere la YubiKey + contraseña):
+**Esquema A — `sufficient` (cómodo, password como fallback):**
+
+YubiKey presente → sudo sin password. YubiKey ausente → password normal.
 
 ```bash
 sudo vim /etc/pam.d/sudo
 ```
 
-Añade esta línea **después** de `auth include system-auth`:
+Añade **al principio del bloque `auth`** (antes de `auth include system-auth`):
 
 ```
-auth required pam_u2f.so
+auth sufficient pam_u2f.so cue
 ```
 
-Para login con YubiKey, edita `/etc/pam.d/system-auth` de la misma forma.
+**Esquema B — `required` (alto, exige ambos factores):**
 
-> **Importante**: Ten siempre una sesión root abierta mientras configuras PAM. Un error puede dejarte fuera del sistema.
+Tanto password **como** YubiKey son requeridos. Si pierdes todas las llaves (¡por eso registra dos!), te bloqueas — recuperación: editar `/etc/pam.d/sudo` desde un live USB o sesión root.
+
+Añade **después** de `auth include system-auth`:
+
+```
+auth required pam_u2f.so cue
+```
+
+### Para login (TTY) con YubiKey
+
+Edita `/etc/pam.d/system-local-login` con el mismo esquema que elegiste. **No edites `/etc/pam.d/system-auth`** directamente — afecta a todo el stack PAM y es más arriesgado.
+
+### Verificar
+
+```bash
+sudo -K     # invalidar timestamp de sudo
+sudo whoami # debería pedir YubiKey según esquema
+```
 
 ## 3. Clipboard — Proteger contraseñas
 

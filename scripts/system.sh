@@ -1,16 +1,40 @@
 #!/usr/bin/env bash
 # ── System configuration ─────────────────────────
+set -euo pipefail
 
 info "Applying system configuration..."
 
-# Increase inotify watchers (for VS Code, file watchers, etc.)
+# Sysctl: inotify limits + kernel/network hardening
 SYSCTL_CONF="/etc/sysctl.d/99-dotfiles.conf"
-SYSCTL_CONTENT="fs.inotify.max_user_watches=524288
-fs.inotify.max_user_instances=512"
 if [[ ! -f "$SYSCTL_CONF" ]]; then
-    echo "$SYSCTL_CONTENT" | sudo tee "$SYSCTL_CONF" > /dev/null
+    sudo tee "$SYSCTL_CONF" > /dev/null << 'EOF'
+# Inotify watchers (VS Code, file watchers)
+fs.inotify.max_user_watches=524288
+fs.inotify.max_user_instances=512
+
+# Kernel hardening
+kernel.kptr_restrict=2
+kernel.dmesg_restrict=1
+kernel.printk=3 3 3 3
+kernel.kexec_load_disabled=1
+
+# Network hardening
+net.ipv4.tcp_syncookies=1
+net.ipv4.conf.all.rp_filter=1
+net.ipv4.conf.default.rp_filter=1
+net.ipv4.conf.all.accept_redirects=0
+net.ipv4.conf.default.accept_redirects=0
+net.ipv4.conf.all.secure_redirects=0
+net.ipv4.conf.default.secure_redirects=0
+net.ipv4.conf.all.send_redirects=0
+net.ipv4.conf.all.accept_source_route=0
+net.ipv4.conf.default.accept_source_route=0
+net.ipv6.conf.all.accept_redirects=0
+net.ipv6.conf.default.accept_redirects=0
+net.ipv6.conf.all.accept_source_route=0
+EOF
     sudo sysctl --system > /dev/null 2>&1
-    success "sysctl configured"
+    success "sysctl configured (inotify + hardening)"
 else
     success "sysctl already configured"
 fi
@@ -28,10 +52,12 @@ command = "tuigreet --time --remember --remember-session --asterisks --cmd start
 user = "greeter"
 EOF
     # Delay greetd start to wait for GPU/DRM (RDNA4 takes longer to init)
+    # Conflicts with getty@tty1: prevents both fighting for VT1
     sudo mkdir -p /etc/systemd/system/greetd.service.d
     sudo tee /etc/systemd/system/greetd.service.d/override.conf > /dev/null << 'OVERRIDE'
 [Unit]
-After=systemd-user-sessions.service getty@tty1.service multi-user.target
+Conflicts=getty@tty1.service
+After=systemd-user-sessions.service multi-user.target
 Wants=multi-user.target
 
 [Service]
@@ -81,8 +107,6 @@ else
     success "Already in docker group"
 fi
 
-# Network (DHCP — IP and DNS assigned by router/DHCP server)
-
 # Default browser
 if command -v xdg-settings &>/dev/null; then
     xdg-settings set default-web-browser brave-browser.desktop 2>/dev/null && \
@@ -90,19 +114,13 @@ if command -v xdg-settings &>/dev/null; then
         warn "Could not set default browser"
 fi
 
-# Reduce NetworkManager-wait-online timeout (cable-only, no need for 30s default)
-NM_OVERRIDE="/etc/systemd/system/NetworkManager-wait-online.service.d/timeout.conf"
-if [[ ! -f "$NM_OVERRIDE" ]]; then
-    sudo mkdir -p /etc/systemd/system/NetworkManager-wait-online.service.d
-    sudo tee "$NM_OVERRIDE" > /dev/null << 'EOF'
-[Service]
-ExecStart=
-ExecStart=/usr/bin/nm-online -s -q --timeout=5
-EOF
-    sudo systemctl daemon-reload
-    success "NetworkManager-wait-online timeout reduced to 5s"
+# NetworkManager-wait-online: disabled (chronically fails on cable-only
+# desktops, harmless to skip — nothing here actually needs network at boot)
+if systemctl is-enabled NetworkManager-wait-online.service &>/dev/null; then
+    sudo systemctl disable --now NetworkManager-wait-online.service
+    success "NetworkManager-wait-online disabled"
 else
-    success "NetworkManager-wait-online override already in place"
+    success "NetworkManager-wait-online already disabled"
 fi
 
 # Detect sensors

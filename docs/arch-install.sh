@@ -422,7 +422,8 @@ else
     info "nvme2n1p1 not found — skipping T705 fstab entry (add manually later)"
 fi
 
-# TRIM handled by discard=async in mount options (no fstrim.timer needed)
+# TRIM: discard=async in mount options handles ongoing trim;
+# fstrim.timer (weekly) is enabled later by install.sh as belt-and-braces.
 
 # ── Windows dual boot ───────────────────────────────────────
 # rEFInd auto-detects Windows Boot Manager on any EFI partition

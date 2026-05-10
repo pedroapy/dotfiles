@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # ── Stow configuration symlinks ──────────────────
+set -euo pipefail
 
 info "Applying configuration symlinks with stow..."
 
