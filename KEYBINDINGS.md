@@ -56,6 +56,19 @@
 | `Super + Click izquierdo` | Mover ventana arrastrando |
 | Arrastrar bordes | Redimensionar (ventanas flotantes) |
 
+## Groups (modo stacked/tabbed)
+
+> Apila ventanas en el mismo espacio con una barra de pestañas arriba (equivalente al modo stacked de i3).
+
+| Atajo | Accion |
+|---|---|
+| `Super + G` | Crear / disolver grupo con la ventana activa |
+| `Super + Tab` | Siguiente ventana del grupo |
+| `Super + Shift + Tab` | Anterior ventana del grupo |
+| `Super + Alt + Flechas` | Meter ventana vecina al grupo en esa direccion |
+| `Super + Alt + O` | Sacar ventana activa del grupo |
+| `Super + Alt + L` | Bloquear grupo (no auto-anadir nuevas ventanas) |
+
 ## Workspaces (escritorios virtuales)
 
 | Atajo | Accion |
