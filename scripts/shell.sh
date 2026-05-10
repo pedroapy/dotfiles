@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # ── Shell setup (zsh + zinit) ────────────────────
+set -euo pipefail
 
 # Set zsh as default shell
 if [[ "$SHELL" != */zsh ]]; then

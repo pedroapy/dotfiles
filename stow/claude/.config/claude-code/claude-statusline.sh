@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 export LC_NUMERIC=C
 input=$(cat)
 
@@ -87,7 +87,7 @@ if [ -n "$RL5H" ] || [ -n "$RL7D" ]; then
 fi
 
 # Line 3: directory and git info (cached)
-CACHE_FILE="/tmp/statusline-git-cache"
+CACHE_FILE="${TMPDIR:-/tmp}/statusline-git-cache-${UID:-$(id -u)}"
 CACHE_MAX_AGE=10
 
 cache_is_stale() {

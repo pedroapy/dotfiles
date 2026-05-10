@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Check for pacman + AUR updates
 OFFICIAL=$(checkupdates 2>/dev/null | wc -l)
 AUR=0

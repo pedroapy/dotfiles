@@ -5,7 +5,7 @@ alias remove="yay -Rsn"
 alias search="yay -Ss"
 alias installed="yay -Qs"
 alias orphans='[[ -n "$(yay -Qtdq)" ]] && yay -Qtdq | yay -Rsn - || echo "No orphans found"'
-alias mirrors="sudo reflector --country Spain --latest 10 --sort rate --save /etc/pacman.d/mirrorlist"
+alias mirrors="sudo reflector --country Spain --age 24 --protocol https --latest 10 --sort rate --save /etc/pacman.d/mirrorlist"
 
 # ── Modern CLI Replacements ─────────────────────
 alias ls="eza --icons --group-directories-first"

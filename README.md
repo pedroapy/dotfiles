@@ -55,9 +55,9 @@ bash arch-install.sh
 ```
 
 This will:
-- Partition `nvme1n1` (EFI 1GB + Btrfs with subvolumes)
-- Install base Arch + systemd-boot
-- Configure dual boot with Windows (on `nvme0n1`)
+- Partition the selected disk (EFI 1.5GB + Btrfs with subvolumes)
+- Install base Arch + rEFInd (Catppuccin Mocha theme)
+- Configure dual boot with Windows (auto-detected on any EFI partition)
 - Set up user, locale, hostname, NFS mounts, NTFS data disks
 - Optimize for AMD Ryzen 9800X3D + RX 9070 XT
 
@@ -105,11 +105,11 @@ Hyprland
 
 ```
 nvme1n1 (477GB) — Arch Linux
-├── p1: EFI (1GB, FAT32)
+├── p1: EFI (1.5GB, FAT32)
 └── p2: Btrfs
     ├── @           → /
     ├── @home       → /home
-    ├── @snapshots  → /.snapshots
+    ├── @snapshots  → /.snapshots   (snapper auto-snapshots)
     ├── @var_log    → /var/log
     ├── @var_cache  → /var/cache
     └── @docker     → /var/lib/docker
@@ -118,6 +118,14 @@ nvme0n1 (1TB)   — Windows (not touched)
 nvme2n1 (2TB)   — Data NTFS → /media/gdisk
 sda     (2TB)   — Data NTFS
 ```
+
+## Snapshots & rollback
+
+- `snapper` + `snap-pac` create automatic pre/post snapshots on every pacman transaction.
+- Timeline snapshots: 5 hourly, 7 daily, 2 weekly (configurable in `/etc/snapper/configs/{root,home}`).
+- List: `snapper -c root list` · `snapper -c home list`.
+- Rollback: `snapper -c root rollback N && reboot`.
+- LTS kernel (`linux-lts`) installed as a fallback boot entry in rEFInd in case `linux` breaks.
 
 ## Structure
 
@@ -157,23 +165,4 @@ sda     (2TB)   — Data NTFS
 
 ## Keybindings
 
-| Key | Action |
-|-----|--------|
-| `Super + Return` | Terminal (Ghostty) |
-| `Super + D` | App launcher (Rofi) |
-| `Super + B` | Browser (Firefox) |
-| `Super + E` | File manager (Nemo) |
-| `Super + Q` | Close window |
-| `Super + F` | Fullscreen |
-| `Super + Space` | Toggle floating |
-| `Super + V` | Clipboard history |
-| `Super + L` | Lock screen |
-| `Super + N` | Toggle notifications |
-| `Super + 1-0` | Switch workspace |
-| `Super + Shift + 1-0` | Move to workspace |
-| `Print` | Screenshot (region) |
-| `Shift + Print` | Screenshot (full) |
-| `Super + hjkl` | Focus (vim keys) |
-| `Super + Shift + hjkl` | Move window |
-| `Super + Ctrl + arrows` | Resize window |
-| `Alt + Shift` | Toggle keyboard US/ES |
+See [KEYBINDINGS.md](KEYBINDINGS.md) for the full cheatsheet (en español).
