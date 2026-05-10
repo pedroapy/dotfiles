@@ -69,6 +69,7 @@ docker-compose
 docker-buildx
 cmake
 nmap
+opentofu
 python
 python-pip
 python-pipx

@@ -81,23 +81,7 @@ else
     success "Already in docker group"
 fi
 
-# Static IP & DNS (NetworkManager)
-CONN_NAME="Wired connection 1"
-if nmcli connection show "$CONN_NAME" &>/dev/null; then
-    CURRENT_METHOD=$(nmcli -g ipv4.method connection show "$CONN_NAME")
-    if [[ "$CURRENT_METHOD" != "manual" ]]; then
-        nmcli connection modify "$CONN_NAME" \
-            ipv4.method manual \
-            ipv4.addresses REDACTED_IP/24 \
-            ipv4.gateway REDACTED_IP \
-            ipv4.dns "REDACTED_IP,REDACTED_IP,REDACTED_IP,REDACTED_IP"
-        success "Static IP (REDACTED_IP) and DNS configured"
-    else
-        success "Static IP already configured"
-    fi
-else
-    warn "Connection '$CONN_NAME' not found — configure network manually"
-fi
+# Network (DHCP — IP and DNS assigned by router/DHCP server)
 
 # Default browser
 if command -v xdg-settings &>/dev/null; then
