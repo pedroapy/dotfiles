@@ -104,6 +104,12 @@ networkmanager-openvpn
 ntfs-3g
 nfs-utils
 
+# ── VPN (Proton) ──────────────────────────────
+proton-vpn-gtk-app
+proton-vpn-cli
+proton-vpn-daemon
+wireguard-tools
+
 # ── Browsers ───────────────────────────────────
 firefox
 firefox-i18n-es-es
