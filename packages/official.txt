@@ -4,6 +4,7 @@ greetd-tuigreet
 
 # ── Hyprland & Wayland ──────────────────────────
 hyprland
+uwsm
 xdg-desktop-portal-hyprland
 xdg-desktop-portal-gtk
 qt5-wayland
