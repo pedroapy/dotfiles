@@ -12,6 +12,11 @@ declare -a system_services=(
     "systemd-timesyncd.service"
     "ufw.service"
     "greetd.service"
+    # Required because /etc/pam.d/system-auth stacks pam_systemd_home.so
+    # before pam_unix.so with try_first_pass — if homed is dead, no module
+    # asks for the password and sudo fails with "could not identify password"
+    # (even for non-homed users).
+    "systemd-homed.service"
     # Memory pressure handler (no swap on disk → need a killer that arrives early)
     "systemd-oomd.service"
     # Periodic maintenance
