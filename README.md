@@ -29,11 +29,16 @@ Modern Arch Linux setup with Hyprland, Ghostty, Starship, and Catppuccin Macchia
 | Clipboard | cliphist + wl-clipboard |
 | Lock Screen | hyprlock |
 | Idle | hypridle |
-| Wallpaper | swww |
+| Wallpaper | awww |
 | Git | lazygit + delta |
 | Theme | Catppuccin Macchiato |
 | GPU Drivers | mesa + vulkan-radeon |
 | Firewall | ufw |
+| Snapshots | snapper + snap-pac |
+| Swap | zram-generator (zstd, up to 8G) |
+| OOM | systemd-oomd |
+| Scheduler | scx-scheds (scx_lavd, sched-ext) |
+| Gaming | gamemode + mangohud |
 
 ## Installation (from scratch)
 
@@ -51,6 +56,10 @@ Download and run the install script:
 
 ```bash
 curl -LO https://raw.githubusercontent.com/pedroapy/dotfiles/archlinux/docs/arch-install.sh
+# Optional — host-specific overrides (NAS IPs, hostname, etc.):
+curl -LO https://raw.githubusercontent.com/pedroapy/dotfiles/archlinux/docs/arch-install.local.conf.example
+cp arch-install.local.conf.example arch-install.local.conf
+$EDITOR arch-install.local.conf   # set your hostname, username, NFS_MOUNTS, NTFS device
 bash arch-install.sh
 ```
 
@@ -58,7 +67,7 @@ This will:
 - Partition the selected disk (EFI 1.5GB + Btrfs with subvolumes)
 - Install base Arch + rEFInd (Catppuccin Mocha theme)
 - Configure dual boot with Windows (auto-detected on any EFI partition)
-- Set up user, locale, hostname, NFS mounts, NTFS data disks
+- Set up user, locale, hostname, NFS mounts (from `arch-install.local.conf`), NTFS data disks
 - Optimize for AMD Ryzen 9800X3D + RX 9070 XT
 
 ### Step 2: Dotfiles setup

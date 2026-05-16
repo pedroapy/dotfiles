@@ -110,7 +110,7 @@ Si usas 1Password como agente SSH:
 Si usas llaves locales:
 
 ```bash
-ssh-keygen -t ed25519 -C "tu@email.com"
+ssh-keygen -t ed25519 -C "user@example.com"
 eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id_ed25519
 ```

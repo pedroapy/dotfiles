@@ -12,3 +12,7 @@ wlogout
 catppuccin-cursors-macchiato
 catppuccin-gtk-theme-macchiato
 ttf-ms-fonts
+grimblast-git
+gh-dash-bin
+topgrade-bin
+kondo

@@ -88,6 +88,36 @@ else
     success "gnome-keyring PAM already configured"
 fi
 
+# zram swap (no disk swap; we have 30G RAM but need OOM headroom)
+ZRAM_CONF="/etc/systemd/zram-generator.conf"
+if [[ ! -f "$ZRAM_CONF" ]]; then
+    sudo tee "$ZRAM_CONF" > /dev/null << 'EOF'
+[zram0]
+zram-size = min(ram / 4, 8192)
+compression-algorithm = zstd
+swap-priority = 100
+fs-type = swap
+EOF
+    sudo systemctl daemon-reload
+    sudo systemctl start /dev/zram0 2>/dev/null || true
+    success "zram-generator configured (up to 8G zstd)"
+else
+    success "zram-generator already configured"
+fi
+
+# snapper configs (run only after snapper is installed)
+if command -v snapper &>/dev/null; then
+    for sub in root home; do
+        if ! sudo snapper -c "$sub" list &>/dev/null; then
+            mount_point="/"; [[ "$sub" == "home" ]] && mount_point="/home"
+            sudo snapper -c "$sub" create-config "$mount_point" 2>/dev/null || true
+            success "snapper config '$sub' created"
+        else
+            success "snapper config '$sub' already exists"
+        fi
+    done
+fi
+
 # Create user directories
 for dir in ~/workspace ~/captures ~/bin ~/BingWallpaper; do
     mkdir -p "$dir"
@@ -128,4 +158,20 @@ info "Detecting hardware sensors..."
 if command -v sensors-detect &>/dev/null; then
     sudo sensors-detect --auto > /dev/null 2>&1 || true
     success "Sensors detected"
+fi
+
+# CPU governor → performance (9800X3D desktop, no power concern, amd_pstate=active)
+if [[ -f /etc/default/cpupower ]] && ! grep -q '^governor=.performance.' /etc/default/cpupower; then
+    sudo sed -i "s/^#\?governor=.*/governor='performance'/" /etc/default/cpupower
+    success "cpupower governor set to performance"
+fi
+
+# scx-sched default scheduler: scx_lavd (good for X3D single-CCD desktop)
+SCX_DEFAULTS="/etc/default/scx"
+if command -v scx_lavd &>/dev/null && [[ ! -f "$SCX_DEFAULTS" ]]; then
+    sudo tee "$SCX_DEFAULTS" > /dev/null << 'EOF'
+SCX_SCHEDULER=scx_lavd
+SCX_FLAGS=""
+EOF
+    success "scx defaults written (scx_lavd)"
 fi

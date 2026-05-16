@@ -66,6 +66,8 @@ label {
 #language,
 #cpu,
 #memory,
+#temperature,
+#disk,
 #tray {
     padding: 0 12px;
     margin: 4px 2px;
@@ -148,6 +150,26 @@ label {
 
 #memory {
     color: @mauve;
+}
+
+#temperature {
+    color: @yellow;
+}
+
+#temperature.critical {
+    color: @red;
+}
+
+#disk {
+    color: @teal;
+}
+
+#network {
+    color: @sapphire;
+}
+
+#network.disconnected {
+    color: @red;
 }
 
 #bluetooth {

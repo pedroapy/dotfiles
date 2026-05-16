@@ -1,0 +1,25 @@
+# Local overrides for arch-install.sh — copy to arch-install.local.conf
+# (the .local.conf file is gitignored and must NEVER be committed).
+#
+# Anything defined here overrides the defaults baked into arch-install.sh.
+
+# Identity
+HOSTNAME="myhost"
+USERNAME="user"
+TIMEZONE="Europe/Madrid"
+LOCALE="en_US.UTF-8"
+KEYMAP="us"
+EXTRA_KEYMAP="es"
+
+# NFS mounts — array of "remote:export local mountpoint" triplets.
+# Leave the array empty to skip NFS configuration entirely.
+NFS_MOUNTS=(
+  "nas-a.lan:/export/photos /mnt/nas/photos"
+  "nas-a.lan:/export/docs   /mnt/nas/docs"
+  "nas-b.lan:/export/shared /mnt/nas/shared"
+  "nas-b.lan:/export/roms   /mnt/nas/roms"
+)
+
+# NTFS data disk (set to "" to skip)
+NTFS_DATA_DEVICE="/dev/nvme2n1p1"
+NTFS_DATA_MOUNT="/media/data"

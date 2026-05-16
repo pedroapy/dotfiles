@@ -6,7 +6,6 @@ lib32-vulkan-radeon
 libva-mesa-driver
 lib32-libva-mesa-driver
 # VDPAU removed from Mesa 25.3+ — VA-API via libva-mesa-driver is the replacement
-libvdpau-va-gl
 vulkan-tools
 radeontop
 # AMD CPU microcode

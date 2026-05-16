@@ -25,16 +25,32 @@ info()    { echo -e "${BLUE}[INFO]${NC} $1"; }
 success() { echo -e "${GREEN}[OK]${NC} $1"; }
 warn()    { echo -e "${RED}[!]${NC} $1"; }
 
-# ── Configuration ────────────────────────────────────────────────
+# ── Configuration (defaults; override in arch-install.local.conf) ─
 HOSTNAME="archbox"
-USERNAME="pedroapy"
+USERNAME="user"
 TIMEZONE="Europe/Madrid"
 LOCALE="en_US.UTF-8"
 KEYMAP="us"
 EXTRA_KEYMAP="es"
 
+# NFS mounts — array of "remote:export  local_mountpoint" pairs.
+# Default is empty (no NFS). Override in arch-install.local.conf.
+NFS_MOUNTS=()
+
+# NTFS data disk (empty = skip)
+NTFS_DATA_DEVICE=""
+NTFS_DATA_MOUNT="/media/data"
+
 # Btrfs subvolumes
 declare -a SUBVOLS=("@" "@home" "@snapshots" "@var_log" "@var_cache" "@docker")
+
+# Load local overrides if present (NEVER committed; see .gitignore)
+LOCAL_CONF="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/arch-install.local.conf"
+if [[ -f "$LOCAL_CONF" ]]; then
+    # shellcheck source=/dev/null
+    source "$LOCAL_CONF"
+    info "Loaded local config: $LOCAL_CONF"
+fi
 
 # ── Disk selection ──────────────────────────────────────────────
 echo ""
@@ -388,38 +404,31 @@ pacman -Sy --noconfirm
 success "Pacman configured"
 
 # ── NFS mounts ───────────────────────────────────────────────
-info "Configuring NFS mounts..."
-pacman -S --needed --noconfirm nfs-utils
+if [[ ${#NFS_MOUNTS[@]} -gt 0 ]]; then
+    info "Configuring ${#NFS_MOUNTS[@]} NFS mount(s)..."
+    pacman -S --needed --noconfirm nfs-utils
 
-mkdir -p /mnt/nas/{fotos,docs,shared,roms}
-
-cat >> /etc/fstab << EOF
-
-# NAS mounts (automount on access, no boot delay if NAS is down)
-REDACTED_IP:/mnt/nas/share  /mnt/nas/fotos  nfs _netdev,noauto,x-systemd.automount,x-systemd.mount-timeout=10,noatime,nofail 0 0
-REDACTED_IP:/mnt/nas/share   /mnt/nas/docs   nfs _netdev,noauto,x-systemd.automount,x-systemd.mount-timeout=10,noatime,nofail 0 0
-REDACTED_IP:/mnt/nas/share   /mnt/nas/shared  nfs _netdev,noauto,x-systemd.automount,x-systemd.mount-timeout=10,noatime,nofail 0 0
-REDACTED_IP:/mnt/nas/share     /mnt/nas/roms    nfs _netdev,noauto,x-systemd.automount,x-systemd.mount-timeout=10,noatime,nofail 0 0
-EOF
-
-success "NFS mounts configured"
-
-# ── NTFS data disks (kernel ntfs3 driver) ───────────────────
-info "Configuring NTFS data disks..."
-
-mkdir -p /media/gdisk
-
-# Micron T705 1.8TB
-if [[ -b /dev/nvme2n1p1 ]]; then
-    T705_UUID=$(blkid -s UUID -o value /dev/nvme2n1p1)
-    cat >> /etc/fstab << EOF
-
-# Micron T705 data disk
-UUID=${T705_UUID} /media/gdisk ntfs3 uid=1000,gid=1000,rw,dmask=022,fmask=133,nofail 0 0
-EOF
-    success "NTFS disks configured"
+    for entry in "${NFS_MOUNTS[@]}"; do
+        # Each entry: "remote:export  local_mountpoint"
+        remote=$(echo "$entry" | awk '{print $1}')
+        local_mp=$(echo "$entry" | awk '{print $2}')
+        mkdir -p "$local_mp"
+        echo "${remote} ${local_mp} nfs _netdev,noauto,x-systemd.automount,x-systemd.mount-timeout=10,noatime,nofail 0 0" >> /etc/fstab
+    done
+    success "NFS mounts configured (see arch-install.local.conf for sources)"
 else
-    info "nvme2n1p1 not found — skipping T705 fstab entry (add manually later)"
+    info "No NFS_MOUNTS defined — skipping NFS configuration"
+fi
+
+# ── NTFS data disk (kernel ntfs3 driver) ────────────────────
+if [[ -n "$NTFS_DATA_DEVICE" && -b "$NTFS_DATA_DEVICE" ]]; then
+    info "Configuring NTFS data disk at $NTFS_DATA_MOUNT..."
+    mkdir -p "$NTFS_DATA_MOUNT"
+    NTFS_UUID=$(blkid -s UUID -o value "$NTFS_DATA_DEVICE")
+    echo "UUID=${NTFS_UUID} ${NTFS_DATA_MOUNT} ntfs3 uid=1000,gid=1000,rw,dmask=022,fmask=133,nofail 0 0" >> /etc/fstab
+    success "NTFS disk configured"
+else
+    info "NTFS_DATA_DEVICE not set or not a block device — skipping NTFS fstab entry"
 fi
 
 # TRIM: discard=async in mount options handles ongoing trim;
@@ -490,15 +499,18 @@ echo -e "${BLUE}├────────────────────�
 echo -e "${BLUE}│${NC}  ${GREEN}Services enabled${NC}"
 echo -e "${BLUE}│${NC}    NetworkManager, systemd-timesyncd"
 echo -e "${BLUE}│${NC}    TRIM: discard=async (mount option)"
-echo -e "${BLUE}├──────────────────────────────────────────────────────┤${NC}"
-echo -e "${BLUE}│${NC}  ${GREEN}NFS mounts${NC}"
-echo -e "${BLUE}│${NC}    /mnt/nas/fotos   -> REDACTED_IP"
-echo -e "${BLUE}│${NC}    /mnt/nas/docs    -> REDACTED_IP"
-echo -e "${BLUE}│${NC}    /mnt/nas/shared  -> REDACTED_IP"
-echo -e "${BLUE}│${NC}    /mnt/nas/roms    -> REDACTED_IP"
-echo -e "${BLUE}├──────────────────────────────────────────────────────┤${NC}"
-echo -e "${BLUE}│${NC}  ${GREEN}NTFS disks (kernel ntfs3)${NC}"
-echo -e "${BLUE}│${NC}    Micron T705 -> /media/gdisk"
+if [[ ${#NFS_MOUNTS[@]} -gt 0 ]]; then
+    echo -e "${BLUE}├──────────────────────────────────────────────────────┤${NC}"
+    echo -e "${BLUE}│${NC}  ${GREEN}NFS mounts (${#NFS_MOUNTS[@]})${NC}"
+    for entry in "${NFS_MOUNTS[@]}"; do
+        echo -e "${BLUE}│${NC}    $(echo "$entry" | awk '{print $2}')"
+    done
+fi
+if [[ -n "$NTFS_DATA_DEVICE" ]]; then
+    echo -e "${BLUE}├──────────────────────────────────────────────────────┤${NC}"
+    echo -e "${BLUE}│${NC}  ${GREEN}NTFS data disk (kernel ntfs3)${NC}"
+    echo -e "${BLUE}│${NC}    ${NTFS_DATA_DEVICE} -> ${NTFS_DATA_MOUNT}"
+fi
 echo -e "${BLUE}└──────────────────────────────────────────────────────┘${NC}"
 echo ""
 

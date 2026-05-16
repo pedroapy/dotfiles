@@ -1,9 +1,9 @@
 export PATH="$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH"
 
 export WORKSPACE="$HOME/workspace"
-export EDITOR=vim
-export VISUAL=vim
-export KUBE_EDITOR=vim
+export EDITOR=nvim
+export VISUAL=nvim
+export KUBE_EDITOR=nvim
 export KUBECONFIG="$HOME/.kube/config"
 export RIPGREP_CONFIG_PATH="$HOME/.config/ripgreprc"
 

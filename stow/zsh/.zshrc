@@ -28,7 +28,12 @@ zinit light-mode for \
   zdharma-continuum/fast-syntax-highlighting \
   zsh-users/zsh-autosuggestions \
   zsh-users/zsh-completions \
+  zsh-users/zsh-history-substring-search \
   djui/alias-tips
+
+# Bind up/down to substring search
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
 
 # Oh-my-zsh snippets (lightweight, no full omz)
 zinit snippet OMZP::git
@@ -58,3 +63,11 @@ export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_ALT_C_COMMAND='fd --type d --hidden --exclude .git'
 export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range :500 {}'"
+
+# ── direnv ──────────────────────────────────────
+command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
+
+# ── atuin (better shell history, Ctrl+R) ───────
+if command -v atuin &>/dev/null; then
+    eval "$(atuin init zsh --disable-up-arrow)"
+fi

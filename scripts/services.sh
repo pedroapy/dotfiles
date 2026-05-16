@@ -12,6 +12,19 @@ declare -a system_services=(
     "systemd-timesyncd.service"
     "ufw.service"
     "greetd.service"
+    # Memory pressure handler (no swap on disk → need a killer that arrives early)
+    "systemd-oomd.service"
+    # Periodic maintenance
+    "btrfs-scrub@-.timer"
+    "fstrim.timer"
+    "paccache.timer"
+    "pkgfile-update.timer"
+    "snapper-timeline.timer"
+    "snapper-cleanup.timer"
+    # CPU governor → performance on boot
+    "cpupower.service"
+    # sched_ext (scx) userspace scheduler (config in /etc/default/scx)
+    "scx_loader.service"
 )
 
 for service in "${system_services[@]}"; do

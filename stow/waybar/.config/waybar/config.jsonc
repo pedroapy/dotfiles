@@ -16,6 +16,9 @@
     "custom/updates",
     "cpu",
     "memory",
+    "temperature",
+    "disk",
+    "network",
     "bluetooth",
     "tray",
     "pulseaudio",
@@ -67,6 +70,23 @@
     "format": "󰘚 {}%",
     "interval": 5,
     "tooltip-format": "{used:0.1f}GiB / {total:0.1f}GiB"
+  },
+
+  "temperature": {
+    "hwmon-path-abs": "/sys/devices/pci0000:00/0000:00:18.3/hwmon",
+    "input-filename": "temp1_input",
+    "critical-threshold": 85,
+    "format": "󰔏 {temperatureC}°C",
+    "format-critical": " {temperatureC}°C",
+    "interval": 5,
+    "tooltip-format": "CPU package"
+  },
+
+  "disk": {
+    "format": "󰋊 {percentage_used}%",
+    "path": "/",
+    "interval": 60,
+    "tooltip-format": "{used} / {total} ({percentage_used}% on /)"
   },
 
   "network": {
