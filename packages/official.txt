@@ -14,6 +14,7 @@ awww
 grim
 slurp
 swappy
+hyprland-qtutils
 wl-clipboard
 cliphist
 polkit-kde-agent
@@ -47,6 +48,15 @@ tree
 unzip
 fastfetch
 lsof
+tealdeer
+procs
+bottom
+bandwhich
+hyperfine
+tokei
+glow
+direnv
+atuin
 
 # ── Git ─────────────────────────────────────────
 git
@@ -142,14 +152,34 @@ ufw
 # ── Hardware sensors ──────────────────────────
 lm_sensors
 
+# ── Performance / scheduling ──────────────────
+scx-scheds
+gamemode
+lib32-gamemode
+mangohud
+lib32-mangohud
+cpupower
+
 # ── System Utilities ──────────────────────────
 stow
 gnome-keyring
 seahorse
 pacman-contrib
+pkgfile
 man-db
 man-pages
 wget
 curl
 base-devel
 reflector
+
+# ── Btrfs snapshots ───────────────────────────
+snapper
+snap-pac
+
+# ── Memory / OOM ──────────────────────────────
+zram-generator
+# systemd-oomd ships with systemd; just enable the service
+
+# ── History rewriting (one-shot) ─────────────
+git-filter-repo
