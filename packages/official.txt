@@ -14,7 +14,6 @@ awww
 grim
 slurp
 swappy
-hyprland-qtutils
 wl-clipboard
 cliphist
 polkit-kde-agent

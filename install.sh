@@ -23,8 +23,11 @@ fi
 
 info "Dotfiles directory: $DOTFILES"
 
-# Get sudo upfront and keep it alive throughout the script
-sudo -v
+# Get sudo upfront and keep it alive throughout the script.
+# Honour SUDO_ASKPASS so this can run from non-tty contexts (rofi prompt).
+SUDO_ARGS=()
+[[ -n "${SUDO_ASKPASS:-}" ]] && SUDO_ARGS=(-A)
+sudo "${SUDO_ARGS[@]}" -v
 while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 SUDO_KEEPALIVE_PID=$!
 trap 'kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true' EXIT INT TERM
