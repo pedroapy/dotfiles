@@ -1,10 +1,25 @@
 {
   "permissions": {
-    "allow": ["Bash(source:*)"]
+    "allow": [
+      "Bash(source:*)"
+    ]
   },
-  "effortLevel": "high",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rtk hook claude"
+          }
+        ]
+      }
+    ]
+  },
   "statusLine": {
     "type": "command",
     "command": "bash $HOME/dotfiles/scripts/claude-statusline.sh"
-  }
+  },
+  "effortLevel": "high"
 }
