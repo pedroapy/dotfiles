@@ -51,14 +51,20 @@ keybind = ctrl+shift+7=goto_tab:7
 keybind = ctrl+shift+8=goto_tab:8
 keybind = ctrl+shift+9=goto_tab:9
 
-# Splits (Cmd+D / Cmd+Shift+D en iTerm2)
+# Splits
 keybind = ctrl+shift+d=new_split:right
 keybind = ctrl+shift+e=new_split:down
 keybind = ctrl+shift+x=close_surface
 keybind = ctrl+shift+z=toggle_split_zoom
 keybind = ctrl+shift+equal=equalize_splits
 
-# Split navigation (Cmd+Opt+arrows en iTerm2)
+# Splits — leader sequence (análogo a Cmd+S → flecha en ghostty macOS)
+keybind = ctrl+shift+s>right=new_split:right
+keybind = ctrl+shift+s>down=new_split:down
+keybind = ctrl+shift+s>left=new_split:left
+keybind = ctrl+shift+s>up=new_split:up
+
+# Split navigation
 keybind = ctrl+alt+left=goto_split:left
 keybind = ctrl+alt+right=goto_split:right
 keybind = ctrl+alt+up=goto_split:up
