@@ -37,9 +37,12 @@ zplug "plugins/copypath", from:oh-my-zsh
 zplug "plugins/kubectl", from:oh-my-zsh
 
 # Third-party plugins
-zplug "zdharma/fast-syntax-highlighting", from:github, as:plugin
-zplug "zsh-users/zsh-autosuggestions", from:github, as:plugin
-zplug "djui/alias-tips", from:github, as:plugin
+# fzf-tab must load after compinit (done by oh-my-zsh above) and before the
+# widget-wrapping plugins; the defer tags enforce that order under zplug.
+zplug "Aloxaf/fzf-tab", from:github, as:plugin, defer:1
+zplug "zsh-users/zsh-autosuggestions", from:github, as:plugin, defer:2
+zplug "djui/alias-tips", from:github, as:plugin, defer:2
+zplug "zdharma-continuum/fast-syntax-highlighting", from:github, as:plugin, defer:3
 
 zplug load
 
@@ -64,3 +67,55 @@ export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_ALT_C_COMMAND='fd --type d --hidden --exclude .git'
 export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range :500 {}'"
+
+# fzf sources after fzf-tab and rebinds Tab to its own widget. Make plain
+# Tab fall through to fzf-tab, while keeping fzf's `**<Tab>` trigger.
+fzf_default_completion=fzf-tab-complete
+
+# ── Completion styling ──────────────────────────
+# Flexible case-insensitive matching (case variations, partial words on
+# . _ - boundaries, substrings).
+zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+# menu=no is REQUIRED by fzf-tab. oh-my-zsh forces `menu select` on a more
+# specific context, so override both the general and that specific one.
+zstyle ':completion:*' menu no
+zstyle ':completion:*:*:*:*:*' menu no
+# fzf-tab previews
+zstyle ':fzf-tab:*' use-fzf-default-opts yes
+zstyle ':fzf-tab:*' switch-group '<' '>'
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --tree --level=1 --icons --color=always $realpath'
+zstyle ':fzf-tab:complete:*:*' fzf-preview \
+  '[[ -d $realpath ]] && eza --tree --level=1 --icons --color=always $realpath || bat --color=always --style=numbers --line-range=:200 $realpath 2>/dev/null'
+
+# ── Keybindings (emacs-style line editing) ──────
+# Force emacs mode. Otherwise zsh auto-selects vi-mode because $EDITOR is
+# "vim" (contains "vi") — that's what made Ctrl+Left flip into a modal/
+# overwrite state instead of moving by word.
+bindkey -e
+
+# Word motions stop at / and . too, not just whitespace
+WORDCHARS=${WORDCHARS//[\/.]}
+
+# Move by word — Ctrl + arrows, plus macOS Option variants
+bindkey '^[[1;5D' backward-word    # Ctrl+Left
+bindkey '^[[1;5C' forward-word     # Ctrl+Right
+bindkey '^[[1;3D' backward-word    # Option+Left (ghostty / iTerm2 CSI)
+bindkey '^[[1;3C' forward-word     # Option+Right
+bindkey '^[b'     backward-word    # Option+Left (iTerm2 "Esc+" / Natural Text Editing)
+bindkey '^[f'     forward-word     # Option+Right
+
+# Line start/end — Home / End (two encodings each)
+bindkey '^[[H' beginning-of-line
+bindkey '^[[F' end-of-line
+bindkey '^[OH' beginning-of-line
+bindkey '^[OF' end-of-line
+
+# Deletion
+bindkey '^[[3~'   delete-char          # Delete (Fn+Backspace)
+bindkey '^[[3;5~' kill-word            # Ctrl+Delete
+bindkey '^H'      backward-kill-word   # Ctrl+Backspace
+bindkey '^[^?'    backward-kill-word   # Option+Backspace
+
+# Shift+Tab cycles the completion menu backwards
+bindkey '^[[Z' reverse-menu-complete
