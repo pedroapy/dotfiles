@@ -37,6 +37,8 @@ alias git-cleanup='git fetch --prune && git branch -vv | grep ": gone]" | awk "{
 
 # ── System ──────────────────────────────────────
 alias reload="source ~/.zshrc"
+# Jump up N directories (... = up two, .... = up three, etc.)
 alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
+alias .....="cd ../../../.."
