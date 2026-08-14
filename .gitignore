@@ -2,6 +2,9 @@
 .DS_Store
 Thumbs.db
 
+# AUR build clones dropped in here by accident
+pdfstudioviewer/
+
 # Editor/IDE
 .claude/
 node_modules/
