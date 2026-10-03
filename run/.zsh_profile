@@ -22,7 +22,5 @@ if [ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]; then
   source "$HOME/google-cloud-sdk/completion.zsh.inc"
 fi
 
-alias npmrc_update='gcloud auth login && npx google-artifactregistry-auth ~/.npmrc'
-
 # Machine-specific config, untracked (installers that append PATH lines go here)
 [ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"

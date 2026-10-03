@@ -19,7 +19,7 @@ This repo is public, so machine-specific or private settings live outside it:
 | --- | --- |
 | `~/.gitconfig_local` | git `user.name` / `user.email` (setup.sh asks for them) |
 | `~/.zshrc.local` | machine-specific shell config, PATH lines added by installers |
-| `~/.npmrc` | copied from `config/npmrc`; `npmrc_update` writes the registry token here |
+| `~/.npmrc` | npm registries and tokens (work registries stay here, not in the repo) |
 | `~/.claude/settings.json` | real file; `scripts/merge-claude-settings.sh` merges `config/claude-settings.json` into it, permissions and tool hooks stay local |
 
 A `gitleaks` pre-commit hook (`.githooks/`) blocks commits that contain secrets.

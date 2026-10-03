@@ -96,11 +96,6 @@ mkdir -p "$HOME/.ssh" && chmod 700 "$HOME/.ssh"
 link "$DOTFILES/config/ssh/config" "$HOME/.ssh/config"
 chmod 600 "$HOME/.ssh/config" 2>/dev/null
 
-# 12. npmrc: copied, not linked, so the auth token never lands in the repo
-if [ -L "$HOME/.npmrc" ]; then rm "$HOME/.npmrc"; fi
-[ -f "$HOME/.npmrc" ] || cp "$DOTFILES/config/npmrc" "$HOME/.npmrc"
-chmod 600 "$HOME/.npmrc"
-
 # 13. Rectangle config
 if [ -f "$DOTFILES/config/rectangle/com.knollsoft.Rectangle.plist" ]; then
     defaults import com.knollsoft.Rectangle "$DOTFILES/config/rectangle/com.knollsoft.Rectangle.plist"
