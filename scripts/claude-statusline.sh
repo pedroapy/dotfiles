@@ -136,7 +136,8 @@ if [ -n "$RL5H" ] || [ -n "$RL7D" ]; then
 fi
 
 # Line 3: directory and git info (cached)
-CACHE_FILE="/tmp/statusline-git-cache"
+# One cache per directory, so parallel sessions in other repos/worktrees don't share it
+CACHE_FILE="/tmp/statusline-git-cache-$(printf '%s' "$DIR" | cksum | cut -d' ' -f1)"
 CACHE_MAX_AGE=10
 
 cache_is_stale() {
@@ -145,10 +146,10 @@ cache_is_stale() {
 }
 
 if cache_is_stale; then
-    if git rev-parse --git-dir > /dev/null 2>&1; then
-        BRANCH=$(git branch --show-current 2>/dev/null)
-        STAGED=$(git diff --cached --numstat 2>/dev/null | wc -l | tr -d ' ')
-        MODIFIED=$(git diff --numstat 2>/dev/null | wc -l | tr -d ' ')
+    if git -C "$DIR" rev-parse --git-dir > /dev/null 2>&1; then
+        BRANCH=$(git -C "$DIR" branch --show-current 2>/dev/null)
+        STAGED=$(git -C "$DIR" diff --cached --numstat 2>/dev/null | wc -l | tr -d ' ')
+        MODIFIED=$(git -C "$DIR" diff --numstat 2>/dev/null | wc -l | tr -d ' ')
 
         GIT_STATUS=""
         [ "$STAGED" -gt 0 ] && GIT_STATUS="${GREEN}+${STAGED}${RESET}"
