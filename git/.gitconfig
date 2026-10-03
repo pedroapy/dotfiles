@@ -1,2 +1,5 @@
 [include]
-    path = .gitconfig_base
+    path = ~/.gitconfig_base
+# Identity and machine-specific settings live outside this public repo
+[include]
+    path = ~/.gitconfig_local

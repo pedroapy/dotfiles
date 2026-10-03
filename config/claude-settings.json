@@ -1,9 +1,4 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(source:*)"
-    ]
-  },
   "hooks": {
     "PreToolUse": [
       {
@@ -21,5 +16,18 @@
     "type": "command",
     "command": "bash $HOME/dotfiles/scripts/claude-statusline.sh"
   },
-  "effortLevel": "high"
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true
+  },
+  "outputStyle": "Concise",
+  "effortLevel": "xhigh",
+  "tui": "fullscreen",
+  "skipWorkflowUsageWarning": true,
+  "agentPushNotifEnabled": true,
+  "switchModelsOnFlag": false,
+  "autoCompactWindow": 300000,
+  "env": {
+    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
+  }
 }

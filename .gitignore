@@ -1,2 +1,8 @@
 # Claude Code local per-project settings (auto-managed by harness)
 .claude/
+
+# Backups and local overrides; never commit
+*.bak
+*.bak-*
+*.local
+.gitconfig_local

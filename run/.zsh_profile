@@ -1,9 +1,7 @@
 source $HOME/dotfiles/system/env
 source $HOME/dotfiles/system/zshrc
 source $HOME/dotfiles/system/functions
-source $ZSH/oh-my-zsh.sh
 source $HOME/dotfiles/system/alias
-source $ZSH_CUSTOM/config
 
 # bun completions
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
@@ -11,13 +9,6 @@ source $ZSH_CUSTOM/config
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
-
-# Docker CLI completions
-if [ -d "$HOME/.docker/completions" ]; then
-  fpath=($HOME/.docker/completions $fpath)
-  autoload -Uz compinit
-  compinit
-fi
 
 # iTerm2 shell integration
 test -e "$HOME/.iterm2_shell_integration.zsh" && source "$HOME/.iterm2_shell_integration.zsh"
@@ -33,7 +24,5 @@ fi
 
 alias npmrc_update='gcloud auth login && npx google-artifactregistry-auth ~/.npmrc'
 
-# sentry completions
-[ -d "$HOME/.local/share/zsh/site-functions" ] && fpath=("$HOME/.local/share/zsh/site-functions" $fpath)
-
-export PATH="$HOME/.local/bin:$PATH"
+# Machine-specific config, untracked (installers that append PATH lines go here)
+[ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"

@@ -40,13 +40,22 @@ else
 fi
 
 # 5. Zsh config
-mkdir -p "$HOME/zsh-custom/config"
+mkdir -p "$HOME/zsh-custom"
 link "$DOTFILES/run/.zsh_profile" "$HOME/.zshrc"
 
 # 6. Git config
 link "$DOTFILES/git/.gitconfig_base" "$HOME/.gitconfig_base"
 link "$DOTFILES/git/.gitconfig" "$HOME/.gitconfig"
 link "$DOTFILES/git/.gitignore_global" "$HOME/.gitignore_global"
+# Identity stays out of the public repo, in ~/.gitconfig_local
+if ! git config --file "$HOME/.gitconfig_local" user.email &>/dev/null; then
+    read -rp "Git name: " git_name
+    read -rp "Git email: " git_email
+    git config --file "$HOME/.gitconfig_local" user.name "$git_name"
+    git config --file "$HOME/.gitconfig_local" user.email "$git_email"
+fi
+# Secret scan before every commit to this repo
+git -C "$DOTFILES" config core.hooksPath .githooks
 
 # 7. Starship config
 mkdir -p "$HOME/.config"
@@ -63,8 +72,8 @@ mkdir -p "$HOME/.config/ghostty"
 link "$DOTFILES/config/ghostty/config" "$HOME/.config/ghostty/config"
 
 # 9. Claude Code config
-mkdir -p "$HOME/.claude"
-link "$DOTFILES/config/claude-settings.json" "$HOME/.claude/settings.json"
+# Real local file (tools write to it); shared keys merged from the repo
+"$DOTFILES/scripts/merge-claude-settings.sh"
 
 # 10. VS Code config
 VSCODE_USER="$HOME/Library/Application Support/Code/User"
@@ -87,8 +96,10 @@ mkdir -p "$HOME/.ssh" && chmod 700 "$HOME/.ssh"
 link "$DOTFILES/config/ssh/config" "$HOME/.ssh/config"
 chmod 600 "$HOME/.ssh/config" 2>/dev/null
 
-# 12. npmrc (without tokens)
-link "$DOTFILES/config/npmrc" "$HOME/.npmrc"
+# 12. npmrc: copied, not linked, so the auth token never lands in the repo
+if [ -L "$HOME/.npmrc" ]; then rm "$HOME/.npmrc"; fi
+[ -f "$HOME/.npmrc" ] || cp "$DOTFILES/config/npmrc" "$HOME/.npmrc"
+chmod 600 "$HOME/.npmrc"
 
 # 13. Rectangle config
 if [ -f "$DOTFILES/config/rectangle/com.knollsoft.Rectangle.plist" ]; then

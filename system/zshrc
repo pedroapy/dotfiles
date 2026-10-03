@@ -1,5 +1,5 @@
 export ZSH_CUSTOM=$HOME/zsh-custom
-export ZPLUG_HOME=$(brew --prefix)/opt/zplug
+export ZPLUG_HOME=${HOMEBREW_PREFIX:-/opt/homebrew}/opt/zplug
 export ZSH=~/.oh-my-zsh
 
 # disable oh-my-zsh themes (starship handles the prompt)
@@ -20,6 +20,11 @@ setopt HIST_REDUCE_BLANKS
 setopt SHARE_HISTORY
 setopt INC_APPEND_HISTORY
 setopt AUTO_CD
+
+# Extra completion paths must be in fpath before oh-my-zsh runs compinit
+for dir in "$HOME/.docker/completions" "$HOME/.local/share/zsh/site-functions"; do
+  [ -d "$dir" ] && fpath=("$dir" $fpath)
+done
 
 source $ZSH/oh-my-zsh.sh
 
