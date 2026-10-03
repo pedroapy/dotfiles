@@ -62,17 +62,11 @@
   "typescript.updateImportsOnFileMove.enabled": "never",
   "workbench.colorTheme": "ReUI II Dark (Italic)",
   "workbench.startupEditor": "newUntitledFile",
+  "workbench.editorAssociations": {
+    "*.md": "vscode.markdown.preview.editor",
+  },
+  "workbench.experimental.modernUI": true,
   "zenMode.centerLayout": false,
-  "stylelint.validate": [
-    "css",
-    "less",
-    "postcss",
-    "scss",
-    "ts",
-    "tsx",
-    "javascriptreact",
-    "typescript",
-  ],
   "editor.inlineSuggest.enabled": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[xml]": {
@@ -106,12 +100,10 @@
   "[ignore]": {
     "editor.defaultFormatter": "foxundermoon.shell-format",
   },
-  "redhat.telemetry.enabled": false,
   "[properties]": {
     "editor.defaultFormatter": "foxundermoon.shell-format",
   },
   "editor.cursorSmoothCaretAnimation": "on",
-  "biome.enabled": false,
   "remote.defaultExtensionsIfInstalledLocally": [
     "GitHub.copilot",
     "GitHub.copilot-chat",
@@ -143,10 +135,6 @@
       "level": "off",
     },
   },
-  "github.copilot.nextEditSuggestions.enabled": true,
-  "docker.extension.enableComposeLanguageServer": false,
-  "gitlens.ai.model": "vscode",
-  "gitlens.ai.vscode.model": "copilot:gpt-4.1",
   "[dockercompose]": {
     "editor.insertSpaces": true,
     "editor.tabSize": 2,
@@ -163,5 +151,5 @@
   },
   "security.workspace.trust.untrustedFiles": "open",
   "claudeCode.preferredLocation": "sidebar",
-  "claudeCode.selectedModel": "default",
+  "terminal.integrated.initialHint": false,
 }
