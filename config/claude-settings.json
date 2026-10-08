@@ -37,6 +37,9 @@
     },
     "claude-haiku-5-5": {
       "maxEffortLevel": "medium"
+    },
+    "claude-opus-5-5": {
+      "effortLevel": "high"
     }
   }
 }
