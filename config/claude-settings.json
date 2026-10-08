@@ -21,7 +21,7 @@
     "claude-md-management@claude-plugins-official": true
   },
   "outputStyle": "Concise",
-  "effortLevel": "xhigh",
+  "effortLevel": "high",
   "tui": "fullscreen",
   "skipWorkflowUsageWarning": true,
   "agentPushNotifEnabled": true,
@@ -29,5 +29,14 @@
   "autoCompactWindow": 300000,
   "env": {
     "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
+  },
+  "cleanupPeriodDays": 1825,
+  "modelSettings": {
+    "claude-sonnet-5-5": {
+      "maxEffortLevel": "medium"
+    },
+    "claude-haiku-5-5": {
+      "maxEffortLevel": "medium"
+    }
   }
 }
