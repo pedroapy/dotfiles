@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Public repo: block commits that add secrets. Bypass a false positive with
+# a `gitleaks:allow` comment on the line, or `git commit --no-verify`.
+set -euo pipefail
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+    echo "pre-commit: gitleaks not installed (pacman -S gitleaks); commit blocked." >&2
+    exit 1
+fi
+
+exec gitleaks git --pre-commit --staged --redact --no-banner --verbose

@@ -19,3 +19,7 @@ EOF
 else
     success "Git user config already exists (~/.gitconfig_local)"
 fi
+
+# Versioned hooks (.githooks/pre-commit runs gitleaks: this repo is public)
+git -C "$DOTFILES" config core.hooksPath .githooks
+success "Git hooks enabled (.githooks)"

@@ -40,6 +40,9 @@ else
 fi
 
 # greetd configuration (tuigreet → Hyprland)
+# Launch through uwsm (same as hyprland-uwsm.desktop): Hyprland then runs as a
+# systemd user unit and its startup warnings land in
+# `journalctl --user -u wayland-wm@hyprland.desktop`. Plain start-hyprland loses them.
 GREETD_CONF="/etc/greetd/config.toml"
 if ! grep -q "tuigreet" "$GREETD_CONF" 2>/dev/null; then
     sudo mkdir -p /etc/greetd
@@ -48,7 +51,7 @@ if ! grep -q "tuigreet" "$GREETD_CONF" 2>/dev/null; then
 vt = 1
 
 [default_session]
-command = "tuigreet --time --remember --remember-session --asterisks --cmd start-hyprland"
+command = "tuigreet --time --remember --remember-session --asterisks --cmd 'uwsm start -e -D Hyprland hyprland.desktop'"
 user = "greeter"
 EOF
     # Delay greetd start to wait for GPU/DRM (RDNA4 takes longer to init)

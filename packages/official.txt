@@ -159,6 +159,7 @@ swayosd
 
 # ── Security ──────────────────────────────────
 yubikey-manager
+gitleaks
 libfido2
 pam-u2f
 ufw
