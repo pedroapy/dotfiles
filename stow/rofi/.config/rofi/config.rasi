@@ -11,4 +11,4 @@ configuration {
     drun-display-format: "{name}";
 }
 
-@theme "catppuccin"
+@theme "rose-pine-moon"

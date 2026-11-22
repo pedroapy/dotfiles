@@ -3,7 +3,7 @@ local mod         = "SUPER"
 local terminal    = "ghostty"
 local menu        = "rofi -show drun -show-icons"
 local browser     = "brave"
-local filemanager = "nemo"
+local filemanager = "dolphin"
 -- local editor   = "code"
 
 -- ── Applications ─────────────────────────────────
@@ -13,7 +13,12 @@ hl.bind(mod .. " + E",      hl.dsp.exec_cmd(filemanager))
 hl.bind(mod .. " + D",      hl.dsp.exec_cmd(menu))
 hl.bind(mod .. " + V",      hl.dsp.exec_cmd('cliphist list | rofi -dmenu -p "Clipboard" | cliphist decode | wl-copy'))
 hl.bind(mod .. " + N",      hl.dsp.exec_cmd("swaync-client -t -sw"))
-hl.bind(mod .. " + L",      hl.dsp.exec_cmd("hyprlock"))
+hl.bind(mod .. " + W",         hl.dsp.exec_cmd("~/bin/wallpaper.sh pick"))
+hl.bind(mod .. " + SHIFT + W", hl.dsp.exec_cmd("~/bin/wallpaper.sh random"))
+hl.bind(mod .. " + Escape",    hl.dsp.exec_cmd("~/bin/powermenu.sh"))
+hl.bind(mod .. " + SHIFT + C", hl.dsp.exec_cmd("hyprpicker -a"))  -- colour picker, copies the hex
+-- Lock moved off SUPER+L so that key can complete the vim focus set below.
+hl.bind(mod .. " + SHIFT + L", hl.dsp.exec_cmd("hyprlock"))
 
 -- ── Screenshots (grimblast: copy+save+notify; swappy via stdin pipe) ──
 hl.bind("Print",            hl.dsp.exec_cmd("grimblast --notify copysave area ~/captures/$(date +%Y%m%d_%H%M%S).png"))
@@ -37,7 +42,7 @@ hl.bind(mod .. " + ALT + right", hl.dsp.window.move({ into_group = "right" }))
 hl.bind(mod .. " + ALT + up",    hl.dsp.window.move({ into_group = "up" }))
 hl.bind(mod .. " + ALT + down",  hl.dsp.window.move({ into_group = "down" }))
 hl.bind(mod .. " + ALT + O",     hl.dsp.window.move({ out_of_group = true }))
-hl.bind(mod .. " + ALT + L",     hl.dsp.group.lock_active({ action = "toggle" }))
+hl.bind(mod .. " + ALT + L",     hl.dsp.group.lock({ action = "toggle" }))
 
 -- ── Focus ────────────────────────────────────────
 hl.bind(mod .. " + left",  hl.dsp.focus({ direction = "left" }))
@@ -47,6 +52,7 @@ hl.bind(mod .. " + down",  hl.dsp.focus({ direction = "down" }))
 hl.bind(mod .. " + h",     hl.dsp.focus({ direction = "left" }))
 hl.bind(mod .. " + j",     hl.dsp.focus({ direction = "down" }))
 hl.bind(mod .. " + k",     hl.dsp.focus({ direction = "up" }))
+hl.bind(mod .. " + l",     hl.dsp.focus({ direction = "right" }))
 
 -- ── Move Windows ─────────────────────────────────
 hl.bind(mod .. " + SHIFT + left",  hl.dsp.window.move({ direction = "left" }))
@@ -56,7 +62,8 @@ hl.bind(mod .. " + SHIFT + down",  hl.dsp.window.move({ direction = "down" }))
 hl.bind(mod .. " + SHIFT + h",     hl.dsp.window.move({ direction = "left" }))
 hl.bind(mod .. " + SHIFT + j",     hl.dsp.window.move({ direction = "down" }))
 hl.bind(mod .. " + SHIFT + k",     hl.dsp.window.move({ direction = "up" }))
-hl.bind(mod .. " + SHIFT + l",     hl.dsp.window.move({ direction = "right" }))
+-- No SUPER+SHIFT+l here: that combo now locks the screen. Use SUPER+SHIFT+right
+-- to move a window right.
 
 -- ── Resize ───────────────────────────────────────
 hl.bind(mod .. " + CTRL + left",  hl.dsp.window.resize({ x = -40, y = 0,   relative = true }))
@@ -79,12 +86,12 @@ hl.bind(mod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))
 hl.bind(mod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true })
 hl.bind(mod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
--- ── Media Keys ──────────────────────────────────
-hl.bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })
-hl.bind("XF86AudioLowerVolume",  hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"), { locked = true, repeating = true })
-hl.bind("XF86AudioMute",         hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), { locked = true })
+-- ── Media Keys (swayosd shows the OSD) ──────────
+hl.bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd("swayosd-client --output-volume raise"), { locked = true, repeating = true })
+hl.bind("XF86AudioLowerVolume",  hl.dsp.exec_cmd("swayosd-client --output-volume lower"), { locked = true, repeating = true })
+hl.bind("XF86AudioMute",         hl.dsp.exec_cmd("swayosd-client --output-volume mute-toggle"), { locked = true })
 hl.bind("XF86AudioPlay",         hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioNext",         hl.dsp.exec_cmd("playerctl next"),       { locked = true })
 hl.bind("XF86AudioPrev",         hl.dsp.exec_cmd("playerctl previous"),   { locked = true })
-hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("brightnessctl set 5%+"), { locked = true, repeating = true })
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 5%-"), { locked = true, repeating = true })
+hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("swayosd-client --brightness raise"), { locked = true, repeating = true })
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("swayosd-client --brightness lower"), { locked = true, repeating = true })

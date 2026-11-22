@@ -22,8 +22,8 @@ hl.window_rule({
 })
 
 hl.window_rule({
-    name  = "float-nemo",
-    match = { class = "^(nemo)$" },
+    name  = "float-dolphin",
+    match = { class = "^(org\\.kde\\.dolphin)$" },
     float = true,
     size  = { 1200, 800 },
 })
@@ -73,13 +73,13 @@ hl.window_rule({
 
 hl.window_rule({
     name      = "ws-chrome",
-    match     = { class = "^(google-chrome)$" },
+    match     = { class = "^(Google-chrome)$" },
     workspace = "2",
 })
 
 hl.window_rule({
     name      = "ws-vscode",
-    match     = { class = "^(code-url-handler)$" },
+    match     = { class = "^(Code)$" },
     workspace = "3",
 })
 
@@ -92,13 +92,13 @@ hl.window_rule({
 -- Opacity
 hl.window_rule({
     name    = "opacity-ghostty",
-    match   = { class = "^(ghostty)$" },
+    match   = { class = "^(com\\.mitchellh\\.ghostty)$" },
     opacity = "0.95 0.85",
 })
 
 hl.window_rule({
     name    = "opacity-vscode",
-    match   = { class = "^(code-url-handler)$" },
+    match   = { class = "^(Code)$" },
     opacity = "0.95 0.85",
 })
 

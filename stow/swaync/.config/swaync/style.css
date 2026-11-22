@@ -1,18 +1,18 @@
-/* ── Catppuccin Macchiato for SwayNC ──────────── */
+/* ── Rosé Pine Moon for SwayNC ──────────── */
 :root {
-  --cc-bg: rgba(36, 39, 58, 0.9);
-  --noti-border-color: rgba(73, 77, 100, 0.6);
-  --noti-bg: 30, 32, 48;
+  --cc-bg: rgba(35, 33, 54, 0.9);
+  --noti-border-color: rgba(68, 65, 90, 0.6);
+  --noti-bg: 42, 39, 63;
   --noti-bg-alpha: 0.95;
-  --noti-bg-darker: rgb(24, 25, 38);
-  --noti-bg-hover: rgb(54, 58, 79);
-  --noti-bg-hover-opaque: rgb(54, 58, 79);
-  --noti-bg-focus: rgba(73, 77, 100, 0.6);
-  --noti-close-bg: rgba(138, 173, 244, 0.2);
-  --noti-close-bg-hover: rgba(138, 173, 244, 0.35);
-  --text-color: rgb(202, 211, 245);
-  --text-color-disabled: rgb(165, 173, 203);
-  --bg-selected: rgb(138, 173, 244);
+  --noti-bg-darker: rgb(35, 33, 54);
+  --noti-bg-hover: rgb(57, 53, 82);
+  --noti-bg-hover-opaque: rgb(57, 53, 82);
+  --noti-bg-focus: rgba(68, 65, 90, 0.6);
+  --noti-close-bg: rgba(196, 167, 231, 0.2);
+  --noti-close-bg-hover: rgba(196, 167, 231, 0.35);
+  --text-color: rgb(224, 222, 244);
+  --text-color-disabled: rgb(144, 140, 170);
+  --bg-selected: rgb(196, 167, 231);
   --notification-icon-size: 64px;
   --notification-app-icon-size: calc(var(--notification-icon-size) / 3);
   --notification-group-icon-size: 32px;
@@ -28,19 +28,19 @@
   --group-collapse-transition: var(--group-collapse-tranistion);
 }
 
-@define-color cc-bg rgba(36, 39, 58, 0.9);
-@define-color noti-border-color rgba(73, 77, 100, 0.6);
-@define-color noti-bg rgba(30, 32, 48, 0.95);
-@define-color noti-bg-opaque rgb(30, 32, 48);
-@define-color noti-bg-darker rgb(24, 25, 38);
-@define-color noti-bg-hover rgb(54, 58, 79);
-@define-color noti-bg-hover-opaque rgb(54, 58, 79);
-@define-color noti-bg-focus rgba(73, 77, 100, 0.6);
-@define-color noti-close-bg rgba(138, 173, 244, 0.2);
-@define-color noti-close-bg-hover rgba(138, 173, 244, 0.35);
-@define-color text-color rgb(202, 211, 245);
-@define-color text-color-disabled rgb(165, 173, 203);
-@define-color bg-selected rgb(138, 173, 244);
+@define-color cc-bg rgba(35, 33, 54, 0.9);
+@define-color noti-border-color rgba(68, 65, 90, 0.6);
+@define-color noti-bg rgba(42, 39, 63, 0.95);
+@define-color noti-bg-opaque rgb(42, 39, 63);
+@define-color noti-bg-darker rgb(35, 33, 54);
+@define-color noti-bg-hover rgb(57, 53, 82);
+@define-color noti-bg-hover-opaque rgb(57, 53, 82);
+@define-color noti-bg-focus rgba(68, 65, 90, 0.6);
+@define-color noti-close-bg rgba(196, 167, 231, 0.2);
+@define-color noti-close-bg-hover rgba(196, 167, 231, 0.35);
+@define-color text-color rgb(224, 222, 244);
+@define-color text-color-disabled rgb(144, 140, 170);
+@define-color bg-selected rgb(196, 167, 231);
 
 notificationwindow, blankwindow {
   background: transparent;
@@ -263,7 +263,7 @@ notificationwindow, blankwindow {
   background: var(--cc-bg);
   color: var(--text-color);
   border-radius: var(--border-radius);
-  border: 1px solid rgba(73, 77, 100, 0.5);
+  border: 1px solid rgba(68, 65, 90, 0.5);
 }
 
 .control-center .control-center-list-placeholder {

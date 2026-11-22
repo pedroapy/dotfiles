@@ -1,0 +1,9 @@
+/* Wallpaper picker: a grid of thumbnails (used by ~/bin/wallpaper.sh pick) */
+
+window        { width: 1180px; }
+mainbox       { children: [ inputbar, listview ]; }
+listview      { columns: 4; lines: 3; spacing: 10px; flow: horizontal; }
+element       { orientation: vertical; padding: 8px; spacing: 6px; }
+element-icon  { size: 250px; horizontal-align: 0.5; }
+element-text  { horizontal-align: 0.5; text-color: @subtle; }
+element selected.normal { background-color: @overlay; border: 2px; border-color: @iris; }

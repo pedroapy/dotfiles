@@ -8,9 +8,10 @@ spotify
 nodejs-n
 nodejs-n-dummy
 bun-bin
-wlogout
-catppuccin-cursors-macchiato
-catppuccin-gtk-theme-macchiato
+rose-pine-gtk-theme-full
+rose-pine-cursor
+rose-pine-hyprcursor
+papirus-folders
 ttf-ms-fonts
 grimblast-git
 gh-dash-bin

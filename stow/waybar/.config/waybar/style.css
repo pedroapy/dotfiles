@@ -1,208 +1,99 @@
-/* ── Catppuccin Macchiato Palette ──────────────── */
-@define-color base      #24273a;
-@define-color mantle    #1e2030;
-@define-color crust     #181926;
-@define-color text      #cad3f5;
-@define-color subtext0  #a5adcb;
-@define-color surface0  #363a4f;
-@define-color surface1  #494d64;
-@define-color blue      #8aadf4;
-@define-color lavender  #b7bdf8;
-@define-color green     #a6da95;
-@define-color yellow    #eed49f;
-@define-color peach     #f5a97f;
-@define-color red       #ed8796;
-@define-color mauve     #c6a0f6;
-@define-color teal      #8bd5ca;
-@define-color sky       #91d7e3;
-@define-color sapphire  #7dc4e4;
+/* ── Rosé Pine Moon ───────────────────────────── */
+@define-color base     #232136;
+@define-color surface  #2a273f;
+@define-color overlay  #393552;
+@define-color muted    #6e6a86;
+@define-color subtle   #908caa;
+@define-color text     #e0def4;
+@define-color love     #eb6f92;
+@define-color gold     #f6c177;
+@define-color rose     #ea9a97;
+@define-color pine     #3e8fb0;
+@define-color foam     #9ccfd8;
+@define-color iris     #c4a7e7;
+@define-color hl-med   #44415a;
+@define-color hl-high  #56526e;
 
-/* ── Global ───────────────────────────────────── */
 * {
     font-family: "JetBrainsMono Nerd Font", "Inter", sans-serif;
-    font-size: 15px;
+    font-size: 14px;
     min-height: 0;
     padding: 0;
     margin: 0;
+    border: none;
+    border-radius: 0;
 }
 
 window#waybar {
-    background: alpha(@base, 0.85);
-    border-radius: 12px;
-    border: 1px solid alpha(@surface1, 0.5);
+    background: transparent;
     color: @text;
 }
 
 tooltip {
     background: @base;
-    border: 1px solid @surface1;
-    border-radius: 8px;
+    border: 1px solid @hl-med;
+    border-radius: 10px;
+}
+tooltip label { color: @text; padding: 4px 6px; }
+
+/* ── Islands ──────────────────────────────────── */
+.modules-left,
+.modules-center,
+.modules-right {
+    background: alpha(@base, 0.88);
+    border: 1px solid alpha(@hl-med, 0.7);
+    border-radius: 14px;
+    padding: 0 6px;
 }
 
-tooltip label {
-    color: @text;
+/* Every module: same rhythm, monochrome icons */
+#window, #mpris, #clock, #custom-weather, #tray, #cpu, #memory, #temperature,
+#disk, #custom-updates, #pulseaudio, #network, #bluetooth, #language,
+#idle_inhibitor, #custom-notification, #custom-power {
+    padding: 0 9px;
+    color: @subtle;
 }
 
-/* ── Icon sizing (Nerd Font glyphs) ───────────── */
-label {
-    font-size: 15px;
-}
-
-/* ── All modules base ─────────────────────────── */
-#workspaces,
-#window,
-#mpris,
-#clock,
-#custom-weather,
-#custom-screenshot,
-#custom-updates,
-#custom-notification,
-#custom-power,
-#idle_inhibitor,
-#privacy,
-#pulseaudio,
-#bluetooth,
-#network,
-#language,
-#cpu,
-#memory,
-#temperature,
-#disk,
-#tray {
-    padding: 0 12px;
-    margin: 4px 2px;
-}
-
-/* ── Workspaces ───────────────────────────────── */
+/* ── Workspaces: dots, active is a pill ───────── */
+#workspaces { padding: 0 4px; }
 #workspaces button {
-    padding: 0 8px;
-    color: @subtext0;
-    border-radius: 8px;
-    margin: 4px 2px;
-    background: transparent;
-    transition: all 0.2s ease;
+    min-width: 8px;
+    min-height: 8px;
+    margin: 13px 3px;
+    padding: 0;
+    border-radius: 99px;
+    background: @hl-high;
+    font-size: 1px;   /* empty label must not set the height */
+    transition: min-width 200ms ease, background 200ms ease;
 }
+#workspaces button label { font-size: 1px; }
+#workspaces button.visible { min-width: 18px; background: @subtle; }
+#workspaces button:hover  { background: @subtle; box-shadow: none; }
+#workspaces button.active { min-width: 26px; background: @iris; }
+#workspaces button.urgent { background: @love; }
+#workspaces button.special { background: @foam; }
 
-#workspaces button.active {
-    color: @base;
-    background: @blue;
-}
-
-#workspaces button:hover {
-    background: @surface0;
-    color: @text;
-}
-
-/* ── Left ─────────────────────────────────────── */
-#window {
-    color: @subtext0;
-}
-
-#mpris {
-    color: @green;
-}
-
-#mpris.paused {
-    color: @subtext0;
-    font-style: italic;
-}
+#window { color: @text; }
+window#waybar.empty #window { padding: 0; }
+#mpris { color: @rose; }
 
 /* ── Center ───────────────────────────────────── */
-#clock {
-    color: @blue;
-    font-weight: bold;
-}
-
-#custom-weather {
-    color: @sky;
-    font-size: 18px;
-}
+#clock { color: @text; font-weight: bold; }
+#custom-weather { color: @subtle; }
 
 /* ── Right ────────────────────────────────────── */
-#custom-screenshot {
-    color: @teal;
-}
+#custom-power { color: @love; padding-right: 8px; }
+#custom-notification.notification,
+#custom-notification.dnd-notification { color: @gold; }
+#custom-notification.dnd-none,
+#custom-notification.dnd-notification { color: @muted; }
+#idle_inhibitor.activated { color: @gold; }
+#custom-updates.updates-available { color: @foam; }
+#pulseaudio.muted, #network.disconnected, #bluetooth.off { color: @muted; }
 
-#language {
-    color: @sapphire;
-    font-size: 18px;
-}
+#cpu.warning, #memory.warning { color: @gold; }
+#cpu.critical, #memory.critical, #temperature.critical { color: @love; }
+.hw-child { color: @muted; }
 
-#idle_inhibitor {
-    color: @subtext0;
-}
-
-#idle_inhibitor.activated {
-    color: @yellow;
-}
-
-#custom-updates.updated {
-    color: @green;
-}
-
-#custom-updates.updates-available {
-    color: @peach;
-}
-
-#cpu {
-    color: @green;
-}
-
-#memory {
-    color: @mauve;
-}
-
-#temperature {
-    color: @yellow;
-}
-
-#temperature.critical {
-    color: @red;
-}
-
-#disk {
-    color: @teal;
-}
-
-#network {
-    color: @sapphire;
-}
-
-#network.disconnected {
-    color: @red;
-}
-
-#bluetooth {
-    color: @blue;
-    font-size: 17px;
-}
-
-#tray {
-    padding: 0 8px;
-}
-
-#tray > .passive {
-    -gtk-icon-effect: dim;
-}
-
-#pulseaudio {
-    color: @peach;
-    font-size: 18px;
-}
-
-#pulseaudio.muted {
-    color: @surface1;
-}
-
-#custom-notification {
-    color: @lavender;
-}
-
-#privacy {
-    color: @red;
-}
-
-#custom-power {
-    color: @red;
-    padding: 0 14px 0 12px;
-}
+#tray > .passive { -gtk-icon-effect: dim; }
+#tray > .needs-attention { -gtk-icon-effect: highlight; }

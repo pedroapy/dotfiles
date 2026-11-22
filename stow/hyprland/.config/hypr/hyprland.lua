@@ -14,6 +14,15 @@ require("rules")
 -- Direct card paths — aquamarine had cold-boot issues with by-path symlinks.
 hl.env("AQ_DRM_DEVICES", "/dev/dri/card1:/dev/dri/card0")
 
+-- ── Theming env (Rosé Pine cursor, Qt via qt6ct + Kvantum) ─
+hl.env("HYPRCURSOR_THEME", "rose-pine-hyprcursor")
+hl.env("HYPRCURSOR_SIZE", "24")
+hl.env("XCURSOR_THEME", "BreezeX-RosePine-Linux")
+hl.env("XCURSOR_SIZE", "24")
+hl.env("QT_QPA_PLATFORMTHEME", "qt6ct")
+-- KDE apps (Dolphin) outside Plasma: "Open with" menu comes from archlinux-xdg-menu
+hl.env("XDG_MENU_PREFIX", "arch-")
+
 -- ── Input ────────────────────────────────────────
 hl.config({
     input = {
@@ -35,8 +44,8 @@ hl.config({
         gaps_out    = 10,
         border_size = 2,
         col = {
-            active_border   = { colors = { theme.rgba("blue", "ee"), theme.rgba("mauve", "ee") }, angle = 45 },
-            inactive_border = theme.rgba("surface0", "aa"),
+            active_border   = { colors = { theme.rgba("iris", "ff"), theme.rgba("rose", "ff") }, angle = 45 },
+            inactive_border = theme.rgba("highlight_med", "aa"),
         },
         layout                  = "dwindle",
         allow_tearing           = false,
@@ -48,7 +57,7 @@ hl.config({
 -- ── Decoration ───────────────────────────────────
 hl.config({
     decoration = {
-        rounding = 10,
+        rounding = 12,
         blur = {
             enabled = true,
             size    = 6,
@@ -59,7 +68,7 @@ hl.config({
             enabled      = true,
             range        = 15,
             render_power = 3,
-            color        = theme.rgba("crust", "ee"),
+            color        = theme.rgba("base", "cc"),
         },
     },
 })
@@ -75,7 +84,6 @@ hl.animation({ leaf = "windowsOut",  enabled = true, speed = 5,  bezier = "ease"
 hl.animation({ leaf = "fade",        enabled = true, speed = 4,  bezier = "ease" })
 hl.animation({ leaf = "workspaces",  enabled = true, speed = 4,  bezier = "ease",     style = "slide" })
 hl.animation({ leaf = "border",      enabled = true, speed = 10, bezier = "ease" })
-hl.animation({ leaf = "borderangle", enabled = true, speed = 30, bezier = "ease",     style = "loop" })
 
 -- ── Layout ───────────────────────────────────────
 hl.config({
@@ -89,26 +97,26 @@ hl.config({
 hl.config({
     group = {
         col = {
-            border_active          = { colors = { theme.rgba("blue", "ee"), theme.rgba("mauve", "ee") }, angle = 45 },
-            border_inactive        = theme.rgba("surface0", "aa"),
-            border_locked_active   = { colors = { theme.rgba("yellow", "ee"), theme.rgba("peach", "ee") }, angle = 45 },
-            border_locked_inactive = theme.rgba("surface1", "aa"),
+            border_active          = { colors = { theme.rgba("iris", "ff"), theme.rgba("rose", "ff") }, angle = 45 },
+            border_inactive        = theme.rgba("highlight_med", "aa"),
+            border_locked_active   = { colors = { theme.rgba("gold", "ff"), theme.rgba("rose", "ff") }, angle = 45 },
+            border_locked_inactive = theme.rgba("overlay", "aa"),
         },
 
         groupbar = {
             enabled       = true,
-            font_family   = "sans-serif",
+            font_family   = "Inter",
             font_size     = 11,
             height        = 18,
-            gradients     = true,
+            gradients     = false,
             render_titles = true,
             scrolling     = true,
             text_color    = theme.rgba("text", "ff"),
             col = {
-                active          = theme.rgba("blue", "ee"),
-                inactive        = theme.rgba("surface0", "aa"),
-                locked_active   = theme.rgba("yellow", "ee"),
-                locked_inactive = theme.rgba("surface1", "aa"),
+                active          = theme.rgba("iris", "cc"),
+                inactive        = theme.rgba("overlay", "cc"),
+                locked_active   = theme.rgba("gold", "cc"),
+                locked_inactive = theme.rgba("highlight_med", "cc"),
             },
         },
     },

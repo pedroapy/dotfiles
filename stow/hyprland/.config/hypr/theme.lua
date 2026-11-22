@@ -1,43 +1,32 @@
--- ── Catppuccin Macchiato Theme Colors ────────────
--- Reference: https://catppuccin.com/palette
+-- ── Rosé Pine Moon Theme Colors ──────────────────
+-- Reference: https://rosepinetheme.com/palette/ingredients/
 
 local M = {}
 
 M.hex = {
-    rosewater = "f4dbd6",
-    flamingo  = "f0c6c6",
-    pink      = "f5bde6",
-    mauve     = "c6a0f6",
-    red       = "ed8796",
-    maroon    = "ee99a0",
-    peach     = "f5a97f",
-    yellow    = "eed49f",
-    green     = "a6da95",
-    teal      = "8bd5ca",
-    sky       = "91d7e3",
-    sapphire  = "7dc4e4",
-    blue      = "8aadf4",
-    lavender  = "b7bdf8",
-    text      = "cad3f5",
-    subtext1  = "b8c0e0",
-    subtext0  = "a5adcb",
-    overlay2  = "939ab7",
-    overlay1  = "8087a2",
-    overlay0  = "6e738d",
-    surface2  = "5b6078",
-    surface1  = "494d64",
-    surface0  = "363a4f",
-    base      = "24273a",
-    mantle    = "1e2030",
-    crust     = "181926",
+    base          = "232136",
+    surface       = "2a273f",
+    overlay       = "393552",
+    muted         = "6e6a86",
+    subtle        = "908caa",
+    text          = "e0def4",
+    love          = "eb6f92",
+    gold          = "f6c177",
+    rose          = "ea9a97",
+    pine          = "3e8fb0",
+    foam          = "9ccfd8",
+    iris          = "c4a7e7",
+    highlight_low = "2a283e",
+    highlight_med = "44415a",
+    highlight_high = "56526e",
 }
 
--- rgb("blue") -> "rgb(8aadf4)"
+-- rgb("iris") -> "rgb(c4a7e7)"
 function M.rgb(name)
     return "rgb(" .. M.hex[name] .. ")"
 end
 
--- rgba("blue", "ee") -> "rgba(8aadf4ee)"
+-- rgba("iris", "ee") -> "rgba(c4a7e7ee)"
 function M.rgba(name, alpha)
     return "rgba(" .. M.hex[name] .. alpha .. ")"
 end

@@ -1,0 +1,89 @@
+/* Rosé Pine Moon for rofi */
+
+* {
+    base:      #232136;
+    surface:   #2a273f;
+    overlay:   #393552;
+    muted:     #6e6a86;
+    subtle:    #908caa;
+    text:      #e0def4;
+    love:      #eb6f92;
+    gold:      #f6c177;
+    rose:      #ea9a97;
+    iris:      #c4a7e7;
+    hl-med:    #44415a;
+
+    background-color: transparent;
+    text-color:       @text;
+    margin:  0;
+    padding: 0;
+    spacing: 0;
+}
+
+window {
+    width:            640px;
+    location:         center;
+    anchor:           center;
+    border:           2px;
+    border-color:     @iris;
+    border-radius:    14px;
+    background-color: #232136f2;
+}
+
+mainbox {
+    padding:  14px;
+    spacing:  12px;
+    children: [ inputbar, message, listview, mode-switcher ];
+}
+
+inputbar {
+    padding:          10px 14px;
+    spacing:          10px;
+    border-radius:    10px;
+    background-color: @surface;
+    children:         [ prompt, entry ];
+}
+
+prompt          { text-color: @iris; }
+entry           { placeholder: "Buscar…"; placeholder-color: @muted; cursor: text; }
+
+message         { padding: 8px 12px; border-radius: 10px; background-color: @surface; }
+textbox         { text-color: @subtle; }
+
+listview {
+    lines:     8;
+    columns:   1;
+    spacing:   4px;
+    scrollbar: false;
+    cycle:     true;
+    fixed-height: false;
+}
+
+element {
+    padding:       8px 12px;
+    spacing:       12px;
+    border-radius: 10px;
+    cursor:        pointer;
+}
+element normal.normal,
+element alternate.normal  { background-color: transparent; text-color: @text; }
+element normal.urgent,
+element alternate.urgent  { text-color: @love; }
+element normal.active,
+element alternate.active  { text-color: @gold; }
+element selected.normal   { background-color: @overlay; text-color: @text; }
+element selected.urgent   { background-color: @love; text-color: @base; }
+element selected.active   { background-color: @overlay; text-color: @gold; }
+
+element-icon  { size: 26px; vertical-align: 0.5; }
+element-text  { text-color: inherit; vertical-align: 0.5; highlight: bold #ea9a97; }
+
+mode-switcher { spacing: 6px; }
+button {
+    padding:          6px;
+    border-radius:    10px;
+    text-color:       @subtle;
+    background-color: @surface;
+    cursor:           pointer;
+}
+button selected { background-color: @iris; text-color: @base; }

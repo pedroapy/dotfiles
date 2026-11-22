@@ -17,6 +17,8 @@ slurp
 swappy
 wl-clipboard
 cliphist
+wl-clip-persist
+hyprpicker
 polkit-kde-agent
 brightnessctl
 playerctl
@@ -66,8 +68,13 @@ github-cli
 
 # ── File Manager ────────────────────────────────
 yazi
-nemo
-nemo-fileroller
+dolphin
+ark
+kio-extras
+ffmpegthumbs
+kdegraphics-thumbnailers
+kde-cli-tools
+archlinux-xdg-menu
 
 # ── Editor ──────────────────────────────────────
 neovim
@@ -116,7 +123,7 @@ firefox
 firefox-i18n-es-es
 
 # ── Media ──────────────────────────────────────
-vlc
+mpv
 imv
 obs-studio
 
@@ -126,7 +133,7 @@ libreoffice-fresh-es
 hunspell
 hunspell-es_es
 hunspell-en_us
-evince
+papers
 
 # ── Graphics ───────────────────────────────────
 gimp
@@ -146,8 +153,9 @@ otf-font-awesome
 
 # ── Themes & Appearance ───────────────────────
 papirus-icon-theme
-qt5ct
+qt6ct
 kvantum
+swayosd
 
 # ── Security ──────────────────────────────────
 yubikey-manager

@@ -1,9 +1,12 @@
 -- ── Autostart ────────────────────────────────────
 
 hl.on("hyprland.start", function()
-    -- Wallpaper (Bing photo of the day)
+    -- Wallpaper: a different image per monitor, rotating every 30 min (SUPER+W to pick)
     hl.exec_cmd("awww-daemon")
-    hl.exec_cmd("bash -c 'sleep 3 && ~/bin/get-wallpaper.sh'")
+    hl.exec_cmd("bash -c 'sleep 1 && exec ~/bin/wallpaper.sh rotate 1800'")
+
+    -- Volume / brightness OSD
+    hl.exec_cmd("swayosd-server")
 
     -- Status bar
     hl.exec_cmd("waybar")
@@ -14,6 +17,8 @@ hl.on("hyprland.start", function()
     -- Clipboard
     hl.exec_cmd("wl-paste --type text --watch cliphist store")
     hl.exec_cmd("wl-paste --type image --watch cliphist store")
+    -- Keep the clipboard after the source app closes
+    hl.exec_cmd("wl-clip-persist --clipboard regular")
 
     -- Authentication agent
     hl.exec_cmd("/usr/lib/polkit-kde-authentication-agent-1")
@@ -27,14 +32,18 @@ hl.on("hyprland.start", function()
     -- Idle & lock
     hl.exec_cmd("hypridle")
 
-    -- Set cursor theme
-    hl.exec_cmd("hyprctl setcursor catppuccin-macchiato-dark-cursors 24")
-    hl.exec_cmd("gsettings set org.gnome.desktop.interface cursor-theme catppuccin-macchiato-dark-cursors")
+    -- Cursor (hyprcursor for Hyprland, XCursor for GTK/X11 apps)
+    hl.exec_cmd("hyprctl setcursor rose-pine-hyprcursor 24")
+    hl.exec_cmd("gsettings set org.gnome.desktop.interface cursor-theme BreezeX-RosePine-Linux")
     hl.exec_cmd("gsettings set org.gnome.desktop.interface cursor-size 24")
 
     -- GTK theme
-    hl.exec_cmd("gsettings set org.gnome.desktop.interface gtk-theme catppuccin-macchiato-blue-standard+default")
+    hl.exec_cmd("gsettings set org.gnome.desktop.interface gtk-theme rose-pine-moon-gtk")
     hl.exec_cmd("gsettings set org.gnome.desktop.interface color-scheme prefer-dark")
     hl.exec_cmd("gsettings set org.gnome.desktop.interface icon-theme Papirus-Dark")
     hl.exec_cmd("gsettings set org.gnome.desktop.interface font-name 'Inter 11'")
+
+    -- KDE apps (Dolphin) outside Plasma ignore kdeglobals' scheme and fall back to
+    -- Breeze light unless the app is told which scheme to use.
+    hl.exec_cmd("kwriteconfig6 --file dolphinrc --group UiSettings --key ColorScheme 'Rosé Pine Moon'")
 end)

@@ -1,0 +1,9 @@
+/* Power menu: one row of big icons (used by ~/bin/powermenu.sh) */
+
+window        { width: 620px; }
+mainbox       { children: [ inputbar, listview ]; }
+inputbar      { children: [ prompt ]; }
+listview      { columns: 5; lines: 1; spacing: 10px; flow: horizontal; }
+element       { orientation: vertical; padding: 18px 0; border-radius: 12px; }
+element-text  { horizontal-align: 0.5; font: "JetBrainsMono Nerd Font 28"; }
+element selected.normal { background-color: @overlay; text-color: @iris; }
