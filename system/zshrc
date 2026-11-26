@@ -20,6 +20,8 @@ setopt HIST_REDUCE_BLANKS
 setopt SHARE_HISTORY
 setopt INC_APPEND_HISTORY
 setopt AUTO_CD
+# Unmatched globs pass through as literal text, as in bash (Claude Code runs Bash commands in zsh)
+setopt nonomatch
 
 # Extra completion paths must be in fpath before oh-my-zsh runs compinit
 for dir in "$HOME/.docker/completions" "$HOME/.local/share/zsh/site-functions"; do
