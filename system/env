@@ -3,7 +3,8 @@ export PATH=$HOME/bin:/usr/local/bin:$HOME/.local/bin:/opt/homebrew/bin:/opt/hom
 export WORKSPACE="$HOME/workspace"
 export KUBE_EDITOR=vim
 export N_PREFIX="$HOME/n"
-[[ :$PATH: == *":$N_PREFIX/bin:"* ]] || PATH+=":$N_PREFIX/bin"
+# n's node must win over any other node on PATH: move its bin to the front.
+path=("$N_PREFIX/bin" ${path:#$N_PREFIX/bin})
 export EDITOR=vim
 export RIPGREP_CONFIG_PATH="$HOME/.config/ripgreprc"
 export KUBECONFIG="$HOME/.kube/config"
