@@ -2,6 +2,7 @@
 # profile (CLAUDECODE=1), so agents must get the standard tools, not these.
 if [[ -z $CLAUDECODE ]]; then
   alias update="brew upgrade"
+  alias pip="uv pip"
 
   # Modern CLI replacements
   alias ls="eza --icons --group-directories-first"
