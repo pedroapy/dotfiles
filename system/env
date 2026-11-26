@@ -1,13 +1,14 @@
+# Keep PATH and fpath free of duplicates (first occurrence wins)
+typeset -U path fpath
+
 export PATH=$HOME/bin:/usr/local/bin:$HOME/.local/bin:/opt/homebrew/bin:/opt/homebrew/opt/util-linux/bin:$PATH
 
 export WORKSPACE="$HOME/workspace"
-export KUBE_EDITOR=vim
 export N_PREFIX="$HOME/n"
-# n's node must win over any other node on PATH: move its bin to the front.
-path=("$N_PREFIX/bin" ${path:#$N_PREFIX/bin})
+# n's node must win over any other node on PATH
+path=("$N_PREFIX/bin" $path)
 export EDITOR=vim
 export RIPGREP_CONFIG_PATH="$HOME/.config/ripgreprc"
-export KUBECONFIG="$HOME/.kube/config"
 
 export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
 

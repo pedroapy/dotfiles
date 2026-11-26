@@ -32,6 +32,14 @@ extract() {
   fi
 }
 
+# Delete local branches whose remote branch is gone
+git-remove-untracked() {
+  git fetch --prune &&
+    git for-each-ref --format='%(refname:short) %(upstream:track)' refs/heads |
+    awk '$2 == "[gone]" { print $1 }' |
+    xargs git branch -D
+}
+
 # fzf-powered git branch switcher
 fbr() {
   local branch

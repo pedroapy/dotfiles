@@ -24,3 +24,6 @@ fi
 
 # Machine-specific config, untracked (installers that append PATH lines go here)
 [ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"
+
+# `export PATH=...` lines skip typeset -U (set in system/env); dedupe once at the end
+path=($path)

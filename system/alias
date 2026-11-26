@@ -1,16 +1,17 @@
-alias update="brew upgrade"
-alias install="brew install"
-alias remove="brew remove"
-alias search="brew search"
+# Interactive-only shortcuts. Claude Code runs its Bash commands through this
+# profile (CLAUDECODE=1), so agents must get the standard tools, not these.
+if [[ -z $CLAUDECODE ]]; then
+  alias update="brew upgrade"
 
-# Modern CLI replacements
-alias ls="eza --icons --group-directories-first"
-alias ll="eza -la --icons --group-directories-first --git"
-alias lt="eza --tree --level=2 --icons"
-alias cat="bat --paging=never"
-alias du="dust"
-alias df="duf"
-alias top="btop"
+  # Modern CLI replacements
+  alias ls="eza --icons --group-directories-first"
+  alias ll="eza -la --icons --group-directories-first --git"
+  alias lt="eza --tree --level=2 --icons"
+  alias cat="bat --paging=never"
+  alias du="dust"
+  alias df="duf"
+  alias top="btop"
+fi
 
 # Git
 alias g="git"
@@ -24,8 +25,6 @@ alias gpl="git pull --rebase"
 alias gst="git stash"
 alias gsp="git stash pop"
 alias lg="lazygit"
-
-alias git-remove-untracked='git fetch --prune && git branch -r | awk "{print \$1}" | egrep -v -f /dev/fd/0 <(git branch -vv | grep origin) | awk "{print \$1}" | xargs git branch -D'
 
 # Personal
 alias tasks="cd ~/workspace/tasks && claude"
