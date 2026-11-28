@@ -1,0 +1,43 @@
+name: dotfiles
+
+on:
+  push:
+    branches: [macos]
+  pull_request:
+    branches: [macos]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  setup:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    env:
+      # setup.sh without prompts; identity is a placeholder, never a real one
+      DOTFILES_NONINTERACTIVE: "1"
+      DOTFILES_SKIP_CASKS: "1"
+      DOTFILES_GIT_NAME: dotfiles-ci
+      DOTFILES_GIT_EMAIL: ci@example.invalid
+      HOMEBREW_NO_INSTALL_CLEANUP: "1"
+      HOMEBREW_NO_ENV_HINTS: "1"
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Shellcheck
+        run: |
+          command -v shellcheck >/dev/null || brew install shellcheck
+          shellcheck -x setup.sh scripts/*.sh bin/git-hist .githooks/pre-commit
+
+      - name: Link checkout to ~/dotfiles
+        run: ln -s "$GITHUB_WORKSPACE" "$HOME/dotfiles"
+
+      - name: Run setup.sh
+        run: "$HOME/dotfiles/setup.sh"
+
+      - name: Run doctor
+        run: "$HOME/dotfiles/scripts/doctor.sh"
+
+      - name: Run setup.sh again (idempotent)
+        run: "$HOME/dotfiles/setup.sh"
