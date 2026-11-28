@@ -25,7 +25,9 @@ Each command is matched after its leading keywords and wrappers (`(`, `{`, `!`,
 command of its own, and so is the body of each `$( )` or backtick pair inside a
 word (`echo "$(git push origin main)"`), with the checkouts of the whole line.
 The bodies of the heredocs inside it are text, not commands, so the message of
-`git commit -m "$(cat <<'EOF' ... EOF)"` can say anything; only the
+`git commit -m "$(cat <<'EOF' ... EOF)"` is not checked as commands (except
+that a pair of double quotes in it can leave a `$( )` of the text unquoted for
+the lexer, which then gets checked and errs on the safe side); only the
 substitutions in the body of a heredoc whose delimiter is unquoted are checked,
 as the shell runs them.
 
@@ -565,7 +567,13 @@ def push_target(args, git_directory, shell_directory, checkouts, variables):
         refspecs = ["HEAD"]
     unknown = False
     for refspec in refspecs:
-        source, _, destination = expand_variables(refspec, variables).lstrip("+").partition(":")
+        expanded = expand_variables(refspec, variables)
+        if "${" in expanded:
+            # An unresolved ${NAME:-default} holds a colon of its own, so
+            # splitting the refspec at it would invent a destination.
+            unknown = True
+            continue
+        source, _, destination = expanded.lstrip("+").partition(":")
         target = destination or source
         if target == CURRENT_BRANCH:
             target = checkouts.branch(shell_directory)

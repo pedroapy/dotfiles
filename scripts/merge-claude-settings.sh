@@ -5,8 +5,9 @@
 #   - objects merge recursively; repo values win on scalar conflicts
 #   - arrays (permissions, hooks) are unioned, keeping local entries
 #   - except local PreToolUse hooks that run guard-main-and-merge.py: a union
-#     never drops an entry whose command changed, so unless they already equal
-#     the repo's ones they are removed first and the repo's current ones put back
+#     never drops an entry whose command changed, so unless the local groups
+#     holding a guard equal the repo's ones as whole objects, the guard hooks
+#     are removed first and the repo's current groups put back
 #
 # Usage: merge-claude-settings.sh [--check]
 #   --check  change nothing; exit 0 if the local file already holds every
@@ -22,7 +23,8 @@ LIVE="$HOME/.claude/settings.json"
 GUARD='
   def guard: type == "object" and ((.command // "") | type == "string" and contains("guard-main-and-merge.py"));
   def groups: .hooks | objects | .PreToolUse | arrays | .[] | objects;
-  def guards: [groups | .matcher as $m | .hooks | arrays | .[] | select(guard) | [$m, .command]] | sort;
+  # PreToolUse groups that hold a guard hook, whole, in a fixed order
+  def guard_groups: [groups | select((.hooks | type) == "array" and any(.hooks[]; guard))] | sort;
 '
 # Drop the guard hooks from PreToolUse, keeping the other hooks of their group;
 # a group goes only when no hook is left in it. Other events are untouched.
@@ -54,7 +56,7 @@ MERGE="$PRUNE"'
     elif ($a|type) == "array" and ($b|type) == "array" then
       reduce ($a + $b)[] as $x ([]; if any(.[]; . == $x) then . else . + [$x] end)
     else $b end;
-  merge(if (.[0] | guards) == (.[1] | guards) then .[0] else .[0] | prune end; .[1])
+  merge(if (.[0] | guard_groups) == (.[1] | guard_groups) then .[0] else .[0] | prune end; .[1])
 '
 # PreToolUse groups in a fixed order, for --check: Claude Code runs them all
 # shellcheck disable=SC2016

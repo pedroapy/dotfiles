@@ -103,6 +103,29 @@ check "ordered: merge exits 0" same "$rc" 0
 check "ordered: nothing changes" same "$(cat "$H/.claude/settings.json")" "$ordered"
 check "ordered: reports no removal" absent grep -q '^\[-\]' "$out"
 
+# The shared guard commands, but in groups that differ as objects: one shares
+# its group with a local hook, another has an extra field. One merge leaves each
+# guard exactly once (no duplicate from skipping the prune), keeps the local hook,
+# and is stable: --check passes right after it and a rerun changes nothing.
+new_home mixed
+# shellcheck disable=SC2016 # jq program, $quiet is jq's
+jq --arg quiet "$QUIET" '.hooks.PreToolUse |= map(
+    if .matcher == "Bash" then .hooks += [{type: "command", command: $quiet}]
+    else .hooks[0].timeout = 30 end)' "$BASE" >"$H/.claude/settings.json"
+GUARDS='[.hooks.PreToolUse[].hooks[] | select(.command | contains("guard-main-and-merge.py"))]'
+run; rc=$?
+check "mixed: merge exits 0" same "$rc" 0
+check "mixed: each guard hook is there once" jq_is "$(jq -c "$GUARDS | length" "$BASE")" "$GUARDS | length"
+check "mixed: guard hooks are exactly the shared ones" jq_is "$(jq -c "$GUARDS | sort" "$BASE")" "$GUARDS | sort"
+# shellcheck disable=SC2016 # jq program, $quiet is jq's
+check "mixed: the local hook is kept once" jq_is 1 --arg quiet "$QUIET" \
+  '[.hooks.PreToolUse[].hooks[] | select(.command == $quiet)] | length'
+mixed=$(cat "$H/.claude/settings.json")
+run --check; rc=$?
+check "mixed: --check exits 0 after one merge" same "$rc" 0
+run; rc=$?
+check "mixed: rerun changes nothing" same "$(cat "$H/.claude/settings.json")" "$mixed"
+
 # No local settings yet: the shared ones are written as they are.
 new_home fresh
 rmdir "$H/.claude"
