@@ -1,5 +1,9 @@
 Shared by all of Pedro's machines from `~/dotfiles/claude/CLAUDE.md`. Each machine's `~/.claude/CLAUDE.md` imports this file and adds its own rules below the import. The routing values here (models, effort, compaction) are measured in a monthly review on one machine; change them through that review, not ad hoc.
 
+## Changes go through a pull request
+
+Every change to a repository goes on its own branch and reaches the default branch only through a pull request, however small the repository or the change (Pedro, 28 Nov 2026). Never push to `main` or `master`: the guard hook denies it on every machine, and the default branches of Pedro's GitHub repositories require a pull request. Merging follows each machine's own rules.
+
 ## Code navigation
 
 Use the native `LSP` tool for structural questions (definition, references, callers/callees, symbols); Grep for literal text. CodeGraph was removed on 2026-11-13 (about 200 open issues, many of them wrong symbol links; one index per worktree). Needs `typescript-language-server` and a global `typescript@5.9.3` (7.x ships no `tsserver.js`).
