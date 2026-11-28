@@ -6,7 +6,7 @@ Use the native `LSP` tool for structural questions (definition, references, call
 
 ## CLI over MCP
 
-Prefer a CLI (`gh`, `sentry`, `gcloud`, `bq`) over an MCP connector whenever both cover the task. MCP responses are large unfiltered JSON; CLI output can be field-filtered and piped through `jq`/`head`, consuming far fewer tokens.
+Prefer a CLI (`gh`, a cloud provider's or an error tracker's own CLI) over an MCP connector whenever both cover the task. MCP responses are large unfiltered JSON; CLI output can be field-filtered and piped through `jq`/`head`, consuming far fewer tokens.
 
 ## Model routing and token budget
 
@@ -37,7 +37,7 @@ The main session is the orchestrator: Opus 5.5 at `xhigh`, with `/effort max` fo
   - the shape of the report: conclusions first, file:line evidence, one line per minor item and a word cap, since the report stays in the orchestrator's context for the rest of the session. Ask for everything found rather than only what looks serious, and filter it yourself.
 - Run independent tasks in parallel in one message. Send follow-ups to the same agent only right away (its cache lives 5 minutes).
 - Never Opus 5. For a session known up front to be hard (design, a stubborn bug), start it on Fable 5.2 at `high` instead of Opus 5.5 at `max`. Pick it when the session starts: switching model mid-session rewrites the whole cache. It costs about 1.6x a session (2x per token, same price on cache reads) and draws from the shared weekly limit.
-- Review rounds before a PR (Pedro, 11 Nov 2026). Each round is one fresh `personal-reviewer` agent with the `superpowers:requesting-code-review` template, filled by the orchestrator (what was built, the requirements or ACs, the git range). Our additions to that template live in its definition (`~/.claude/agents/personal-reviewer.md`, "Extras", plus `~/.claude/agent-extras/personal-reviewer.md` on a machine that has one); new checks go there. Run lint, typecheck and the related tests before each round, and send the Critical and Important findings to one `review-refuter` (where the repo has one) before fixing.
+- Review rounds before a PR (Pedro, 11 Nov 2026). Each round is one fresh `personal-reviewer` agent with the `superpowers:requesting-code-review` template, filled by the orchestrator (what was built, the requirements or ACs, the git range). Our additions to that template live in its definition (`~/.claude/agents/personal-reviewer.md`, "Extras", plus `~/.claude/agent-extras/personal-reviewer.md` on a machine that has one); new checks go there. Run lint, typecheck and the related tests before each round, and send the Critical and Important findings to one refuter agent, where the repo defines one, before fixing.
   - Rounds 1 and 2 review the whole diff. Round 2 runs only when round 1 led to Critical or Important fixes; a clean round 1 ends the loop. Round 1 at the reviewer's own model and effort, round 2 at `high`. Not Fable: a blind A/B on 15 tasks (19 Nov 2026) found it no better at round 1 (Opus 5.5 rated more real issues Critical or Important and cost ~8% less on the same diffs).
   - From round 3, a round reviews only what changed since the previous one, with the full diff as context, at `high`, and runs only while the previous round led to Critical or Important fixes. Fixing only Minor or NIT findings needs no new round.
   - If round 4 still finds Critical or Important issues, stop and tell Pedro: repeated findings usually point at a design problem that more rounds will not fix.

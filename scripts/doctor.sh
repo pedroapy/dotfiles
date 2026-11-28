@@ -110,6 +110,15 @@ if out=$("$DOTFILES/scripts/merge-claude-settings.sh" --check 2>&1); then
 else
     fail "Claude settings" "$out (run scripts/merge-claude-settings.sh)"
 fi
+# Agent, skill and script links and the CLAUDE.md import; link-claude.sh
+# prints its own OK/SKIP/FAIL lines
+out=$("$DOTFILES/scripts/link-claude.sh" --check 2>&1)
+rc=$?
+printf '%s\n' "$out"
+if [ "$rc" -ne 0 ]; then
+    n=$(printf '%s\n' "$out" | grep -c '^  FAIL')
+    fails=$((fails + (n > 0 ? n : 1)))
+fi
 
 echo ""
 if [ "$fails" -gt 0 ]; then

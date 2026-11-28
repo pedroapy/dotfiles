@@ -126,6 +126,8 @@ link "$DOTFILES/config/ghostty/config" "$HOME/.config/ghostty/config"
 # 9. Claude Code config
 # Real local file (tools write to it); shared keys merged from the repo
 "$DOTFILES/scripts/merge-claude-settings.sh"
+# Agents, skills and scripts from claude/, and the ~/.claude/CLAUDE.md import
+"$DOTFILES/scripts/link-claude.sh"
 
 # 10. VS Code config
 VSCODE_USER="$HOME/Library/Application Support/Code/User"
@@ -186,9 +188,12 @@ fi
 # 22. Global npm packages
 if has npm; then
     echo "[*] Checking global npm packages..."
-    for pkg in serve yalc cloc; do
+    for pkg in serve yalc cloc typescript-language-server; do
         npm ls -g "$pkg" &>/dev/null || npm i -g "$pkg"
     done
+    # Claude Code's LSP tool needs tsserver.js, which typescript 7.x no longer
+    # ships; npm ls with a version fails when another version is installed
+    npm ls -g typescript@5.9.3 &>/dev/null || npm i -g typescript@5.9.3
 fi
 
 echo ""

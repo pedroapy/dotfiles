@@ -9,10 +9,10 @@ git clone git@github.com:pedroapy/dotfiles.git ~/dotfiles
 cd ~/dotfiles && git checkout macos
 ./setup.sh               # Homebrew, Brewfile, oh-my-zsh, symlinks, VS Code, git hooks
 ./scripts/macos.sh       # optional: macOS defaults
-./scripts/doctor.sh      # read-only check: symlinks, Brewfile, shell, git, Claude settings
+./scripts/doctor.sh      # read-only check: symlinks, Brewfile, shell, git, Claude settings and links
 ```
 
-Unattended install (CI uses this): `DOTFILES_NONINTERACTIVE=1` skips prompts and `chsh`, `DOTFILES_GIT_NAME` / `DOTFILES_GIT_EMAIL` fill `~/.gitconfig_local`, `DOTFILES_SKIP_CASKS=1` leaves out the GUI casks. The `dotfiles` GitHub Actions workflow runs shellcheck, `setup.sh` and the doctor on a clean macOS runner on every push and PR to `macos`.
+Unattended install (CI uses this): `DOTFILES_NONINTERACTIVE=1` skips prompts and `chsh`, `DOTFILES_GIT_NAME` / `DOTFILES_GIT_EMAIL` fill `~/.gitconfig_local`, `DOTFILES_SKIP_CASKS=1` leaves out the GUI casks. The `dotfiles` GitHub Actions workflow runs shellcheck, the Claude tests, `setup.sh` and the doctor on a clean macOS runner on every push and PR to `macos`.
 
 ## Local, untracked files
 
@@ -26,3 +26,23 @@ This repo is public, so machine-specific or private settings live outside it:
 | `~/.claude/settings.json` | real file; `scripts/merge-claude-settings.sh` merges `config/claude-settings.json` into it, permissions and tool hooks stay local |
 
 A `gitleaks` pre-commit hook (`.githooks/`) blocks commits that contain secrets.
+
+## Claude Code (`claude/`)
+
+The generic Claude Code material shared by every machine:
+
+| Path | Holds |
+| --- | --- |
+| `claude/CLAUDE.md` | instructions for every machine (code navigation, model routing, review rounds, sessions, replies) |
+| `claude/agents/` | subagents: `implementer`, `personal-reviewer`, `worker`, `scribe`, `scout` |
+| `claude/skills/` | the handoff skills `/pausa`, `/pendientes` and `/retoma` |
+| `claude/scripts/handoff.sh` | the script behind those skills; handoffs themselves stay in `~/.claude/handoffs` |
+| `claude/hooks/` | the Bash guard hook, wired by its repo path from `config/claude-settings.json` |
+
+`scripts/link-claude.sh`, run by `setup.sh`, links each agent, skill and script into `~/.claude` at the same relative path. It moves a real file or directory it replaces to `~/.claude/backups/dotfiles-<time>/`, and leaves alone a link that points somewhere else or a group directory (`~/.claude/agents`, `skills`, `scripts`) that is itself a symlink, so another config repo can own those names. `--check` changes nothing; `doctor.sh` runs it.
+
+Each machine's `~/.claude/CLAUDE.md` is a local file that starts with `@~/dotfiles/claude/CLAUDE.md` and adds that machine's own rules below. `link-claude.sh` creates it with that line when it is missing and only warns when an existing one lacks the import. Review checks that belong to one machine go in `~/.claude/agent-extras/personal-reviewer.md`, which the `personal-reviewer` agent reads when it exists.
+
+The guard hook asks before merging a PR unless `CLAUDE_GUARD_ALLOW_MERGE=1` is set. A machine that may merge on its own sets it in the `env` of its own `~/.claude/settings.json`, never in `config/claude-settings.json`, which every machine shares.
+
+Tests: `bash claude/hooks/tests/guard-main-and-merge-test.sh` and `bash scripts/tests/link-claude-test.sh`.
