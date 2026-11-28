@@ -4,6 +4,9 @@
 # write to that file, so it must not be a symlink into this public repo.
 #   - objects merge recursively; repo values win on scalar conflicts
 #   - arrays (permissions, hooks) are unioned, keeping local entries
+#   - except local PreToolUse hooks that run guard-main-and-merge.py: a union
+#     never drops an entry whose command changed, so these are removed first
+#     and the repo's current ones put back
 #
 # Usage: merge-claude-settings.sh [--check]
 #   --check  change nothing; exit 0 if the local file already holds every
@@ -14,8 +17,33 @@ DOTFILES="${DOTFILES:-$HOME/dotfiles}"
 BASE="$DOTFILES/config/claude-settings.json"
 LIVE="$HOME/.claude/settings.json"
 
-# shellcheck disable=SC2016 # jq program, $vars are jq's
-MERGE='
+# shellcheck disable=SC2016 # jq programs, $vars are jq's
+GUARD='
+  def guard: type == "object" and ((.command // "") | type == "string" and contains("guard-main-and-merge.py"));
+'
+# Drop the guard hooks from PreToolUse, keeping the other hooks of their group;
+# a group goes only when no hook is left in it. Other events are untouched.
+# shellcheck disable=SC2016
+PRUNE="$GUARD"'
+  def prune:
+    if (.hooks | type) == "object" and (.hooks.PreToolUse | type) == "array" then
+      .hooks.PreToolUse |= [.[] |
+        if type == "object" and (.hooks | type) == "array" and any(.hooks[]; guard)
+        then .hooks |= map(select(guard | not)) | select(.hooks | length > 0)
+        else . end]
+    else . end;
+'
+# One line per local guard hook that the merge does not put back
+# shellcheck disable=SC2016
+REMOVED="$GUARD"'
+  def groups: .hooks | objects | .PreToolUse | arrays | .[] | objects;
+  [.[1] | groups | .hooks | arrays | .[] | objects | .command] as $shared
+  | .[0] | groups | .matcher as $m
+  | .hooks | arrays | .[] | select(guard) | select(.command as $c | any($shared[]; . == $c) | not)
+  | "[-] removed an old guard hook (PreToolUse, \($m)): \(.command)"
+'
+# shellcheck disable=SC2016
+MERGE="$PRUNE"'
   def merge($a; $b):
     if ($a|type) == "object" and ($b|type) == "object" then
       reduce (($a + $b) | keys_unsorted[]) as $k ({};
@@ -24,7 +52,7 @@ MERGE='
     elif ($a|type) == "array" and ($b|type) == "array" then
       reduce ($a + $b)[] as $x ([]; if any(.[]; . == $x) then . else . + [$x] end)
     else $b end;
-  merge(.[0]; .[1])
+  merge(.[0] | prune; .[1])
 '
 
 if [ "${1:-}" = "--check" ]; then
@@ -39,7 +67,7 @@ if [ "${1:-}" = "--check" ]; then
     merged=$(jq -S -s "$MERGE" "$LIVE" "$BASE")
     current=$(jq -S . "$LIVE")
     if [ "$merged" != "$current" ]; then
-        echo "$LIVE is missing shared settings from $BASE" >&2
+        echo "$LIVE is missing shared settings from $BASE, or holds an old guard hook" >&2
         exit 1
     fi
     exit 0
@@ -60,6 +88,7 @@ fi
 trap 'rm -f "$LIVE.new"' EXIT
 [ -f "$LIVE" ] || echo '{}' > "$LIVE"
 
+jq -r -s "$REMOVED" "$LIVE" "$BASE"
 jq -s "$MERGE" "$LIVE" "$BASE" > "$LIVE.new"
 mv "$LIVE.new" "$LIVE"
 echo "[ok] Claude Code settings merged into $LIVE"

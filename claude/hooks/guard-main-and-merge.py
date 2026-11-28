@@ -3,14 +3,22 @@
 user keeps in every mode.
 
 Deny any `git push` that reaches main or master: a refspec naming them, `--all`,
-`--mirror`, or a push with no refspec (or `HEAD`) from a checkout on them. Pushes
+`--mirror`, or a push with no refspec (or `HEAD`) from a checkout on them. The
+checkout is the one in place when the push runs: an earlier `git checkout` or
+`git switch` in the same command counts (`git checkout main && git push` is
+denied), and a `cd` inside `( )` or `$( )` ends with it, as in the shell. Pushes
 to other branches, forced or not, pass. This holds on every machine. When the
-push needs the current branch but runs in a directory that cannot be known (a
-`cd` or `git -C` target with `$` or a backtick, or `cd -`), ask instead.
+guard cannot tell which branch a push reaches, ask instead: a refspec, branch
+name, `cd` or `git -C` target with `$` or a backtick, or `cd -`; a push with no
+refspec (or `HEAD`) in a directory that is missing, not a repository or on a
+detached HEAD, after a checkout it cannot follow (`checkout -- file`, a commit,
+`-`, `--detach`) or one in a directory it cannot resolve, or in a repository an
+earlier `git clone` in the command creates.
 
 Each command is matched after its leading keywords and wrappers (`(`, `{`, `!`,
-`then`, `do`, `sudo`, `env`, `nice`, `command`, `time`, ...), and the string
-given to `bash|sh|zsh -c` is checked as a command of its own.
+`then`, `do`, `sudo`, `env`, `nice`, `command`, `time`, `timeout`, `stdbuf`,
+`caffeinate`, ...), and the string given to `bash|sh|zsh -c` is checked as a
+command of its own.
 
 Ask before merging a pull request: `gh pr merge`, `gh api` calls that merge
 (REST merge endpoint, GraphQL merge or auto-merge mutations) and the desktop
@@ -24,6 +32,15 @@ Deny two `gh pr merge` mistakes, with or without that variable: `--delete-branch
 while open PRs are stacked on the head branch (GitHub closes them instead of
 retargeting), and `--match-head-commit` with anything but a full 40-hex SHA. If
 `gh` fails or times out, skip that check and warn.
+
+Known limits. Each line of a heredoc body is checked as a command, so a body
+line `git push origin main` is denied, and `gh api .../merge -X GET` asks
+although it only reads; both err on the safe side. `eval`, `xargs`, backticks,
+`env -S`, git aliases and `pushd` are not parsed, so a push or merge run through
+them is not seen. A `git checkout` or `git switch` is taken to succeed, even when
+`;` or `||` would run the push after it failed, and other commands that change
+the branch (`git branch -m`, `git rebase <base> <branch>`, `gh pr checkout`) are
+not followed.
 """
 
 import json
@@ -52,6 +69,30 @@ WRAPPERS = {
     "exec": {"-a"},
     "time": {"-o", "--output", "-f", "--format"},
     "nohup": set(),
+    "timeout": {"-s", "--signal", "-k", "--kill-after"},
+    "gtimeout": {"-s", "--signal", "-k", "--kill-after"},
+    "stdbuf": {"-i", "--input", "-o", "--output", "-e", "--error"},
+    "caffeinate": {"-t", "-w"},
+}
+# Wrappers with positional arguments before the command: timeout's duration
+WRAPPER_ARGUMENTS = {"timeout": 1, "gtimeout": 1}
+# `git checkout|switch` options that name the branch they create
+CREATE_OPTIONS = {
+    "checkout": {"-b", "-B", "--orphan"},
+    "switch": {"-c", "-C", "--create", "--force-create", "--orphan"},
+}
+TRACK_OPTIONS = {"-t", "--track"}
+# `git checkout|switch` options that leave the branch to the other arguments
+CHECKOUT_FLAGS = {
+    "-q", "--quiet", "-f", "--force", "-m", "--merge", "-l", "--progress", "--no-progress",
+    "--no-track", "--guess", "--no-guess", "--recurse-submodules", "--no-recurse-submodules",
+    "--overwrite-ignore", "--no-overwrite-ignore", "--ignore-other-worktrees", "--discard-changes",
+}
+CLONE_OPTIONS_WITH_VALUE = {
+    "-o", "--origin", "-b", "--branch", "-u", "--upload-pack", "--reference",
+    "--reference-if-able", "--separate-git-dir", "--depth", "--shallow-since",
+    "--shallow-exclude", "-c", "--config", "--server-option", "-j", "--jobs", "--filter",
+    "--bundle-uri", "--template", "--ref-format",
 }
 SHELLS = {"bash", "sh", "zsh", "dash", "ksh"}
 SHELL_OPTIONS_WITH_VALUE = {"-o", "+o", "-O", "+O", "--rcfile", "--init-file"}
@@ -99,23 +140,24 @@ def tokenize(command):
 
 
 def segments(tokens):
-    """Split where a new command starts and drop redirections (`2>&1`, `> file`)."""
-    current, skip_next = [], False
+    """Split where a new command starts and drop redirections (`2>&1`, `> file`).
+    Yield each command with the separator before it ("" for the first)."""
+    current, before, skip_next = [], "", False
     for token in tokens:
         if skip_next:
             skip_next = False
         elif token and set(token) <= set(PUNCTUATION):
             if "(" in token or ")" in token or not set(token) & set("<>"):
                 # `;`, `&&`, `|`, `&`, a subshell or a command substitution
-                yield current
-                current = []
+                yield before, current
+                before, current = token, []
             else:
                 if current and current[-1].isdigit():
                     current.pop()
                 skip_next = True
         else:
             current.append(token)
-    yield current
+    yield before, current
 
 
 def words(segment):
@@ -125,7 +167,8 @@ def words(segment):
         if tokens[0] in PREFIX_WORDS or re.match(r"^\w+=", tokens[0]):
             tokens = tokens[1:]
             continue
-        with_value = WRAPPERS.get(os.path.basename(tokens[0]))
+        wrapper = os.path.basename(tokens[0])
+        with_value = WRAPPERS.get(wrapper)
         if with_value is None:
             break
         tokens = tokens[1:]
@@ -135,12 +178,19 @@ def words(segment):
                 break
             if option in with_value and tokens:
                 tokens.pop(0)
+        tokens = tokens[WRAPPER_ARGUMENTS.get(wrapper, 0):]
     return tokens
+
+
+def expands(word):
+    """True when the shell rewrites `word` ($VAR, $(...), a backtick), so the
+    guard cannot know its value."""
+    return "$" in word or "`" in word
 
 
 def resolve_directory(directory, target):
     """`target` seen from `directory`, or None when either cannot be known."""
-    if target == "-" or "$" in target or "`" in target:
+    if target == "-" or expands(target):
         return None
     target = os.path.expanduser(target)
     if os.path.isabs(target):
@@ -182,18 +232,143 @@ def gh_pr_merge_args(args):
     return None
 
 
+def git_output(directory, *args):
+    """Output of `git -C directory args`, or None when git fails."""
+    try:
+        result = subprocess.run(["git", "-C", directory, *args], capture_output=True, text=True)
+    except OSError:
+        return None
+    return result.stdout.strip() if result.returncode == 0 else None
+
+
 def current_branch(directory):
-    result = subprocess.run(
-        ["git", "-C", directory, "symbolic-ref", "--quiet", "--short", "HEAD"],
-        capture_output=True,
-        text=True,
-    )
-    return result.stdout.strip()
+    """The branch checked out in `directory`, or None when there is none to read
+    (a missing directory, not a repository, a detached HEAD)."""
+    return git_output(directory, "symbolic-ref", "--quiet", "--short", "HEAD") or None
 
 
-def push_target(args, directory):
-    """Return (the protected branch this push reaches or None, whether the
-    current branch was needed but `directory` is unknown)."""
+def repository_root(directory):
+    root = git_output(directory, "rev-parse", "--show-toplevel")
+    return os.path.realpath(root) if root else None
+
+
+def is_branch(directory, name):
+    """True when `git checkout <name>` in `directory` switches to a branch: a
+    local one, or a remote one it creates the local branch from."""
+    refs = git_output(directory, "for-each-ref", "--format=%(refname)",
+                      f"refs/heads/{name}", f"refs/remotes/*/{name}") or ""
+    pattern = re.compile(rf"refs/heads/{re.escape(name)}|refs/remotes/[^/]+/{re.escape(name)}")
+    return any(pattern.fullmatch(ref) for ref in refs.splitlines())
+
+
+class Checkouts:
+    """Branches that earlier commands in the line check out, by repository. A
+    checkout changes the repository on disk, so unlike `cd` it outlasts a
+    subshell or a nested shell."""
+
+    def __init__(self):
+        self.branches = {}  # real path -> branch, or None when it cannot be known
+        self.anywhere = False  # a checkout or clone ran where the guard cannot tell
+
+    def checkout(self, directory, branch):
+        """`branch` (None when unknown) is now checked out in `directory`'s repository."""
+        if directory is None:
+            self.unknown_everywhere()
+        else:
+            self.branches[repository_root(directory) or os.path.realpath(directory)] = branch
+
+    def clone(self, directory):
+        """`directory` now holds a new repository whose branch is unknown."""
+        if directory is None:
+            self.unknown_everywhere()
+        else:
+            self.branches[os.path.realpath(directory)] = None
+
+    def unknown_everywhere(self):
+        self.branches.clear()
+        self.anywhere = True
+
+    def branch(self, directory):
+        """The branch checked out in `directory` once the earlier commands ran,
+        or None when it cannot be known."""
+        if directory is None:
+            return None
+        path, root = os.path.realpath(directory), repository_root(directory)
+        while True:
+            if path in self.branches:
+                return self.branches[path]
+            parent = os.path.dirname(path)
+            if path == root or parent == path:
+                break
+            path = parent
+        return None if self.anywhere else current_branch(directory)
+
+
+def checkout_branch(command, args, directory):
+    """The branch `git checkout|switch args` leaves checked out in `directory`,
+    or None for a form the guard does not follow (a file, a commit, `-`,
+    `--detach`, an unknown option)."""
+    creates = CREATE_OPTIONS[command]
+    created, positional, tracks = None, [], False
+    index = 0
+    while index < len(args):
+        arg = args[index]
+        index += 1
+        option, has_value, value = arg.partition("=")
+        if arg in creates:
+            if index == len(args):
+                return None
+            created = args[index]
+            index += 1
+        elif option in creates and option.startswith("--") and has_value:
+            created = value
+        elif arg[:2] in creates and len(arg) > 2:
+            created = arg[2:]
+        elif option in TRACK_OPTIONS:
+            tracks = True
+        elif arg in CHECKOUT_FLAGS or option == "--conflict":
+            continue
+        elif arg.startswith("-"):
+            return None
+        else:
+            positional.append(arg)
+    if created is not None:
+        # the one positional argument, if any, is the start point
+        return created if len(positional) <= 1 and not expands(created) else None
+    if tracks or len(positional) != 1 or expands(positional[0]):
+        return None
+    name = positional[0]
+    # `git switch` only takes branches; `git checkout` also takes files and commits
+    if command == "switch" or name in PROTECTED or is_branch(directory, name):
+        return name
+    return None
+
+
+def clone_directory(args, directory):
+    """The directory `git clone args` creates, seen from `directory`, or None."""
+    positional, skip_next, bare = [], False, False
+    for arg in args:
+        if skip_next:
+            skip_next = False
+        elif arg in CLONE_OPTIONS_WITH_VALUE:
+            skip_next = True
+        elif arg in ("--bare", "--mirror"):
+            bare = True
+        elif not arg.startswith("-"):
+            positional.append(arg)
+    if len(positional) > 1:
+        return resolve_directory(directory, positional[1])
+    if not positional:
+        return None
+    # git's own default: the last part of the URL without `.git`
+    name = re.split(r"[/:]", re.sub(r"(/\.git)?/*$", "", positional[0]))[-1]
+    name = re.sub(r"\.(git|bundle)$", "", name)
+    return resolve_directory(directory, name + ".git" if bare else name) if name else None
+
+
+def push_target(args, directory, checkouts):
+    """Return (the protected branch this push reaches or None, whether a branch
+    it may reach cannot be known)."""
     positional = []
     skip_next = False
     for arg in args:
@@ -212,11 +387,15 @@ def push_target(args, directory):
     for refspec in refspecs:
         source, _, destination = refspec.lstrip("+").partition(":")
         target = destination or source
+        if expands(target):
+            unknown = True
+            continue
         if target in ("HEAD", "@"):
-            if directory is None:
+            branch = checkouts.branch(directory)
+            if branch is None:
                 unknown = True
                 continue
-            target = current_branch(directory)
+            target = branch
         target = target.removeprefix("refs/heads/")
         if target in PROTECTED:
             return target, False
@@ -295,11 +474,18 @@ def check_merge(args, directory):
     )
 
 
-def decide(command, directory):
+def decide(command, directory, checkouts=None):
     """Deny wins over ask, so every segment is checked before asking.
     `directory` is None once a `cd` makes it unknown."""
+    checkouts = Checkouts() if checkouts is None else checkouts
     ask_reason = None
-    for segment in segments(tokenize(command)):
+    outer = []  # the directories to return to when a subshell ends
+    for separator, segment in segments(tokenize(command)):
+        for char in separator:
+            if char == "(":
+                outer.append(directory)
+            elif char == ")" and outer:
+                directory = outer.pop()
         tokens = words(segment)
         if not tokens:
             continue
@@ -310,7 +496,7 @@ def decide(command, directory):
         elif program in SHELLS:
             script = shell_script(tokens[1:])
             if script is not None:
-                decision, reason = decide(script, directory)
+                decision, reason = decide(script, directory, checkouts)
                 if decision == "deny":
                     return decision, reason
                 if decision == "ask":
@@ -338,15 +524,27 @@ def decide(command, directory):
                     value = rest.pop(0)
                     if option == "-C":
                         git_directory = resolve_directory(git_directory, value)
-            if rest and rest[0] == "push":
-                target, unknown = push_target(rest[1:], git_directory)
+            subcommand = rest[0] if rest else None
+            if subcommand == "push":
+                target, unknown = push_target(rest[1:], git_directory, checkouts)
                 if target:
                     return "deny", f"Pushing to main is never allowed (this push reaches {target})."
                 if unknown:
                     ask_reason = ask_reason or (
-                        "This git push runs in a directory the guard cannot resolve, so it "
-                        "cannot tell whether the push reaches main; pushing needs the user's OK."
+                        "The guard cannot tell which branch this git push runs on (a directory "
+                        "it cannot resolve, a detached HEAD, or a checkout or clone it cannot "
+                        "follow), so it cannot tell whether the push reaches main; pushing "
+                        "needs the user's OK."
                     )
+            elif subcommand in CREATE_OPTIONS:
+                if git_directory is None:
+                    checkouts.unknown_everywhere()
+                else:
+                    checkouts.checkout(
+                        git_directory, checkout_branch(subcommand, rest[1:], git_directory)
+                    )
+            elif subcommand == "clone":
+                checkouts.clone(clone_directory(rest[1:], git_directory))
     if ask_reason:
         return "ask", ask_reason
     return None, None

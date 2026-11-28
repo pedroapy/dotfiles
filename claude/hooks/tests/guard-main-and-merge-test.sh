@@ -121,12 +121,23 @@ for cmd in \
   'sh -c "git push origin main"' \
   'zsh -c "git push origin main"' \
   '/bin/bash -o pipefail -c "cd /tmp && git push origin main"' \
-  'sudo bash -c "git push origin main"'; do
+  'sudo bash -c "git push origin main"' \
+  'timeout 60 git push origin main' \
+  'timeout -s KILL -k 5 60 git push origin main' \
+  'timeout --foreground --kill-after=5 1m git push origin main' \
+  'gtimeout 60 git push origin main' \
+  'stdbuf -oL git push origin main' \
+  'stdbuf -o L -e 0 git push origin main' \
+  'caffeinate -i git push origin main' \
+  'caffeinate -t 600 -w 1 git push origin main' \
+  'nohup timeout 60 caffeinate -s git push origin main'; do
   check deny clean "$cmd"
 done
 check ask   clean   'bash -c "gh pr merge 7 --squash"'
 check allow clean   'bash -c "git push origin feature/x"'
 check allow clean   'sudo git push origin feature/x'
+check allow clean   'timeout 60 git push origin feature/x'
+check allow clean   'caffeinate -t 600 git push origin feature/x'
 # A heredoc body with an apostrophe breaks shlex; the lines after it still count.
 # (read, not $(cat <<...): bash 3.2 cannot parse an apostrophe in a heredoc inside $(...))
 IFS= read -r -d '' heredoc <<'CMD' || true
@@ -174,7 +185,97 @@ CHECK_CWD=$on_main check ask   clean 'git -C "$PWD" push'
 CHECK_CWD=$on_main check deny  clean 'cd "$PWD" && git push origin main'
 CHECK_CWD=$on_main check allow clean 'cd "$PWD" && git push origin feature/x'
 CHECK_CWD=$on_main check deny  clean "cd \"\$PWD\" && cd '$on_main' && git push"
+# A branch name built from `$` or a backtick is unknown too.
+check ask   clean   'git push origin "$BRANCH"'
+check ask   clean   'git push origin HEAD:"$BRANCH"'
+check ask   clean   'git push origin $(git branch --show-current)'
+check allow clean   'git push origin "$BRANCH":feature/x'
+CHECK_CWD=$on_feature check ask clean 'git switch "$BRANCH" && git push'
+CHECK_CWD=$on_feature check ask clean 'git checkout -b `whoami` && git push -u origin HEAD'
 }
+
+# A branch the guard cannot resolve (missing directory, not a repo, detached
+# HEAD) is unknown: ask before a push that needs it.
+detached="$bin/detached"
+git init -q "$detached" && git -C "$detached" -c user.name=t -c user.email=t@example.invalid commit -q --allow-empty -m init
+git -C "$detached" checkout -q --detach
+CHECK_CWD=$detached check ask   clean 'git push'
+CHECK_CWD=$detached check ask   clean 'git push origin HEAD'
+CHECK_CWD=$detached check allow clean 'git push origin HEAD:feature/x'
+check ask   clean   'git push'
+check ask   clean   'git push -u origin HEAD'
+check ask   clean   'cd /nonexistent && git push'
+check ask   clean   'git -C /nonexistent push'
+check ask   clean   "cd '$on_main/missing' && git push origin HEAD"
+
+# Earlier segments that change the branch count, run from a repo on `feature`
+# with a branch `other`, a subdirectory `sub` and empty directories `empty` and
+# `r` (clone targets).
+repo="$bin/repo"
+git init -q "$repo" && git -C "$repo" checkout -q -b feature
+git -C "$repo" -c user.name=t -c user.email=t@example.invalid commit -q --allow-empty -m init
+git -C "$repo" branch other
+mkdir -p "$repo/sub" "$repo/empty" "$repo/r"
+for cmd in \
+  'git checkout main && git merge feature && git push' \
+  'git switch main && git push origin' \
+  'git checkout main && git push origin HEAD' \
+  'git checkout -q main && git push' \
+  'git switch -C main && git push -u origin @' \
+  'git checkout -b master origin/master && git push' \
+  'git checkout -B main && git push' \
+  'git switch --create=main && git push' \
+  'git checkout -b feat && git checkout main && git push' \
+  'git checkout main && cd sub && git push' \
+  'git -C sub checkout main && git push' \
+  "git -C '$repo' checkout main && git -C sub push" \
+  '(git checkout main) && git push' \
+  'bash -c "git checkout main" && git push' \
+  'git checkout main && bash -c "git push"' \
+  'timeout 60 git switch main && git push'; do
+  CHECK_CWD=$repo check deny clean "$cmd"
+done
+for cmd in \
+  'mkdir -p x && git clone https://example.invalid/r.git x && cd x && git push' \
+  'git clone https://example.invalid/r.git empty && cd empty && git push' \
+  'git clone https://example.invalid/r.git && cd r && git push origin HEAD' \
+  'git clone -b dev --depth 1 https://example.invalid/r.git && git -C r/ push' \
+  'git clone https://example.invalid/r.git empty && cd empty/deeper && git push' \
+  'git checkout -- README.md && git push' \
+  'git checkout 0123abc && git push' \
+  'git checkout - && git push' \
+  'git checkout --detach && git push' \
+  'git checkout no-such-branch && git push' \
+  'git checkout -t origin/feat && git push' \
+  'git checkout --patch && git push' \
+  'git switch --detach main && git push' \
+  'git switch - && git push' \
+  'git checkout feature other && git push'; do
+  CHECK_CWD=$repo check ask clean "$cmd"
+done
+# A checkout in a directory the guard cannot resolve could be in any repo.
+CHECK_CWD=$repo check ask clean "cd \"\$X\" && git checkout main; cd '$repo' && git push"
+# shellcheck disable=SC2016 # the $( ) is the command under test
+for cmd in \
+  'git checkout -b feat && git push -u origin HEAD' \
+  'git switch -c feat && git push' \
+  'git checkout -b feat origin/main && git push -u origin HEAD' \
+  'git checkout main && git checkout -b feat && git push' \
+  'git checkout other && git push' \
+  'git switch other && git push' \
+  'git checkout main && git push origin HEAD:feat' \
+  "git checkout main && cd '$on_feature' && git push" \
+  "git -C '$on_main' checkout main && git push" \
+  'git clone https://example.invalid/r.git empty && git push' \
+  'mkdir -p x && git clone https://example.invalid/r.git x && cd x && git checkout -b feat && git push' \
+  '(cd /tmp && true) && git push' \
+  'x=$(cd /tmp && pwd) && git push'; do
+  CHECK_CWD=$repo check allow clean "$cmd"
+done
+# A `cd` inside ( ) or $( ) does not leave it, as in the shell.
+CHECK_CWD=$on_main check deny  clean "(cd '$repo' && true) && git push"
+CHECK_CWD=$on_main check deny  clean "(cd '$repo')&&(cd /tmp) && git push"
+CHECK_CWD=$on_main check allow clean "(cd /tmp && cd '$repo' && git push)"
 
 # The desktop app's auto-merge tool asks like `gh pr merge`; other tools get no decision.
 CHECK_TOOL=mcp__ccd_pr__set_auto_merge check ask clean ''
@@ -189,11 +290,17 @@ check allow clean   'git log --grep merge'
 check allow clean   'git log --grep "merge (main)" | head -1'
 
 # The wiring in config/claude-settings.json, run exactly as written there under
-# each shell, with HOME at a fake home: a missing or crashing guard asks, a
-# working one decides.
-home_missing="$bin/home-missing"; home_crash="$bin/home-crash"; home_ok="$bin/home-ok"
-mkdir -p "$home_missing" "$home_crash/dotfiles/claude/hooks" "$home_ok/dotfiles/claude/hooks"
+# each shell, with HOME at a fake home: a missing guard or one that exits with
+# anything but 0 (2 included, which Python uses when it cannot open the file)
+# asks, and its output is dropped; a working one decides.
+home_missing="$bin/home-missing"; home_crash="$bin/home-crash"; home_ok="$bin/home-ok"; home_exit2="$bin/home-exit2"
+mkdir -p "$home_missing" "$home_crash/dotfiles/claude/hooks" "$home_ok/dotfiles/claude/hooks" "$home_exit2/dotfiles/claude/hooks"
 printf 'def broken(:\n' >"$home_crash/dotfiles/claude/hooks/guard-main-and-merge.py"
+cat >"$home_exit2/dotfiles/claude/hooks/guard-main-and-merge.py" <<'PY2'
+import sys
+print('{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"allow"}}')
+sys.exit(2)
+PY2
 ln -s "$HOOK" "$home_ok/dotfiles/claude/hooks/guard-main-and-merge.py"
 wired() { # expected shell matcher home tool command [reason-substring]
   local expected=$1 shell=$2 matcher=$3 home=$4 tool=$5 cmd=$6 want=${7:-} script out rc got
@@ -211,10 +318,12 @@ for shell in sh bash zsh; do
   command -v "$shell" >/dev/null || continue
   wired ask   "$shell" Bash "$home_missing" Bash 'git status' 'dotfiles/claude/hooks/guard-main-and-merge.py is missing'
   wired ask   "$shell" Bash "$home_crash"   Bash 'git status' 'failed (exit 1)'
+  wired ask   "$shell" Bash "$home_exit2"   Bash 'git status' 'failed (exit 2)'
   wired deny  "$shell" Bash "$home_ok"      Bash 'git push origin main' 'never allowed'
   wired allow "$shell" Bash "$home_ok"      Bash 'git status'
   wired ask   "$shell" mcp__ccd_pr__set_auto_merge "$home_missing" mcp__ccd_pr__set_auto_merge '' 'is missing'
   wired ask   "$shell" mcp__ccd_pr__set_auto_merge "$home_crash"   mcp__ccd_pr__set_auto_merge '' 'failed (exit 1)'
+  wired ask   "$shell" mcp__ccd_pr__set_auto_merge "$home_exit2"   mcp__ccd_pr__set_auto_merge '' 'failed (exit 2)'
   wired ask   "$shell" mcp__ccd_pr__set_auto_merge "$home_ok"      mcp__ccd_pr__set_auto_merge '' 'Auto-merge'
 done
 exit $fail

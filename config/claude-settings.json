@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "g=\"$HOME/dotfiles/claude/hooks/guard-main-and-merge.py\"; ask() { printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"ask\",\"permissionDecisionReason\":\"%s\"}}\\n' \"$1\"; }; if [ ! -r \"$g\" ]; then ask \"The guard hook ~/dotfiles/claude/hooks/guard-main-and-merge.py is missing or unreadable, so this call needs the user's OK.\"; exit 0; fi; out=$(python3 -I \"$g\"); rc=$?; if [ \"$rc\" -eq 0 ] || [ \"$rc\" -eq 2 ]; then if [ -n \"$out\" ]; then printf '%s\\n' \"$out\"; fi; exit \"$rc\"; fi; ask \"The guard hook ~/dotfiles/claude/hooks/guard-main-and-merge.py failed (exit $rc), so this call needs the user's OK.\""
+            "command": "g=\"$HOME/dotfiles/claude/hooks/guard-main-and-merge.py\"; ask() { printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"ask\",\"permissionDecisionReason\":\"%s\"}}\\n' \"$1\"; }; if [ ! -r \"$g\" ]; then ask \"The guard hook ~/dotfiles/claude/hooks/guard-main-and-merge.py is missing or unreadable, so this call needs the user's OK.\"; exit 0; fi; out=$(python3 -I \"$g\"); rc=$?; if [ \"$rc\" -eq 0 ]; then if [ -n \"$out\" ]; then printf '%s\\n' \"$out\"; fi; exit 0; fi; ask \"The guard hook ~/dotfiles/claude/hooks/guard-main-and-merge.py failed (exit $rc), so this call needs the user's OK.\""
           }
         ]
       },
@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "g=\"$HOME/dotfiles/claude/hooks/guard-main-and-merge.py\"; ask() { printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"ask\",\"permissionDecisionReason\":\"%s\"}}\\n' \"$1\"; }; if [ ! -r \"$g\" ]; then ask \"The guard hook ~/dotfiles/claude/hooks/guard-main-and-merge.py is missing or unreadable, so this call needs the user's OK.\"; exit 0; fi; out=$(python3 -I \"$g\"); rc=$?; if [ \"$rc\" -eq 0 ] || [ \"$rc\" -eq 2 ]; then if [ -n \"$out\" ]; then printf '%s\\n' \"$out\"; fi; exit \"$rc\"; fi; ask \"The guard hook ~/dotfiles/claude/hooks/guard-main-and-merge.py failed (exit $rc), so this call needs the user's OK.\""
+            "command": "g=\"$HOME/dotfiles/claude/hooks/guard-main-and-merge.py\"; ask() { printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"ask\",\"permissionDecisionReason\":\"%s\"}}\\n' \"$1\"; }; if [ ! -r \"$g\" ]; then ask \"The guard hook ~/dotfiles/claude/hooks/guard-main-and-merge.py is missing or unreadable, so this call needs the user's OK.\"; exit 0; fi; out=$(python3 -I \"$g\"); rc=$?; if [ \"$rc\" -eq 0 ]; then if [ -n \"$out\" ]; then printf '%s\\n' \"$out\"; fi; exit 0; fi; ask \"The guard hook ~/dotfiles/claude/hooks/guard-main-and-merge.py failed (exit $rc), so this call needs the user's OK.\""
           }
         ]
       }

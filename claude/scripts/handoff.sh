@@ -101,8 +101,9 @@ save() {
   [[ -n "$content" ]] || { echo "empty body: pass the handoff on stdin" >&2; exit 1; }
   created=$(date '+%Y-%m-%d %H:%M')
   [[ -f "$f" ]] && created=$(field "$f" created)
-  # Next step: the first non-empty line under "## Next step".
-  next=$(printf '%s\n' "$content" | awk '/^## Next step/{f=1;next} /^## /{f=0} f&&NF{sub(/^[-*0-9.) ]+/,"");print;exit}' | cut -c1-120 | tr '|' '/')
+  # Next step: the first non-empty line under "## Next step" (or the Spanish
+  # "## Siguiente paso" of earlier handoffs).
+  next=$(printf '%s\n' "$content" | awk '/^## (Next step|Siguiente paso)/{f=1;next} /^## /{f=0} f&&NF{sub(/^[-*0-9.) ]+/,"");print;exit}' | cut -c1-120 | tr '|' '/')
   cwd=$PWD branch="-" dirty="-" ahead="-" last="-"
   if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     cwd=$(git rev-parse --show-toplevel)

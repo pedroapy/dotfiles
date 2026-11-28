@@ -36,6 +36,9 @@ jobs:
       - name: link-claude.sh tests
         run: bash scripts/tests/link-claude-test.sh
 
+      - name: merge-claude-settings.sh tests
+        run: bash scripts/tests/merge-claude-settings-test.sh
+
       - name: Link checkout to ~/dotfiles
         run: ln -s "$GITHUB_WORKSPACE" "$HOME/dotfiles"
 
