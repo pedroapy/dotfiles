@@ -19,3 +19,6 @@
 node_modules/
 __pycache__/
 .direnv/
+
+# Claude Code per-project local settings (permissions, local env)
+**/.claude/settings.local.json

@@ -64,7 +64,7 @@ else
         grep -v '^[[:space:]]*cask ' "$DOTFILES/Brewfile" > "$brewfile"
         label="Brewfile (without casks)"
     fi
-    if out=$(brew bundle check --file="$brewfile" --no-upgrade --verbose 2>&1); then
+    if out=$(HOMEBREW_NO_AUTO_UPDATE=1 brew bundle check --file="$brewfile" --no-upgrade --verbose 2>&1); then
         ok "$label"
     else
         fail "$label" "$(echo "$out" | grep -v '^Satisfy' | tr '\n' ' ')"
@@ -109,6 +109,22 @@ if out=$("$DOTFILES/scripts/merge-claude-settings.sh" --check 2>&1); then
     ok "Claude settings in sync with config/claude-settings.json"
 else
     fail "Claude settings" "$out (run scripts/merge-claude-settings.sh)"
+fi
+# config/claude-settings.json runs the guard hook from this fixed path
+guard="$HOME/dotfiles/claude/hooks/guard-main-and-merge.py"
+if [ -f "$guard" ]; then
+    ok "Claude guard hook at ~/dotfiles/claude/hooks"
+else
+    fail "Claude guard hook" "$guard is missing; until it exists every Bash command asks for approval"
+fi
+# Agent, skill and script links and the CLAUDE.md import; link-claude.sh
+# prints its own OK/SKIP/FAIL lines
+out=$("$DOTFILES/scripts/link-claude.sh" --check 2>&1)
+rc=$?
+printf '%s\n' "$out"
+if [ "$rc" -ne 0 ]; then
+    n=$(printf '%s\n' "$out" | grep -c '^  FAIL')
+    fails=$((fails + (n > 0 ? n : 1)))
 fi
 
 echo ""
