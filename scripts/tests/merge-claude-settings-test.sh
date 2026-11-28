@@ -88,6 +88,21 @@ run; rc=$?
 check "readded: merge exits 0" same "$rc" 0
 check "readded: back to the merged settings" same "$(cat "$H/.claude/settings.json")" "$after"
 
+# Up to date, with the shared guard groups before a local PreToolUse group (the
+# merges above leave local groups first): --check passes, and a merge neither
+# rewrites nor regroups the file.
+new_home ordered
+# shellcheck disable=SC2016 # jq program, $lint is jq's
+jq --arg lint "$LINT" '.hooks.PreToolUse += [{matcher: "Edit", hooks: [{type: "command", command: $lint}]}]' \
+  "$BASE" >"$H/.claude/settings.json"
+ordered=$(cat "$H/.claude/settings.json")
+run --check; rc=$?
+check "ordered: --check exits 0" same "$rc" 0
+run; rc=$?
+check "ordered: merge exits 0" same "$rc" 0
+check "ordered: nothing changes" same "$(cat "$H/.claude/settings.json")" "$ordered"
+check "ordered: reports no removal" absent grep -q '^\[-\]' "$out"
+
 # No local settings yet: the shared ones are written as they are.
 new_home fresh
 rmdir "$H/.claude"

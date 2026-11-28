@@ -6,19 +6,28 @@ Deny any `git push` that reaches main or master: a refspec naming them, `--all`,
 `--mirror`, or a push with no refspec (or `HEAD`) from a checkout on them. The
 checkout is the one in place when the push runs: an earlier `git checkout` or
 `git switch` in the same command counts (`git checkout main && git push` is
-denied), and a `cd` inside `( )` or `$( )` ends with it, as in the shell. Pushes
-to other branches, forced or not, pass. This holds on every machine. When the
-guard cannot tell which branch a push reaches, ask instead: a refspec, branch
-name, `cd` or `git -C` target with `$` or a backtick, or `cd -`; a push with no
-refspec (or `HEAD`) in a directory that is missing, not a repository or on a
-detached HEAD, after a checkout it cannot follow (`checkout -- file`, a commit,
-`-`, `--detach`) or one in a directory it cannot resolve, or in a repository an
-earlier `git clone` in the command creates.
+denied, `git checkout -- <file>` keeps the branch), and a `cd` inside `( )` or
+`$( )` ends with it, as in the shell. A refspec `$(git branch --show-current)`,
+`$(git rev-parse --abbrev-ref HEAD)` or `$(git symbolic-ref --short HEAD)` is
+the branch checked out where the shell runs it, and `$NAME` or `${NAME}` the
+value of a literal `NAME=value` earlier in the command, which `( )` ends like a
+`cd`. Pushes to other branches, forced or not, pass. This holds on every
+machine. When the guard cannot tell which branch a push reaches, ask instead: a
+refspec, branch name, `cd` or `git -C` target with any other `$` or a backtick,
+or `cd -`; a push with no refspec (or `HEAD`) in a directory that is missing,
+not a repository or on a detached HEAD, after a checkout it cannot follow (a
+commit, `-`, `--detach`, a branch before `--`) or one in a directory it cannot
+resolve, or in a repository an earlier `git clone` in the command creates.
 
 Each command is matched after its leading keywords and wrappers (`(`, `{`, `!`,
 `then`, `do`, `sudo`, `env`, `nice`, `command`, `time`, `timeout`, `stdbuf`,
-`caffeinate`, ...), and the string given to `bash|sh|zsh -c` is checked as a
-command of its own.
+`caffeinate`, ...). The string given to `bash|sh|zsh -c` is checked as a
+command of its own, and so is the body of each `$( )` or backtick pair inside a
+word (`echo "$(git push origin main)"`), with the checkouts of the whole line.
+The bodies of the heredocs inside it are text, not commands, so the message of
+`git commit -m "$(cat <<'EOF' ... EOF)"` can say anything; only the
+substitutions in the body of a heredoc whose delimiter is unquoted are checked,
+as the shell runs them.
 
 Ask before merging a pull request: `gh pr merge`, `gh api` calls that merge
 (REST merge endpoint, GraphQL merge or auto-merge mutations) and the desktop
@@ -33,16 +42,27 @@ while open PRs are stacked on the head branch (GitHub closes them instead of
 retargeting), and `--match-head-commit` with anything but a full 40-hex SHA. If
 `gh` fails or times out, skip that check and warn.
 
-Known limits. Each line of a heredoc body is checked as a command, so a body
-line `git push origin main` is denied, and `gh api .../merge -X GET` asks
-although it only reads; both err on the safe side. `eval`, `xargs`, backticks,
-`env -S`, git aliases and `pushd` are not parsed, so a push or merge run through
-them is not seen. A `git checkout` or `git switch` is taken to succeed, even when
-`;` or `||` would run the push after it failed, and other commands that change
-the branch (`git branch -m`, `git rebase <base> <branch>`, `gh pr checkout`) are
-not followed.
+Known limits. Outside `$( )`, each line of a heredoc body is checked as a
+command, so a body line `git push origin main` is denied, and `gh api
+.../merge -X GET` asks although it only reads. When quoting is unbalanced (an
+odd `"` in a heredoc), the lines are lexed one by one, so the body lines of a
+heredoc inside `$( )` are checked as commands too and can change the tracked
+branch. All of these err on the safe side. `eval`, `xargs`, a backtick pair
+split across words (`` echo `git push` ``), `env -S`, git aliases and `pushd`
+are not parsed, so a push or merge run through them is not seen; nor is one in
+a double-quoted word with spaces inside a quoted `$( )`, which shlex has split
+(`"$(bash -c "git push")"` reads as `bash -c git`). A `git
+checkout`, `git switch` or `NAME=value` is taken to succeed, even when `;` or
+`||` would run the push after it failed, and other commands that change the
+branch (`git branch -m`, `git rebase <base> <branch>`, `gh pr checkout`) are not
+followed. A `cd` or `NAME=value` on the left of a pipe is treated as
+persistent, although the shell runs it in a subshell. A push with no refspec is
+taken to push the current branch to the same name, as `push.default=current` in
+`git/.gitconfig_base` does; the `upstream` mode, which can push to another
+name, is not modelled.
 """
 
+import io
 import json
 import os
 import re
@@ -108,6 +128,22 @@ GH_TIMEOUT = 10
 PUNCTUATION = ";&|<>()"
 ROUGH_TOKEN = re.compile(r"[;&|<>()]+|[^\s;&|<>()]+")
 ALLOW_MERGE_VARIABLE = "CLAUDE_GUARD_ALLOW_MERGE"
+# The substitutions that print the branch checked out where the shell runs them,
+# and the word that stands for them once found: it holds `$`, so anywhere but a
+# push refspec it stays a value the guard cannot know.
+CURRENT_BRANCH_SUBSTITUTION = re.compile(
+    r"\$\(\s*git\s+(?:branch\s+--show-current|rev-parse\s+--abbrev-ref\s+HEAD"
+    r"|symbolic-ref\s+--short\s+HEAD)\s*\)"
+)
+CURRENT_BRANCH = "$\3current-branch\3"
+NAME = r"[A-Za-z_]\w*"
+VARIABLE = re.compile(rf"\$(?:\{{({NAME})\}}|({NAME}))")
+# A heredoc operator (not `<<<`) and its delimiter, quoted when the body is literal
+HEREDOC = re.compile(r"<<-?[ \t]*(\\?)(['\"]?)([^\s'\"();&|<>`]+)\2")
+# Returned by checkout_branch for a checkout that keeps the branch
+KEEP = object()
+SINGLE_QUOTED = str.maketrans("$`", "\1\2")
+UNMASKED = str.maketrans("\1\2", "$`")
 
 
 def merges_allowed():
@@ -115,15 +151,43 @@ def merges_allowed():
     return os.environ.get(ALLOW_MERGE_VARIABLE) == "1"
 
 
-def lex(text):
-    lexer = shlex.shlex(text, posix=True, punctuation_chars=PUNCTUATION)
+class Word(str):
+    """A token, and in `masked` the same token with the `$` and backticks it had
+    inside single quotes, which the shell keeps literal, hidden."""
+
+    def __new__(cls, text, masked):
+        word = super().__new__(cls, text)
+        word.masked = masked
+        return word
+
+
+class SingleQuoteMask(io.StringIO):
+    """Input for shlex that hides `$` and backticks inside single quotes."""
+
+    lexer = None
+
+    def read(self, size=-1):
+        text = super().read(size)
+        return text.translate(SINGLE_QUOTED) if self.lexer.state == "'" else text
+
+
+def lex(text, mask=False):
+    stream = SingleQuoteMask(text) if mask else text
+    lexer = shlex.shlex(stream, posix=True, punctuation_chars=PUNCTUATION)
     lexer.whitespace_split = True
+    if mask:
+        stream.lexer = lexer
     return list(lexer)
+
+
+def words_of(text):
+    """The tokens of `text` as Words; masking changes no token boundary."""
+    return [Word(token, masked) for token, masked in zip(lex(text), lex(text, mask=True))]
 
 
 def tokenize(command):
     try:
-        return lex(command.replace("\n", " ; "))
+        return words_of(command.replace("\n", " ; "))
     except ValueError:
         # An unbalanced quote, such as an apostrophe in a heredoc body: lex each
         # line on its own (roughly when that fails too), so the commands on the
@@ -131,7 +195,7 @@ def tokenize(command):
         tokens = []
         for line in command.splitlines():
             try:
-                tokens += lex(line)
+                tokens += words_of(line)
             except ValueError:
                 rough = (token.replace("'", "").replace('"', "") for token in ROUGH_TOKEN.findall(line))
                 tokens += [token for token in rough if token]
@@ -186,6 +250,117 @@ def expands(word):
     """True when the shell rewrites `word` ($VAR, $(...), a backtick), so the
     guard cannot know its value."""
     return "$" in word or "`" in word
+
+
+def skip_heredoc(text, index, delimiter, expanded):
+    """Index after the heredoc body that starts at `text[index]` and ends with a
+    `delimiter` line. Each body line goes to `expanded` unless it is None."""
+    while index < len(text):
+        end = text.find("\n", index)
+        end = len(text) if end < 0 else end
+        line = text[index:end]
+        word = line.replace("\0", " ").strip()
+        if word == delimiter:
+            return end + 1
+        if word.startswith(delimiter + ")"):
+            # `EOF)`: the heredoc and the substitution end on one line
+            return index + line.index(delimiter) + len(delimiter)
+        if expanded is not None:
+            expanded.append(line)
+        index = end + 1
+    return index
+
+
+def substitution_body(text, start):
+    """Read the `$(` substitution whose body starts at `text[start]`. Return its
+    body without the bodies of its heredocs, the index after its `)` (the end of
+    `text` when it has none) and the heredoc bodies the shell expands (those with
+    an unquoted delimiter), whose own substitutions run."""
+    body, expanded, heredocs = [], [], []
+    depth, index, quoted = 1, start, False
+    while index < len(text):
+        char = text[index]
+        if quoted:
+            quoted = char != "'"
+        elif char == "'":
+            quoted = True
+        elif char == "\\":
+            body.append(text[index:index + 2])
+            index += 2
+            continue
+        elif char == "(":
+            depth += 1
+        elif char == ")":
+            depth -= 1
+            if depth == 0:
+                return "".join(body), index + 1, "\n".join(expanded)
+        elif char == "<" and text[index - 1] != "<" and (heredoc := HEREDOC.match(text, index)):
+            heredocs.append((heredoc[3], not (heredoc[1] or heredoc[2])))
+            body.append(heredoc[0])
+            index = heredoc.end()
+            continue
+        elif char == "\n" and heredocs:
+            body.append(char)
+            index += 1
+            for delimiter, unquoted in heredocs:
+                index = skip_heredoc(text, index, delimiter, expanded if unquoted else None)
+            heredocs = []
+            continue
+        body.append(char)
+        index += 1
+    return "".join(body), len(text), "\n".join(expanded)
+
+
+def substitutions(text):
+    """Bodies of the `$( )` and backtick substitutions in `text`, the words of one
+    command as shlex left them, joined by NUL. A quoted `"$( )"` is one word
+    there; an unquoted one was split at its parentheses, which `decide` follows."""
+    text = text.replace(" ; ", "\n")  # tokenize turned each line break into ` ; `
+    index = 0
+    while index < len(text):
+        if text.startswith("$(", index):
+            body, index, expanded = substitution_body(text, index + 2)
+            yield body.replace("\0", " ").translate(UNMASKED)
+            yield from substitutions(expanded)
+        elif text[index] == "`" and text[index - 1:index] != "\\":
+            # a pair inside one word: an unquoted one with spaces is split across words
+            end = index + 1
+            while end < len(text) and text[end] not in "`\0":
+                end += 2 if text[end] == "\\" else 1
+            if end < len(text) and text[end] == "`":
+                yield text[index + 1:end].translate(UNMASKED)
+                index = end + 1
+            else:
+                index += 1
+        else:
+            index += 1
+
+
+def track_variables(segment, variables):
+    """Keep the literal values that a command of bare `NAME=value` words assigns,
+    and forget a name that any other command may set (`read NAME`, `export
+    NAME=...`, `for NAME in`, or `NAME=value command`, whose `$NAME` is still
+    the old value)."""
+    tokens = list(segment)
+    while tokens and tokens[0] in PREFIX_WORDS:
+        tokens.pop(0)
+    if tokens and all(re.match(rf"{NAME}=", token) for token in tokens):
+        for token in tokens:
+            name, _, value = token.partition("=")
+            if value and not expands(value):
+                variables[name] = value
+            else:
+                variables.pop(name, None)
+        return
+    for token in segment:
+        match = re.match(rf"({NAME})(?:\+?=|\[|$)", token)
+        if match:
+            variables.pop(match[1], None)
+
+
+def expand_variables(word, variables):
+    """`word` with each `$NAME` or `${NAME}` whose literal value is known replaced by it."""
+    return VARIABLE.sub(lambda match: variables.get(match[1] or match[2], match[0]), word)
 
 
 def resolve_directory(directory, target):
@@ -305,9 +480,10 @@ class Checkouts:
 
 
 def checkout_branch(command, args, directory):
-    """The branch `git checkout|switch args` leaves checked out in `directory`,
-    or None for a form the guard does not follow (a file, a commit, `-`,
-    `--detach`, an unknown option)."""
+    """The branch `git checkout|switch args` leaves checked out in `directory`
+    (None when that cannot be known), None for a form the guard does not follow
+    (a commit, `-`, `--detach`, a branch before `--`, an unknown option), or KEEP
+    for `git checkout -- <file>`, which restores files and keeps the branch."""
     creates = CREATE_OPTIONS[command]
     created, positional, tracks = None, [], False
     index = 0
@@ -315,6 +491,8 @@ def checkout_branch(command, args, directory):
         arg = args[index]
         index += 1
         option, has_value, value = arg.partition("=")
+        if arg == "--" and command == "checkout" and not positional and created is None and not tracks:
+            return KEEP
         if arg in creates:
             if index == len(args):
                 return None
@@ -339,7 +517,7 @@ def checkout_branch(command, args, directory):
         return None
     name = positional[0]
     # `git switch` only takes branches; `git checkout` also takes files and commits
-    if command == "switch" or name in PROTECTED or is_branch(directory, name):
+    if command == "switch" or name in PROTECTED or (directory is not None and is_branch(directory, name)):
         return name
     return None
 
@@ -366,9 +544,11 @@ def clone_directory(args, directory):
     return resolve_directory(directory, name + ".git" if bare else name) if name else None
 
 
-def push_target(args, directory, checkouts):
+def push_target(args, git_directory, shell_directory, checkouts, variables):
     """Return (the protected branch this push reaches or None, whether a branch
-    it may reach cannot be known)."""
+    it may reach cannot be known). `HEAD` is the branch in `git_directory` (the
+    one `git -C` names), `$(git branch --show-current)` the one in
+    `shell_directory`, where the shell runs it."""
     positional = []
     skip_next = False
     for arg in args:
@@ -385,17 +565,17 @@ def push_target(args, directory, checkouts):
         refspecs = ["HEAD"]
     unknown = False
     for refspec in refspecs:
-        source, _, destination = refspec.lstrip("+").partition(":")
+        source, _, destination = expand_variables(refspec, variables).lstrip("+").partition(":")
         target = destination or source
-        if expands(target):
+        if target == CURRENT_BRANCH:
+            target = checkouts.branch(shell_directory)
+        elif target in ("HEAD", "@"):
+            target = checkouts.branch(git_directory)
+        elif expands(target):
+            target = None
+        if target is None:
             unknown = True
             continue
-        if target in ("HEAD", "@"):
-            branch = checkouts.branch(directory)
-            if branch is None:
-                unknown = True
-                continue
-            target = branch
         target = target.removeprefix("refs/heads/")
         if target in PROTECTED:
             return target, False
@@ -474,18 +654,28 @@ def check_merge(args, directory):
     )
 
 
-def decide(command, directory, checkouts=None):
+def decide(command, directory, checkouts=None, variables=None):
     """Deny wins over ask, so every segment is checked before asking.
-    `directory` is None once a `cd` makes it unknown."""
+    `directory` is None once a `cd` makes it unknown. `variables` holds the
+    literal values of the shell variables assigned so far."""
     checkouts = Checkouts() if checkouts is None else checkouts
+    variables = {} if variables is None else variables
     ask_reason = None
-    outer = []  # the directories to return to when a subshell ends
+    outer = []  # the directories and variables to return to when a subshell ends
+    command = CURRENT_BRANCH_SUBSTITUTION.sub(CURRENT_BRANCH, command)
     for separator, segment in segments(tokenize(command)):
         for char in separator:
             if char == "(":
-                outer.append(directory)
+                outer.append((directory, dict(variables)))
             elif char == ")" and outer:
-                directory = outer.pop()
+                directory, variables = outer.pop()
+        # The shell runs the substitutions in a command's words before the command
+        for body in substitutions("\0".join(getattr(token, "masked", token) for token in segment)):
+            decision, reason = decide(body, directory, checkouts, dict(variables))
+            if decision == "deny":
+                return decision, reason
+            ask_reason = ask_reason or reason
+        track_variables(segment, variables)
         tokens = words(segment)
         if not tokens:
             continue
@@ -496,11 +686,11 @@ def decide(command, directory, checkouts=None):
         elif program in SHELLS:
             script = shell_script(tokens[1:])
             if script is not None:
-                decision, reason = decide(script, directory, checkouts)
+                # a new shell does not see the variables this one did not export
+                decision, reason = decide(script, directory, checkouts, {})
                 if decision == "deny":
                     return decision, reason
-                if decision == "ask":
-                    ask_reason = ask_reason or reason
+                ask_reason = ask_reason or reason
         elif program == "gh" and "api" in tokens and MERGE_API.search(" ".join(tokens)):
             if not merges_allowed():
                 ask_reason = ask_reason or (
@@ -526,7 +716,7 @@ def decide(command, directory, checkouts=None):
                         git_directory = resolve_directory(git_directory, value)
             subcommand = rest[0] if rest else None
             if subcommand == "push":
-                target, unknown = push_target(rest[1:], git_directory, checkouts)
+                target, unknown = push_target(rest[1:], git_directory, directory, checkouts, variables)
                 if target:
                     return "deny", f"Pushing to main is never allowed (this push reaches {target})."
                 if unknown:
@@ -537,12 +727,9 @@ def decide(command, directory, checkouts=None):
                         "needs the user's OK."
                     )
             elif subcommand in CREATE_OPTIONS:
-                if git_directory is None:
-                    checkouts.unknown_everywhere()
-                else:
-                    checkouts.checkout(
-                        git_directory, checkout_branch(subcommand, rest[1:], git_directory)
-                    )
+                branch = checkout_branch(subcommand, rest[1:], git_directory)
+                if branch is not KEEP:
+                    checkouts.checkout(git_directory, branch)
             elif subcommand == "clone":
                 checkouts.clone(clone_directory(rest[1:], git_directory))
     if ask_reason:

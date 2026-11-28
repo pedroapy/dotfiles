@@ -150,6 +150,18 @@ heredoc=${heredoc%$'\n'}
 check deny  clean   "$heredoc"
 check allow clean   "${heredoc%main}feature/x"
 check deny  clean   "echo 'it's'; git push origin main"
+# A substitution inside a quoted word is checked like a command of its own.
+# shellcheck disable=SC2016 # the $( ) and backticks are the command under test
+{
+check deny  clean   'echo "$(git push origin main)"'
+check deny  clean   'out="$(git push origin main 2>&1)"; echo "$out"'
+check deny  clean   'echo "pushed: $(git push --force origin HEAD:main)"'
+check deny  clean   'echo "`git push origin main`"'
+check deny  clean   'git log -1 --format="$(bash -c '\''git push origin main'\'')"'
+check ask   clean   'echo "$(gh pr merge 7 --squash)"'
+check allow clean   'echo "$(git push origin feature/x)"'
+check allow clean   'echo "$(date)" "`whoami`"'
+}
 
 # gh flags before `merge` do not hide it, and their values reach the stacked-PR check.
 check ask   clean   'gh pr -R owner/repo merge 7'
@@ -188,10 +200,34 @@ CHECK_CWD=$on_main check deny  clean "cd \"\$PWD\" && cd '$on_main' && git push"
 # A branch name built from `$` or a backtick is unknown too.
 check ask   clean   'git push origin "$BRANCH"'
 check ask   clean   'git push origin HEAD:"$BRANCH"'
-check ask   clean   'git push origin $(git branch --show-current)'
 check allow clean   'git push origin "$BRANCH":feature/x'
 CHECK_CWD=$on_feature check ask clean 'git switch "$BRANCH" && git push'
 CHECK_CWD=$on_feature check ask clean 'git checkout -b `whoami` && git push -u origin HEAD'
+CHECK_CWD=$on_feature check ask clean 'git push origin "$(git branch)"'
+CHECK_CWD=$on_feature check ask clean 'git push origin "$(git branch --show-current)-x"'
+# ...except the substitutions that print the current branch, read where the
+# shell runs them (not where `git -C` points), and literal assignments.
+CHECK_CWD=$on_feature check allow clean 'git push -u origin "$(git branch --show-current)"'
+CHECK_CWD=$on_feature check allow clean 'git push origin $(git rev-parse --abbrev-ref HEAD)'
+CHECK_CWD=$on_feature check allow clean 'git push origin HEAD:"$(git symbolic-ref --short HEAD)"'
+CHECK_CWD=$on_main    check deny  clean 'git push -u origin "$(git branch --show-current)"'
+CHECK_CWD=$on_main    check deny  clean 'git push origin $(git rev-parse --abbrev-ref HEAD)'
+CHECK_CWD=$on_main    check deny  clean "git -C '$on_feature' push origin \"\$(git branch --show-current)\""
+CHECK_CWD=$on_main    check allow clean "cd '$on_feature' && git -C '$on_main' push origin \"\$(git branch --show-current)\""
+check ask   clean   'git push origin "$(git branch --show-current)"'
+check allow clean   'B=feature/x; git push origin "$B"'
+check allow clean   'B=feature/x && git push -u origin ${B}'
+check deny  clean   'B=main; git push origin "$B"'
+check deny  clean   'R=origin B=main; git push "$R" HEAD:refs/heads/$B'
+check deny  clean   'B=feature/x; (B=main; git push origin "$B")'
+check allow clean   'B=feature/x; (B=main); git push origin "$B"'
+check deny  clean   'B=main; (B=feature/x); git push origin "$B"'
+check ask   clean   'B=main git push origin "$B"'
+check ask   clean   'B=feature/x; export B=main; git push origin "$B"'
+check ask   clean   'B=feature/x; read -r B; git push origin "$B"'
+check ask   clean   'B=feature/x; for B in main; do git push origin "$B"; done'
+check ask   clean   'B=$X; git push origin "$B"'
+check ask   clean   'B=feature/x; bash -c "git push origin \$B"'
 }
 
 # A branch the guard cannot resolve (missing directory, not a repo, detached
@@ -220,6 +256,7 @@ for cmd in \
   'git checkout main && git merge feature && git push' \
   'git switch main && git push origin' \
   'git checkout main && git push origin HEAD' \
+  'git checkout main && git checkout -- README.md && git push' \
   'git checkout -q main && git push' \
   'git switch -C main && git push -u origin @' \
   'git checkout -b master origin/master && git push' \
@@ -241,13 +278,13 @@ for cmd in \
   'git clone https://example.invalid/r.git && cd r && git push origin HEAD' \
   'git clone -b dev --depth 1 https://example.invalid/r.git && git -C r/ push' \
   'git clone https://example.invalid/r.git empty && cd empty/deeper && git push' \
-  'git checkout -- README.md && git push' \
   'git checkout 0123abc && git push' \
   'git checkout - && git push' \
   'git checkout --detach && git push' \
   'git checkout no-such-branch && git push' \
   'git checkout -t origin/feat && git push' \
   'git checkout --patch && git push' \
+  'git checkout other -- README.md && git push' \
   'git switch --detach main && git push' \
   'git switch - && git push' \
   'git checkout feature other && git push'; do
@@ -262,6 +299,8 @@ for cmd in \
   'git checkout -b feat origin/main && git push -u origin HEAD' \
   'git checkout main && git checkout -b feat && git push' \
   'git checkout other && git push' \
+  'git checkout -- README.md && git push' \
+  'git checkout -q -- . && git push' \
   'git switch other && git push' \
   'git checkout main && git push origin HEAD:feat' \
   "git checkout main && cd '$on_feature' && git push" \
@@ -276,6 +315,33 @@ done
 CHECK_CWD=$on_main check deny  clean "(cd '$repo' && true) && git push"
 CHECK_CWD=$on_main check deny  clean "(cd '$repo')&&(cd /tmp) && git push"
 CHECK_CWD=$on_main check allow clean "(cd /tmp && cd '$repo' && git push)"
+# A quoted substitution shares the checkouts of the line and keeps its own `cd`.
+# shellcheck disable=SC2016 # the $( ) is the command under test
+{
+CHECK_CWD=$repo check deny  clean 'echo "$(git checkout main)" && git push'
+CHECK_CWD=$repo check deny  clean "x=\"\$(cd '$on_main' && git push)\""
+CHECK_CWD=$repo check allow clean "x=\"\$(cd '$on_main' && pwd)\" && git push"
+CHECK_CWD=$repo check allow clean 'echo "$(git push)"'
+# Single quotes keep a substitution literal, unless a nested shell runs the string.
+CHECK_CWD=$on_main check allow clean 'gh pr comment 1 --body '\''Run `git push` or $(git push origin main) by hand'\'''
+CHECK_CWD=$on_main check deny  clean 'bash -c '\''echo "$(git push)"'\'''
+}
+# A heredoc inside a quoted substitution is text: a commit message can name any
+# command. Only a `$( )` in the body of an unquoted heredoc runs.
+IFS= read -r -d '' commit <<'CMD' || true
+git commit -m "$(cat <<'EOF'
+fix(guard): it's done, 1) see below
+Say "hi there" and run $(git push origin main) by hand
+git push origin main
+git checkout main
+EOF
+)" && git push
+CMD
+commit=${commit%$'\n'}
+CHECK_CWD=$repo check allow clean "$commit"
+CHECK_CWD=$repo check deny  clean "$commit origin main"
+CHECK_CWD=$repo check allow clean "${commit/\'EOF\'/\\EOF}"
+CHECK_CWD=$repo check deny  clean "${commit/\'EOF\'/EOF}"
 
 # The desktop app's auto-merge tool asks like `gh pr merge`; other tools get no decision.
 CHECK_TOOL=mcp__ccd_pr__set_auto_merge check ask clean ''
