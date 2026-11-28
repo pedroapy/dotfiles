@@ -64,7 +64,7 @@ else
         grep -v '^[[:space:]]*cask ' "$DOTFILES/Brewfile" > "$brewfile"
         label="Brewfile (without casks)"
     fi
-    if out=$(brew bundle check --file="$brewfile" --no-upgrade --verbose 2>&1); then
+    if out=$(HOMEBREW_NO_AUTO_UPDATE=1 brew bundle check --file="$brewfile" --no-upgrade --verbose 2>&1); then
         ok "$label"
     else
         fail "$label" "$(echo "$out" | grep -v '^Satisfy' | tr '\n' ' ')"

@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "rtk hook claude"
+            "command": "python3 -I $HOME/dotfiles/claude/hooks/guard-main-and-merge.py"
           }
         ]
       }
@@ -18,19 +18,23 @@
   },
   "enabledPlugins": {
     "superpowers@claude-plugins-official": true,
-    "claude-md-management@claude-plugins-official": true
+    "claude-md-management@claude-plugins-official": true,
+    "mattpocock-skills@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true
   },
   "outputStyle": "Concise",
-  "effortLevel": "high",
+  "effortLevel": "xhigh",
   "tui": "fullscreen",
   "skipWorkflowUsageWarning": true,
   "agentPushNotifEnabled": true,
   "switchModelsOnFlag": false,
   "autoCompactWindow": 300000,
   "env": {
-    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
+    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet",
+    "CLAUDE_CODE_IDLE_COMPACT_MIN_TOKENS": "150000"
   },
-  "cleanupPeriodDays": 1825,
+  "cleanupPeriodDays": 3650,
   "modelSettings": {
     "claude-sonnet-5-5": {
       "maxEffortLevel": "medium"
@@ -39,7 +43,7 @@
       "maxEffortLevel": "medium"
     },
     "claude-opus-5-5": {
-      "effortLevel": "high"
+      "effortLevel": "xhigh"
     }
   }
 }

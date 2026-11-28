@@ -26,7 +26,7 @@ brew "delta"
 
 # Development
 brew "n"
-brew "pyenv"
+brew "uv"
 brew "starship"
 brew "lazygit"
 brew "shellcheck"
