@@ -110,6 +110,13 @@ if out=$("$DOTFILES/scripts/merge-claude-settings.sh" --check 2>&1); then
 else
     fail "Claude settings" "$out (run scripts/merge-claude-settings.sh)"
 fi
+# config/claude-settings.json runs the guard hook from this fixed path
+guard="$HOME/dotfiles/claude/hooks/guard-main-and-merge.py"
+if [ -f "$guard" ]; then
+    ok "Claude guard hook at ~/dotfiles/claude/hooks"
+else
+    fail "Claude guard hook" "$guard is missing; until it exists every Bash command asks for approval"
+fi
 # Agent, skill and script links and the CLAUDE.md import; link-claude.sh
 # prints its own OK/SKIP/FAIL lines
 out=$("$DOTFILES/scripts/link-claude.sh" --check 2>&1)

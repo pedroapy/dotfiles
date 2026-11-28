@@ -28,7 +28,7 @@ jobs:
       - name: Shellcheck
         run: |
           command -v shellcheck >/dev/null || brew install shellcheck
-          shellcheck -x setup.sh scripts/*.sh scripts/tests/*.sh claude/scripts/*.sh bin/git-hist .githooks/pre-commit
+          shellcheck -x setup.sh scripts/*.sh scripts/tests/*.sh claude/scripts/*.sh claude/hooks/tests/*.sh bin/git-hist .githooks/pre-commit
 
       - name: Claude guard hook tests
         run: bash claude/hooks/tests/guard-main-and-merge-test.sh

@@ -11,7 +11,7 @@ Handoff of the task "$ARGUMENTS":
 
 Steps:
 
-1. If a list of tasks shows above instead of a handoff (there was no argument, or none or several tasks match), show it and ask which one. Do nothing else.
+1. If no single task matched (there was no argument, or none or several tasks match), the script printed the list of paused tasks above instead of a handoff. Show that list, ask Pedro which task to resume, and do nothing else until he answers; then run `~/.claude/scripts/handoff.sh take <number or name>` with his choice and carry on from step 2.
 2. If the handoff's folder is not this session's directory, say so in one line and ask whether to carry on here or open the session in that folder.
 3. If you are in the handoff's folder, check only with `git status --short` and `git log -1 --oneline` whether the branch has changed since the pause. Do not reread the key files until the next step needs them.
 4. Reply in 3-5 lines: what the task is, where it stopped and the next step. If the next step does not need a decision from Pedro, start on it. If it does, ask.

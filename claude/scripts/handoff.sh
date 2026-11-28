@@ -12,7 +12,8 @@ usage() {
   cat >&2 <<'EOF'
 usage: handoff.sh list
        handoff.sh show <n|name>     print the handoff without changing it
-       handoff.sh take <n|name>     print it and mark it "in progress"
+       handoff.sh take <n|name>     print it and mark it "in progress"; with no
+                                    single match, print the list and exit 0
        handoff.sh save <slug> <title> < body
        handoff.sh done <n|name>     close it (moves it to cerradas/)
 EOF
@@ -42,13 +43,14 @@ sorted() {
 }
 
 # Resolve a number from the list, an exact slug, or part of a slug or title.
+# Prints the file, or, with status 2, why nothing single matched and the list.
 resolve() {
   local q="$1" files f n=0 hits=()
   files=$(sorted)
   if [[ "$q" =~ ^[0-9]+$ ]]; then
     f=$(printf '%s\n' "$files" | sed -n "${q}p")
     [[ -n "$f" ]] && { echo "$f"; return; }
-    echo "There is no task number $q." >&2; list >&2; exit 2
+    echo "There is no task number $q."; list; exit 2
   fi
   [[ -f "$DIR/$q.md" ]] && { echo "$DIR/$q.md"; return; }
   while IFS= read -r f; do
@@ -58,10 +60,17 @@ resolve() {
     fi
   done <<< "$files"
   if (( n == 1 )); then echo "${hits[0]}"; return; fi
-  if (( n == 0 )); then echo "No open task matches \"$q\"." >&2
-  else echo "Several tasks match \"$q\"; pick one:" >&2; fi
-  list >&2
+  if (( n == 0 )); then echo "No open task matches \"$q\"."
+  else echo "Several tasks match \"$q\"; pick one:"; fi
+  list
   exit 2
+}
+
+# The file `resolve` finds; otherwise its message on stderr and exit 2.
+resolve_or_exit() {
+  local f
+  f=$(resolve "$1") || { printf '%s\n' "$f" >&2; exit 2; }
+  echo "$f"
 }
 
 set_field() { # file field value
@@ -123,7 +132,7 @@ save() {
 }
 
 show() {
-  local f; f=$(resolve "$1")
+  local f; f=$(resolve_or_exit "$1")
   echo "Task: $(basename "$f" .md) - $(field "$f" title)"
   echo "Folder: $(field "$f" cwd) | branch $(field "$f" branch) | uncommitted at pause: $(field "$f" uncommitted) | unpushed: $(field "$f" unpushed)"
   echo "Last commit at pause: $(field "$f" last_commit) | paused: $(field "$f" updated)"
@@ -131,14 +140,18 @@ show() {
   body "$f"
 }
 
+# /retoma runs this: Claude Code drops a skill whose command fails, so when no
+# single task matches it prints the list and exits 0 for Claude to ask which.
 take() {
-  local f; f=$(resolve "$1")
+  local f
+  if [[ -z "${1:-}" ]]; then echo "No task named. Paused tasks:"; list; return; fi
+  f=$(resolve "$1") || { printf '%s\n' "$f"; return 0; }
   set_field "$f" status "in progress since $(date "+%d-%m %H:%M")"
   show "$(basename "$f" .md)"
 }
 
 done_() {
-  local f slug; f=$(resolve "$1"); slug=$(basename "$f" .md)
+  local f slug; f=$(resolve_or_exit "$1"); slug=$(basename "$f" .md)
   set_field "$f" status "closed $(date '+%Y-%m-%d')"
   mv "$f" "$DIR/cerradas/$slug-$(date +%Y%m%d%H%M).md"
   echo "Closed: $slug"
@@ -148,7 +161,7 @@ cmd="${1:-}"; shift || true
 case "$cmd" in
   list) list ;;
   show) [[ -n "${1:-}" ]] || usage; show "$1" ;;
-  take) [[ -n "${1:-}" ]] || usage; take "$1" ;;
+  take) take "${1:-}" ;;
   save) save "$@" ;;
   done) [[ -n "${1:-}" ]] || usage; done_ "$1" ;;
   *) usage ;;

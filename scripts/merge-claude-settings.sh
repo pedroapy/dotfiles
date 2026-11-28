@@ -45,6 +45,12 @@ if [ "${1:-}" = "--check" ]; then
     exit 0
 fi
 
+# The shared hooks run the guard from ~/dotfiles, whatever DOTFILES says; from
+# anywhere else every guarded call asks for the user's OK.
+if [ "$(cd "$DOTFILES" 2>/dev/null && pwd -P)" != "$(cd "$HOME/dotfiles" 2>/dev/null && pwd -P)" ]; then
+    echo "[!] DOTFILES is $DOTFILES, but config/claude-settings.json runs its hooks from ~/dotfiles; clone or link the repo there" >&2
+fi
+
 mkdir -p "$HOME/.claude"
 
 # Replace an old symlink into the repo with a real file holding its content

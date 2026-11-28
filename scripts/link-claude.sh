@@ -10,11 +10,12 @@
 # For each ~/.claude/<group>/<name>:
 #   - missing: link it
 #   - already the right link: nothing, so a rerun is a no-op
-#   - real file or directory: move it to ~/.claude/backups/dotfiles-<time>/,
-#     outside ~/.claude/skills where Claude Code would load it as a duplicate,
-#     then link
-#   - a link to somewhere else: leave it, another installer (such as a private
-#     config repo) owns that name
+#   - real file or directory, or a broken link (its target is gone): move it
+#     to ~/.dotfiles-backups/claude-<time>/<path>, then link. Not inside
+#     ~/.claude: Claude Code would load a backed-up skill as a duplicate, and
+#     it rotates the files in ~/.claude/backups
+#   - a working link to somewhere else: leave it, another installer (such as a
+#     private config repo) owns that name
 # A group directory (~/.claude/agents, skills or scripts) that is itself a
 # symlink belongs to another repo: the whole group is skipped and nothing is
 # written into it. ~/.claude/CLAUDE.md is created with the import when missing;
@@ -23,8 +24,13 @@
 set -euo pipefail
 
 DOTFILES="${DOTFILES:-$HOME/dotfiles}"
+# Without trailing slashes, or the links it made would not match their targets
+while [ "${DOTFILES%/}" != "$DOTFILES" ] && [ -n "${DOTFILES%/}" ]; do
+    DOTFILES="${DOTFILES%/}"
+done
 SRC="$DOTFILES/claude"
 CLAUDE_DIR="$HOME/.claude"
+BACKUP_ROOT="$HOME/.dotfiles-backups"
 LINK_GROUPS="agents skills scripts"
 
 # The import line, written with ~ when the repo lives under HOME
@@ -102,11 +108,12 @@ items() {
     done
 }
 
-# Move the real file or directory at ~/.claude/<rel> into this run's backup.
+# Move what is at ~/.claude/<rel> (a real file or directory, or a broken link)
+# into this run's backup.
 backup() {
     local rel=$1 base n=1
     if [ -z "$BACKUP" ]; then
-        base="$CLAUDE_DIR/backups/dotfiles-$(date +%Y%m%d-%H%M%S)"
+        base="$BACKUP_ROOT/claude-$(date +%Y%m%d-%H%M%S)"
         BACKUP=$base
         while [ -e "$BACKUP" ]; do
             BACKUP="$base-$n"
@@ -119,18 +126,21 @@ backup() {
 }
 
 link_item() {
-    local rel=$1 src="$SRC/$1" dst="$CLAUDE_DIR/$1" kind
-    if [ -L "$dst" ]; then
-        if [ "$(readlink "$dst")" = "$src" ]; then
-            report ok "$dst"
+    local rel=$1 src="$SRC/$1" dst="$CLAUDE_DIR/$1" what
+    if [ -L "$dst" ] && [ "$(readlink "$dst")" = "$src" ]; then
+        report ok "$dst"
+    elif [ -L "$dst" ] && [ -e "$dst" ]; then
+        report skip "$dst" "points to $(short "$(readlink "$dst")"), managed elsewhere"
+    elif [ -L "$dst" ] || [ -e "$dst" ]; then
+        if [ -L "$dst" ]; then
+            what="broken link to $(short "$(readlink "$dst")")"
+        elif [ -d "$dst" ]; then
+            what="real directory, not a link"
         else
-            report skip "$dst" "points to $(short "$(readlink "$dst")"), managed elsewhere"
+            what="real file, not a link"
         fi
-    elif [ -e "$dst" ]; then
-        kind="file"
-        if [ -d "$dst" ]; then kind=directory; fi
         if [ "$CHECK" = 1 ]; then
-            report fail "$dst" "real $kind, not a link (scripts/link-claude.sh backs it up and links it)"
+            report fail "$dst" "$what (scripts/link-claude.sh backs it up and links it)"
         else
             backup "$rel"
             # -n: never follow an existing link to a directory and link inside it

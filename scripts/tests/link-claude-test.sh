@@ -46,7 +46,7 @@ for rel in $ITEMS; do
   check "fresh: $rel linked" links_to "$H/.claude/$rel" "$D/claude/$rel"
 done
 check "fresh: CLAUDE.md holds only the import" same "$(cat "$H/.claude/CLAUDE.md")" "@~/dotfiles/claude/CLAUDE.md"
-check "fresh: no backup" [ ! -e "$H/.claude/backups" ]
+check "fresh: no backup" [ ! -e "$H/.dotfiles-backups" ]
 run --check; rc=$?
 check "fresh: --check after install exits 0" same "$rc" 0
 check "fresh: --check reports OK lines" grep -q '^  OK    ~/.claude/skills/alpha$' "$out"
@@ -56,7 +56,7 @@ before=$(snapshot)
 run; rc=$?
 check "rerun: exits 0" same "$rc" 0
 check "rerun: nothing changes" same "$(snapshot)" "$before"
-check "rerun: no backup" [ ! -e "$H/.claude/backups" ]
+check "rerun: no backup" [ ! -e "$H/.dotfiles-backups" ]
 check "rerun: no link or backup lines" absent grep -qE '^\[(\+|backup)\]' "$out"
 
 # Real files and a real skill directory are backed up, then linked.
@@ -74,9 +74,10 @@ check "real: --check names the real directory" grep -q '^  FAIL  ~/.claude/skill
 check "real: --check moves nothing" [ ! -L "$H/.claude/agents/one.md" ]
 run; rc=$?
 check "real: install exits 0" same "$rc" 0
-backups=$(ls "$H/.claude/backups" 2>/dev/null)
-check "real: one backup directory" same "$(printf '%s\n' "$backups" | grep -c '^dotfiles-')" 1
-b="$H/.claude/backups/$backups"
+backups=$(ls "$H/.dotfiles-backups" 2>/dev/null)
+check "real: one backup directory" same "$(printf '%s\n' "$backups" | grep -c '^claude-')" 1
+check "real: nothing backed up inside ~/.claude" [ ! -e "$H/.claude/backups" ]
+b="$H/.dotfiles-backups/$backups"
 check "real: agent backed up" same "$(cat "$b/agents/one.md" 2>/dev/null)" "old agent"
 check "real: skill directory backed up whole" same "$(cat "$b/skills/alpha/notes.md" 2>/dev/null)" "old notes"
 check "real: script backed up" same "$(cat "$b/scripts/handoff.sh" 2>/dev/null)" "old script"
@@ -88,10 +89,10 @@ check "real: unrelated script untouched" same "$(cat "$H/.claude/scripts/other.s
 check "real: nothing written into the dotfiles skill" same "$(ls -A "$D/claude/skills/alpha")" "SKILL.md"
 run; rc=$?
 check "real: rerun exits 0" same "$rc" 0
-check "real: rerun makes no new backup" same "$(entries "$H/.claude/backups")" 1
+check "real: rerun makes no new backup" same "$(entries "$H/.dotfiles-backups")" 1
 rm "$H/.claude/agents/two.md"; echo "old two" >"$H/.claude/agents/two.md"
 run
-check "real: a later backup gets its own directory" same "$(entries "$H/.claude/backups")" 2
+check "real: a later backup gets its own directory" same "$(entries "$H/.dotfiles-backups")" 2
 check "real: the first backup is intact" same "$(cat "$b/agents/one.md" 2>/dev/null)" "old agent"
 
 # A link that points somewhere else belongs to another installer.
@@ -108,6 +109,25 @@ check "foreign: target untouched" same "$(cat "$H/private/one.md")" "private"
 run --check; rc=$?
 check "foreign: --check exits 0" same "$rc" 0
 check "foreign: --check reports SKIP" grep -q '^  SKIP  ~/.claude/agents/one.md' "$out"
+
+# A broken link (its target is gone) is backed up and replaced, not skipped.
+new_home broken
+mkdir -p "$H/.claude/agents" "$H/.claude/skills"
+ln -s "$H/gone/one.md" "$H/.claude/agents/one.md"
+ln -s "$H/gone/alpha" "$H/.claude/skills/alpha"
+run --check; rc=$?
+check "broken: --check exits 1" same "$rc" 1
+check "broken: --check reports the broken link" grep -q '^  FAIL  ~/.claude/agents/one.md: broken link to ~/gone/one.md' "$out"
+check "broken: --check changes nothing" links_to "$H/.claude/agents/one.md" "$H/gone/one.md"
+run; rc=$?
+check "broken: install exits 0" same "$rc" 0
+check "broken: agent relinked" links_to "$H/.claude/agents/one.md" "$D/claude/agents/one.md"
+check "broken: skill relinked" links_to "$H/.claude/skills/alpha" "$D/claude/skills/alpha"
+b="$H/.dotfiles-backups/$(ls "$H/.dotfiles-backups" 2>/dev/null)"
+check "broken: old agent link kept in the backup" links_to "$b/agents/one.md" "$H/gone/one.md"
+check "broken: old skill link kept in the backup" links_to "$b/skills/alpha" "$H/gone/alpha"
+run --check; rc=$?
+check "broken: --check after install exits 0" same "$rc" 0
 
 # A symlinked group directory is skipped whole and never written into.
 new_home group
@@ -148,6 +168,17 @@ new_home outside "$root/elsewhere/dots"
 run
 check "outside: import uses the absolute path" same "$(cat "$H/.claude/CLAUDE.md")" "@$root/elsewhere/dots/claude/CLAUDE.md"
 check "outside: agents linked" links_to "$H/.claude/agents/one.md" "$root/elsewhere/dots/claude/agents/one.md"
+
+# A trailing slash on DOTFILES makes the same links, so they stay its own.
+new_home slash
+HOME="$H" DOTFILES="$D/" "$SCRIPT" >"$out" 2>&1; rc=$?
+check "slash: install exits 0" same "$rc" 0
+for rel in $ITEMS; do
+  check "slash: $rel linked without the slash" links_to "$H/.claude/$rel" "$D/claude/$rel"
+done
+HOME="$H" DOTFILES="$D//" "$SCRIPT" --check >"$out" 2>&1; rc=$?
+check "slash: --check exits 0" same "$rc" 0
+check "slash: --check skips nothing" absent grep -q 'SKIP' "$out"
 
 run --bogus; rc=$?
 check "unknown option exits 2" same "$rc" 2
