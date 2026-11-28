@@ -159,9 +159,17 @@ ln -s "$H/private.md" "$H/.claude/CLAUDE.md"
 run
 check "CLAUDE.md: symlink left as it was" links_to "$H/.claude/CLAUDE.md" "$H/private.md"
 check "CLAUDE.md: symlink target untouched" same "$(cat "$H/private.md")" "private rules"
+check "CLAUDE.md: symlink without the import skipped" grep -q '^\[skip\] ~/.claude/CLAUDE.md (symlink to ~/private.md, managed elsewhere)' "$out"
+run --check; rc=$?
+check "CLAUDE.md: --check exits 0 for a symlink managed elsewhere" same "$rc" 0
+check "CLAUDE.md: --check reports the symlink as managed elsewhere" grep -q '^  SKIP  ~/.claude/CLAUDE.md (symlink to' "$out"
 printf 'intro\n@~/dotfiles/claude/CLAUDE.md\nmore\n' >"$H/private.md"
 run --check; rc=$?
 check "CLAUDE.md: --check exits 0 once it imports the shared file" same "$rc" 0
+rm "$H/private.md"
+run --check; rc=$?
+check "CLAUDE.md: --check exits 1 for a broken symlink" same "$rc" 1
+check "CLAUDE.md: broken symlink not skipped" absent grep -q 'SKIP  ~/.claude/CLAUDE.md' "$out"
 
 # A repo outside HOME is imported by its absolute path.
 new_home outside "$root/elsewhere/dots"
