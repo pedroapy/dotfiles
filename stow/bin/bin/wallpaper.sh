@@ -53,7 +53,8 @@ random_all() {
 }
 
 thumb() {
-    local img="$1" out="$THUMBS/$(basename "${img%.*}").png"
+    local img="$1" out
+    out="$THUMBS/$(basename "${img%.*}").png"
     if [[ ! -s "$out" || "$img" -nt "$out" ]]; then
         mkdir -p "$THUMBS"
         python3 -I - "$img" "$out" <<'EOF' >/dev/null 2>&1 || cp "$img" "$out"

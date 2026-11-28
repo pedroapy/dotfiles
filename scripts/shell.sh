@@ -2,10 +2,16 @@
 # ── Shell setup (zsh + zinit) ────────────────────
 set -euo pipefail
 
-# Set zsh as default shell
-if [[ "$SHELL" != */zsh ]]; then
+# Set zsh as default shell (login shell from passwd: $SHELL may be unset or stale)
+login_shell=$(getent passwd "$(id -un)" | cut -d: -f7)
+if [[ "$login_shell" != */zsh ]]; then
     info "Setting zsh as default shell..."
-    chsh -s "$(command -v zsh)"
+    if interactive; then
+        chsh -s "$(command -v zsh)"
+    else
+        # No password prompt: sudo is already authorised by install.sh
+        sudo chsh -s "$(command -v zsh)" "$(id -un)"
+    fi
     success "zsh set as default shell"
 else
     success "zsh already default shell"

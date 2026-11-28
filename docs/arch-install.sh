@@ -31,6 +31,7 @@ USERNAME="user"
 TIMEZONE="Europe/Madrid"
 LOCALE="en_US.UTF-8"
 KEYMAP="us"
+# shellcheck disable=SC2034 # placeholder, may be set from arch-install.local.conf
 EXTRA_KEYMAP="es"
 
 # NFS mounts — array of "remote:export  local_mountpoint" pairs.
@@ -65,7 +66,6 @@ echo ""
 for disk in $(lsblk -dnp -o NAME,TYPE | awk '$2=="disk"{print $1}'); do
     echo -e "${BLUE}━━━ ${disk} ($(lsblk -dn -o SIZE "${disk}") — $(lsblk -dn -o MODEL "${disk}"))${NC}"
     lsblk -np -o NAME,SIZE,FSTYPE,LABEL,PARTLABEL "${disk}" | tail -n +2 | while read -r line; do
-        part=$(echo "$line" | awk '{print $1}')
         # Highlight Windows and EFI partitions
         if echo "$line" | grep -qi "microsoft\|windows\|EFI system"; then
             echo -e "  ${RED}${line}  ← WINDOWS/EFI${NC}"
@@ -100,7 +100,7 @@ for i in "${!DISKS[@]}"; do
 done
 echo ""
 
-read -p "Enter disk number [0-$((${#DISKS[@]}-1))]: " disk_choice
+read -rp "Enter disk number [0-$((${#DISKS[@]}-1))]: " disk_choice
 
 if [[ ! "$disk_choice" =~ ^[0-9]+$ ]] || [[ "$disk_choice" -ge "${#DISKS[@]}" ]]; then
     warn "Invalid selection."
@@ -133,7 +133,7 @@ if [[ -n "$PARTS" ]]; then
 fi
 
 echo ""
-read -p "Type 'YES' to ERASE ${DISK} and install Arch: " confirm
+read -rp "Type 'YES' to ERASE ${DISK} and install Arch: " confirm
 if [[ "$confirm" != "YES" ]]; then
     echo "Aborted."
     exit 1
@@ -525,7 +525,7 @@ info "       ./install.sh"
 echo ""
 info "  BIOS: Set boot order to '${DISK}' first (Arch), Windows second"
 echo ""
-read -p "Unmount and reboot now? [y/N]: " reboot_confirm
+read -rp "Unmount and reboot now? [y/N]: " reboot_confirm
 if [[ "$reboot_confirm" == "y" || "$reboot_confirm" == "Y" ]]; then
     umount -R /mnt
     reboot

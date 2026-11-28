@@ -142,9 +142,11 @@ fi
 
 # Default browser
 if command -v xdg-settings &>/dev/null; then
-    xdg-settings set default-web-browser brave-browser.desktop 2>/dev/null && \
-        success "Default browser set to Brave" || \
+    if xdg-settings set default-web-browser brave-browser.desktop 2>/dev/null; then
+        success "Default browser set to Brave"
+    else
         warn "Could not set default browser"
+    fi
 fi
 
 # NetworkManager-wait-online: disabled (chronically fails on cable-only

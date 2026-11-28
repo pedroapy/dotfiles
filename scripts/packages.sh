@@ -29,19 +29,27 @@ if [[ -n "$official_pkgs" ]]; then
 fi
 
 # AMD GPU drivers (official repos — use pacman directly)
-info "Installing AMD GPU drivers..."
-amd_pkgs=$(parse_packages "$DOTFILES/packages/amd-gpu.txt")
-if [[ -n "$amd_pkgs" ]]; then
-    echo "$amd_pkgs" | xargs sudo pacman -S --needed --noconfirm
-    success "AMD GPU drivers installed"
+if skip_step gpu; then
+    warn "Skipping AMD GPU drivers (DOTFILES_SKIP)"
+else
+    info "Installing AMD GPU drivers..."
+    amd_pkgs=$(parse_packages "$DOTFILES/packages/amd-gpu.txt")
+    if [[ -n "$amd_pkgs" ]]; then
+        echo "$amd_pkgs" | xargs sudo pacman -S --needed --noconfirm
+        success "AMD GPU drivers installed"
+    fi
 fi
 
 # AUR packages
-info "Installing AUR packages..."
-aur_pkgs=$(parse_packages "$DOTFILES/packages/aur.txt")
-if [[ -n "$aur_pkgs" ]]; then
-    echo "$aur_pkgs" | xargs yay -S --needed --noconfirm
-    success "AUR packages installed"
+if skip_step aur; then
+    warn "Skipping AUR packages (DOTFILES_SKIP)"
+else
+    info "Installing AUR packages..."
+    aur_pkgs=$(parse_packages "$DOTFILES/packages/aur.txt")
+    if [[ -n "$aur_pkgs" ]]; then
+        echo "$aur_pkgs" | xargs yay -S --needed --noconfirm
+        success "AUR packages installed"
+    fi
 fi
 
 # Install Node.js LTS via n (n must be installed first from AUR)

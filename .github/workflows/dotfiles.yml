@@ -1,0 +1,58 @@
+name: dotfiles
+
+on:
+  push:
+    branches: [archlinux]
+  pull_request:
+    branches: [archlinux]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    timeout-minutes: 60
+    env:
+      # install.sh without prompts; identity is a placeholder, never a real one.
+      # A container has no systemd, GPU or desktop session, so these steps are
+      # left out (see the header of install.sh); the doctor skips the same ones.
+      #   aur       yay build + AUR packages (+ Node.js via n, from the AUR)
+      #   gpu       AMD drivers and microcode
+      #   system    /etc files, sysctl, greetd, zram, snapper, docker group
+      #   services  systemd units and ufw
+      DOTFILES_NONINTERACTIVE: "1"
+      DOTFILES_SKIP: aur gpu system services
+      DOTFILES_GIT_NAME: dotfiles-ci
+      DOTFILES_GIT_EMAIL: ci@example.invalid
+    steps:
+      # git before checkout, so the checkout is a real repository
+      - name: Prepare container
+        run: |
+          pacman -Syu --noconfirm --needed git sudo shellcheck
+          # install.sh runs as a normal user with sudo, as on the desktop
+          useradd -m -s /bin/bash builder
+          echo 'builder ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/builder
+
+      - uses: actions/checkout@v5
+
+      - name: Shellcheck
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git ls-files -z '*.sh' .githooks/pre-commit | xargs -0 shellcheck -x
+
+      - name: Copy checkout to the builder's home
+        run: |
+          cp -a "$GITHUB_WORKSPACE" /home/builder/dotfiles
+          chown -R builder:builder /home/builder/dotfiles
+
+      - name: Run install.sh
+        run: sudo -u builder -H --preserve-env=CI,DOTFILES_NONINTERACTIVE,DOTFILES_SKIP,DOTFILES_GIT_NAME,DOTFILES_GIT_EMAIL /home/builder/dotfiles/install.sh
+
+      - name: Run doctor
+        run: sudo -u builder -H --preserve-env=DOTFILES_SKIP /home/builder/dotfiles/scripts/doctor.sh
+
+      - name: Run install.sh again (idempotent)
+        run: sudo -u builder -H --preserve-env=CI,DOTFILES_NONINTERACTIVE,DOTFILES_SKIP,DOTFILES_GIT_NAME,DOTFILES_GIT_EMAIL /home/builder/dotfiles/install.sh

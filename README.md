@@ -91,6 +91,8 @@ chmod +x install.sh
 
 This installs all packages, applies configs via GNU Stow, enables services, and sets up the firewall. It is idempotent — safe to re-run at any time.
 
+Check the result at any time with `scripts/doctor.sh`: read-only, one OK/WARN/FAIL line per item (packages, stow links, shell, git identity and gitleaks hook, Claude statusline, system files, systemd units), exit 1 on any FAIL. Missing AUR packages are only a WARN. Unattended runs use the variables documented at the top of `install.sh` (`DOTFILES_NONINTERACTIVE`, `DOTFILES_GIT_NAME`/`DOTFILES_GIT_EMAIL`, `DOTFILES_SKIP`); CI runs the installer and the doctor in an `archlinux` container with the AUR, GPU, system and services steps skipped.
+
 ### Step 3: Post-install (manual)
 
 See [docs/post-install.md](docs/post-install.md) for:

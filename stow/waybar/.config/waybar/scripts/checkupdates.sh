@@ -17,5 +17,6 @@ else
         PKGLIST="${PKGLIST}\n--- AUR ---\n${AURLIST}"
     fi
     PKGLIST=$(echo -e "$PKGLIST" | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
+    # shellcheck disable=SC2028 # \\n is meant literally: JSON escapes for waybar
     echo "{\"text\":\"󰏗 ${TOTAL}\",\"tooltip\":\"${OFFICIAL} official, ${AUR} AUR\\n\\n${PKGLIST}\",\"class\":\"updates-available\"}"
 fi

@@ -7,15 +7,20 @@ info "Configuring git..."
 
 LOCAL_GITCONFIG="$HOME/.gitconfig_local"
 
-if [[ ! -f "$LOCAL_GITCONFIG" ]]; then
-    read -p "Git user name: " git_name
-    read -p "Git user email: " git_email
-    cat > "$LOCAL_GITCONFIG" << EOF
-[user]
-    name = $git_name
-    email = $git_email
-EOF
-    success "Git user config written to ~/.gitconfig_local"
+if ! git config --file "$LOCAL_GITCONFIG" user.email &>/dev/null; then
+    git_name="${DOTFILES_GIT_NAME:-}"
+    git_email="${DOTFILES_GIT_EMAIL:-}"
+    if interactive; then
+        [[ -n "$git_name" ]] || read -rp "Git user name: " git_name
+        [[ -n "$git_email" ]] || read -rp "Git user email: " git_email
+    fi
+    if [[ -n "$git_name" && -n "$git_email" ]]; then
+        git config --file "$LOCAL_GITCONFIG" user.name "$git_name"
+        git config --file "$LOCAL_GITCONFIG" user.email "$git_email"
+        success "Git user config written to ~/.gitconfig_local"
+    else
+        warn "Skipping ~/.gitconfig_local (set DOTFILES_GIT_NAME and DOTFILES_GIT_EMAIL)"
+    fi
 else
     success "Git user config already exists (~/.gitconfig_local)"
 fi
