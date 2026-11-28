@@ -19,8 +19,9 @@
 # A group directory (~/.claude/agents, skills or scripts) that is itself a
 # symlink belongs to another repo: the whole group is skipped and nothing is
 # written into it. ~/.claude/CLAUDE.md is created with the import when missing;
-# an existing one, file or symlink, is never changed, only reported when it
-# lacks the import.
+# an existing one, file or symlink, is never changed. A file without the import
+# is reported; a working symlink without it is skipped as managed elsewhere,
+# and a broken one is reported.
 set -euo pipefail
 
 DOTFILES="${DOTFILES:-$HOME/dotfiles}"
@@ -161,6 +162,10 @@ link_claude_md() {
     if [ -e "$f" ] || [ -L "$f" ]; then
         if grep -qxF -e "$IMPORT" -e "$IMPORT_ABS" "$f" 2>/dev/null; then
             report ok "$f" "imports claude/CLAUDE.md"
+        elif [ -L "$f" ] && [ -e "$f" ]; then
+            # Like a symlinked group directory: another config repo owns it and
+            # may import a copy of the shared file from its own tree
+            report skip "$f" "symlink to $(short "$(readlink "$f")"), managed elsewhere"
         else
             report warn "$f" "does not import the shared file; add the line $IMPORT (left untouched)"
         fi

@@ -2,6 +2,7 @@
 name: scout
 description: Fast, cheap, read-only search. Locates files, symbols and usages, sweeps the codebase with grep or LSP, reads large files or logs and extracts only what matters, and pulls facts from a docs page. Returns conclusions with file:line, never dumps.
 model: haiku
+effort: medium
 omitClaudeMd: true
 tools: Read, Grep, Glob, Bash, WebFetch, LSP
 ---
