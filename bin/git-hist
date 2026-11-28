@@ -1,3 +1,5 @@
 #!/bin/sh
-
-for k in `git branch|perl -pe s/^..//`;do echo -e `git show --pretty=format:"%Cgreen%ci %Cblue%cr%Creset" $k|head -n 1`\\t$k;done|sort -r|head -15
+# Last 15 local branches by commit date, newest first
+git for-each-ref --sort=-committerdate --count=15 \
+    --format='%(color:green)%(committerdate:iso) %(color:blue)%(committerdate:relative)%(color:reset)	%(refname:short)' \
+    refs/heads/

@@ -1,18 +1,60 @@
 #!/bin/bash
 set -e
 
-DOTFILES="$HOME/dotfiles"
+DOTFILES="${DOTFILES:-$HOME/dotfiles}"
+
+# Non-interactive mode (CI, unattended installs): no prompts, no chsh.
+#   DOTFILES_NONINTERACTIVE=1                  set automatically when CI=true
+#   DOTFILES_GIT_NAME / DOTFILES_GIT_EMAIL     identity for ~/.gitconfig_local
+#   DOTFILES_SKIP_CASKS=1                      skip Brewfile casks (GUI apps)
+[ "${CI:-}" = "true" ] && DOTFILES_NONINTERACTIVE="${DOTFILES_NONINTERACTIVE:-1}"
+NONINTERACTIVE_MODE="${DOTFILES_NONINTERACTIVE:-0}"
 
 # Helpers
 link() { [ "$(readlink "$2" 2>/dev/null)" = "$1" ] || ln -svf "$1" "$2"; }
 has() { command -v "$1" &>/dev/null; }
+interactive() { [ "$NONINTERACTIVE_MODE" != "1" ]; }
+
+# Download an installer to a temp file and run it only once it is complete,
+# so a dropped connection never runs half a script.
+#   run_remote <shell> <url> [args...]
+run_remote() {
+    local shell=$1 url=$2 tmp rc=0
+    shift 2
+    tmp=$(mktemp "${TMPDIR:-/tmp}/dotfiles-install.XXXXXX")
+    if ! curl -fsSL --retry 3 --retry-delay 2 -o "$tmp" "$url" || [ ! -s "$tmp" ]; then
+        echo "[!] Download failed or empty: $url" >&2
+        rm -f "$tmp"
+        return 1
+    fi
+    "$shell" "$tmp" "$@" || rc=$?
+    rm -f "$tmp"
+    return "$rc"
+}
+
+# Brewfile to use: the repo one, or a copy without casks when skipping them
+brewfile() {
+    if [ "${DOTFILES_SKIP_CASKS:-0}" = "1" ]; then
+        local tmp
+        tmp=$(mktemp "${TMPDIR:-/tmp}/dotfiles-Brewfile.XXXXXX")
+        grep -v '^[[:space:]]*cask ' "$DOTFILES/Brewfile" > "$tmp"
+        echo "$tmp"
+    else
+        echo "$DOTFILES/Brewfile"
+    fi
+}
 
 echo "=== dotfiles setup ==="
 
 # 1. Homebrew
 if ! has brew; then
     echo "[+] Installing Homebrew..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    if interactive; then
+        run_remote /bin/bash https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh
+    else
+        NONINTERACTIVE=1 run_remote /bin/bash https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh
+    fi
+    # shellcheck disable=SC2016 # written literally, expanded by zsh at login
     echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
     eval "$(/opt/homebrew/bin/brew shellenv)"
 else
@@ -21,22 +63,24 @@ fi
 
 # 2. Brew packages (Brewfile)
 echo "[*] Checking brew packages..."
-brew bundle --file="$DOTFILES/Brewfile" --no-upgrade
+brew bundle --file="$(brewfile)" --no-upgrade
 
 # 3. Oh-my-zsh
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
     echo "[+] Installing oh-my-zsh..."
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    run_remote sh https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh --unattended
 else
     echo "[ok] oh-my-zsh"
 fi
 
 # 4. Zsh as default shell
-if [ "$SHELL" != "$(which zsh)" ]; then
+if [ "$SHELL" = "$(which zsh)" ]; then
+    echo "[ok] zsh is default shell"
+elif ! interactive; then
+    echo "[skip] default shell (non-interactive; run: chsh -s $(which zsh))"
+else
     echo "[+] Setting zsh as default shell..."
     chsh -s "$(which zsh)"
-else
-    echo "[ok] zsh is default shell"
 fi
 
 # 5. Zsh config
@@ -49,10 +93,18 @@ link "$DOTFILES/git/.gitconfig" "$HOME/.gitconfig"
 link "$DOTFILES/git/.gitignore_global" "$HOME/.gitignore_global"
 # Identity stays out of the public repo, in ~/.gitconfig_local
 if ! git config --file "$HOME/.gitconfig_local" user.email &>/dev/null; then
-    read -rp "Git name: " git_name
-    read -rp "Git email: " git_email
-    git config --file "$HOME/.gitconfig_local" user.name "$git_name"
-    git config --file "$HOME/.gitconfig_local" user.email "$git_email"
+    git_name="${DOTFILES_GIT_NAME:-}"
+    git_email="${DOTFILES_GIT_EMAIL:-}"
+    if interactive; then
+        [ -n "$git_name" ] || read -rp "Git name: " git_name
+        [ -n "$git_email" ] || read -rp "Git email: " git_email
+    fi
+    if [ -n "$git_name" ] && [ -n "$git_email" ]; then
+        git config --file "$HOME/.gitconfig_local" user.name "$git_name"
+        git config --file "$HOME/.gitconfig_local" user.email "$git_email"
+    else
+        echo "[skip] ~/.gitconfig_local (set DOTFILES_GIT_NAME and DOTFILES_GIT_EMAIL)"
+    fi
 fi
 # Secret scan before every commit to this repo
 git -C "$DOTFILES" config core.hooksPath .githooks
