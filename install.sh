@@ -6,6 +6,19 @@
 set -euo pipefail
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Unattended runs (CI, scripted reinstall):
+#   DOTFILES_NONINTERACTIVE=1               no prompts; set automatically when CI=true
+#   DOTFILES_GIT_NAME / DOTFILES_GIT_EMAIL  identity for ~/.gitconfig_local
+#   DOTFILES_SKIP="aur gpu system services" steps to leave out (any subset):
+#     aur       yay build, packages/aur.txt and Node.js via n
+#     gpu       packages/amd-gpu.txt
+#     system    scripts/system.sh (/etc files, sysctl, greetd, zram, snapper...)
+#     services  scripts/services.sh (systemd units, ufw)
+# scripts/doctor.sh reads the same DOTFILES_SKIP and skips the matching checks.
+[[ "${CI:-}" == "true" ]] && DOTFILES_NONINTERACTIVE="${DOTFILES_NONINTERACTIVE:-1}"
+interactive() { [[ "${DOTFILES_NONINTERACTIVE:-0}" != "1" ]]; }
+skip_step() { [[ " ${DOTFILES_SKIP:-} " == *" $1 "* ]]; }
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
@@ -37,7 +50,9 @@ info "Installing base dependencies..."
 sudo pacman -S --needed --noconfirm git base-devel curl wget
 
 # ── Step 2: yay (AUR helper) ────────────────────
-if ! command -v yay &>/dev/null; then
+if skip_step aur; then
+    warn "Skipping yay (DOTFILES_SKIP)"
+elif ! command -v yay &>/dev/null; then
     info "Installing yay..."
     tmpdir=$(mktemp -d)
     git clone https://aur.archlinux.org/yay.git "$tmpdir/yay"
@@ -75,10 +90,18 @@ source "$DOTFILES/scripts/stow.sh"
 source "$DOTFILES/scripts/git.sh"
 
 # ── Step 8: System configuration ────────────────
-source "$DOTFILES/scripts/system.sh"
+if skip_step system; then
+    warn "Skipping system configuration (DOTFILES_SKIP)"
+else
+    source "$DOTFILES/scripts/system.sh"
+fi
 
 # ── Step 9: Services ────────────────────────────
-source "$DOTFILES/scripts/services.sh"
+if skip_step services; then
+    warn "Skipping services (DOTFILES_SKIP)"
+else
+    source "$DOTFILES/scripts/services.sh"
+fi
 
 # ── Done ─────────────────────────────────────────
 echo ""

@@ -17,7 +17,8 @@ RL7D_RESET=$(echo "$input" | jq -r '.rate_limits.seven_day.resets_at // empty')
 # Function to convert epoch to remaining time
 time_remaining() {
     local reset_epoch="$1"
-    local now=$(date +%s)
+    local now
+    now=$(date +%s)
     local diff=$((reset_epoch - now))
     [ "$diff" -le 0 ] && echo "now" && return
     local h=$((diff / 3600))
